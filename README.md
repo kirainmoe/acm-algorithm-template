@@ -25,15 +25,15 @@ Still collecting.....
 
 ### 传统的 Dijkstra 解法
   
-O(n^2), [dijkstra-traditional.cpp](blob/master/single-source-shortest-path/dijkstra-traditional.cpp), 数据大的话基本不能用，实测 HDU1874 在 15ms 左右。
+O(n^2), [dijkstra-traditional.cpp](single-source-shortest-path/dijkstra-traditional.cpp), 数据大的话基本不能用，实测 HDU1874 在 15ms 左右。
 
 ### 使用优先队列优化的 Dijkstra
 
-O(mlogn), [dijkstra-priority-queue.cpp](blob/master/single-source-shortest-path/dijkstra-priority-queue.cpp)，HDU1874 在 15ms 左右，但是更多的情况下应该会比上面那个快。
+O(mlogn), [dijkstra-priority-queue.cpp](single-source-shortest-path/dijkstra-priority-queue.cpp)，HDU1874 在 15ms 左右，但是更多的情况下应该会比上面那个快。
 
 ### SPFA 解法
 
-O(me), [spfa.cpp](blob/master/single-source-shortest-path/spfa.cpp), 好写极了.
+O(me), [spfa.cpp](single-source-shortest-path/spfa.cpp), 好写极了.
 
 ## 最小生成树 / MST
 
@@ -43,11 +43,11 @@ O(me), [spfa.cpp](blob/master/single-source-shortest-path/spfa.cpp), 好写极�
 
 > 问题背景1 HDU1233：http://acm.hdu.edu.cn/showproblem.php?pid=1233
 
-[1233-kruskal.cpp](blob/master/mst/1233-kruskal.cpp)
+[1233-kruskal.cpp](mst/1233-kruskal.cpp)
 
 > 问题背景2 HDU1863：http://acm.hdu.edu.cn/showproblem.php?pid=1863
 
-[1863-kruskal.cpp](blob/master/mst/1863-kruskal.cpp)
+[1863-kruskal.cpp](mst/1863-kruskal.cpp)
 
 
 # 其他 / Others
