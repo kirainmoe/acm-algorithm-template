@@ -65,7 +65,7 @@ O(me), [spfa.cpp](single-source-shortest-path/spfa.cpp), 好写极了，也比�
 
 > 问题背景：HDU1863：http://acm.hdu.edu.cn/showproblem.php?pid=1863
 
-[1863-prim.cpp](mst/1863.cpp)
+[1863-prim.cpp](mst/1863-prim.cpp)
 
 # Mathematics
 
