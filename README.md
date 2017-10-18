@@ -11,16 +11,21 @@ Still collecting.....
 目录 / Table of Contents
 =======================
 
-  * [写在前面](#_1)
+  * [写在前面](#写在前面)
   * [单源最短路](#single-source-shortest-path)
     * [传统 Dijkstra 解法](#traditional-dijkstra)
     * [使用优先队列优化的 Dijkstra](#priority-queue-optimized-dijkstra)
     * [SPFA](#spfa)
+  * [多源最短路](#multi-source-shortest-path)
+    * [Floyd-Warshall](#floyd-warshall)
+    * [调用 n 次 SPFA/Dijkstra](#spfa-for-mssp)
   * [最小生成树](#mst)
     * [Kruskal](#kruskal)
     * [Prim](#prim)
   * [数论专题](#mathematics)
     * [最小公约数和最大公倍数](#gcd-lcm)
+  * [字符串匹配](#string-matching)
+    * [KMP 算法](#kmp-algorithm)
 
 # 写在前面
 
@@ -47,23 +52,41 @@ O(mlogn), [dijkstra-priority-queue.cpp](single-source-shortest-path/dijkstra-pri
 
 O(me), [spfa.cpp](single-source-shortest-path/spfa.cpp), 好写极了，也比较常用，这题跑出来是 0ms...
 
+# Multi Source Shortest Path
+
+位于 ```/multi-source-shortest-path``` 文件夹。
+
+> 问题背景是 HDU2066:  http://acm.hdu.edu.cn/showproblem.php?pid=2066
+
+### Floyd Warshall
+
+经典的 O(n^3) Floyd-Warshall + 剪枝的算法，用邻接矩阵存图。嘛，效率不是很高，但是好写。
+
+[2066-floyd.cpp](multi-source-shortest-path/2066-floyd.cpp)
+
+### SPFA for MSSP
+
+通过调用 n 次 SPFA 来求 n 个起点的最短路，复杂度是 O(n*me)，看起来效率是比 Floyd 高了不少的样子。也可以用 n 次 Dijkstra 来做，复杂度相应的应该是 (n*mlogn). 这里只提供 SPFA 的做法。
+
+[2066-spfa.cpp](multi-source-shortest-path/2066-spfa.cpp)
+
 # MST
 
 位于 ```/mst``` 文件夹。
 
 ### Kruskal
 
-> 问题背景1 HDU1233：http://acm.hdu.edu.cn/showproblem.php?pid=1233
+> 问题背景1 HDU1233: http://acm.hdu.edu.cn/showproblem.php?pid=1233
 
 [1233-kruskal.cpp](mst/1233-kruskal.cpp)
 
-> 问题背景2 HDU1863：http://acm.hdu.edu.cn/showproblem.php?pid=1863
+> 问题背景2 HDU1863: http://acm.hdu.edu.cn/showproblem.php?pid=1863
 
 [1863-kruskal.cpp](mst/1863-kruskal.cpp)
 
 ### Prim
 
-> 问题背景：HDU1863：http://acm.hdu.edu.cn/showproblem.php?pid=1863
+> 问题背景：HDU1863: http://acm.hdu.edu.cn/showproblem.php?pid=1863
 
 [1863-prim.cpp](mst/1863-prim.cpp)
 
@@ -71,8 +94,22 @@ O(me), [spfa.cpp](single-source-shortest-path/spfa.cpp), 好写极了，也比�
 
 ### GCD & LCM
 
+求最小公约数和最大公倍数，没有背景题。
+
 [gcd-lcm.cpp](mathematics/gcd-lcm.cpp)
 
+# String Matching
+
+### KMP Algorithm
+
+著名的 KMP 算法。 可以在 O(n+m) 的时间复杂度里匹配字符串。
+
+> 问题背景：HDU2087: http://acm.hdu.edu.cn/showproblem.php?pid=2087
+我在学 KMP 的时候专门写了一篇文章帮助理解：https://kirainmoe.com/blog/post/kmp-algorithm-for-matching-string/
+
+[2087.cpp](kmp/2087.cpp)
+
+[辅助 next 数组理解和最原始的 KMP 算法模板](kmp/kmp.cpp)
 
 # 其他 / Others
 
