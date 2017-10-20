@@ -26,6 +26,9 @@ Still collecting.....
     * [最小公约数和最大公倍数](#gcd-lcm)
   * [字符串匹配](#string-matching)
     * [KMP 算法](#kmp-algorithm)
+  * [最近公共祖先 LCA](#lowest-common-ancestor)
+    * [在线：倍增实现](#multiply-lca)
+    * [邻接表优化：倍增实现](#multiply-lca-optimized)
 
 # 写在前面
 
@@ -105,11 +108,32 @@ O(me), [spfa.cpp](single-source-shortest-path/spfa.cpp), 好写极了，也比�
 著名的 KMP 算法。 可以在 O(n+m) 的时间复杂度里匹配字符串。
 
 > 问题背景：HDU2087: http://acm.hdu.edu.cn/showproblem.php?pid=2087
-我在学 KMP 的时候专门写了一篇文章帮助理解：https://kirainmoe.com/blog/post/kmp-algorithm-for-matching-string/
+
+> 我在学 KMP 的时候专门写了一篇文章帮助理解：https://kirainmoe.com/blog/post/kmp-algorithm-for-matching-string/
 
 [2087.cpp](kmp/2087.cpp)
 
 [辅助 next 数组理解和最原始的 KMP 算法模板](kmp/kmp.cpp)
+
+# Lowest Common Ancestor
+
+树的最近公共祖先算法。 主要有倍增，RMQ 和 Tarjan 三种实现。
+
+### Multiply LCA
+
+倍增求 LCA 的标准模板。使用 vector 实现，好理解也好写。
+
+[multiply-lca.cpp](lca/multiply-lca.cpp)
+
+### Multiply LCA Optimized
+
+优化过的倍增求 LCA 模板。这回手撸链表，常数比 vector 版本的小了不少。
+
+> 问题背景：luogu3379: https://www.luogu.org/problem/show?pid=3379
+
+> 别问我为什么是 luogu, 最近开会 HDU 上不去 QAQ
+
+[multiply-lca-optimized.cpp](lca/multiply-lca-optimized.cpp)
 
 # 其他 / Others
 

@@ -57,7 +57,7 @@ int main()
     // floyd
     for (int k = 0; k <= n; k++)
       for (int i = 0; i <= n; i++)
-        if (dist[i][k] != INF) {          // ¶Ô floyd Ëã·¨¼ôÖ¦ 
+        if (dist[i][k] != INF) {          // floyd çš„å‰ªæžä¼˜åŒ–
           for (int j = 0; j <= n; j++)
             dist[i][j] = min(dist[i][k] + dist[k][j], dist[i][j]);          
         }
