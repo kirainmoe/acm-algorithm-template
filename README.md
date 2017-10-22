@@ -24,11 +24,13 @@ Still collecting.....
     * [Prim](#prim)
   * [数论专题](#mathematics)
     * [最小公约数和最大公倍数](#gcd-lcm)
+    * [素数筛](#prime-sieve)
   * [字符串匹配](#string-matching)
     * [KMP 算法](#kmp-algorithm)
   * [最近公共祖先 LCA](#lowest-common-ancestor)
     * [在线：倍增实现](#multiply-lca)
     * [邻接表优化：倍增实现](#multiply-lca-optimized)
+    * [离线：Tarjan](#tarjan)
 
 # 写在前面
 
@@ -101,6 +103,12 @@ O(me), [spfa.cpp](single-source-shortest-path/spfa.cpp), 好写极了，也比�
 
 [gcd-lcm.cpp](mathematics/gcd-lcm.cpp)
 
+### Prime Sieve
+
+素数筛，有线性筛和埃氏筛法两种算法。
+
+[prime-sieve.cpp](mathematics/prime-sieve.cpp)
+
 # String Matching
 
 ### KMP Algorithm
@@ -134,6 +142,12 @@ O(me), [spfa.cpp](single-source-shortest-path/spfa.cpp), 好写极了，也比�
 > 别问我为什么是 luogu, 最近开会 HDU 上不去 QAQ
 
 [multiply-lca-optimized.cpp](lca/multiply-lca-optimized.cpp)
+
+### Tarjan
+
+Tarjan 是一种求 LCA 的离线算法。这里只有一份效率不是很高的 Tarjan 模板，虽然似乎很好理解，然而我就是写不对 qwq
+
+[lca-tarjan-not-efficient-enough.cpp](lca/lca-tarjan-not-efficient-enough.cpp)
 
 # 其他 / Others
 
