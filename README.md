@@ -31,6 +31,8 @@ Still collecting.....
     * [在线：倍增实现](#multiply-lca)
     * [邻接表优化：倍增实现](#multiply-lca-optimized)
     * [离线：Tarjan](#tarjan)
+  * [网络流](#network-flow)
+    * [最大流：Edmonds Karp 算法](#edmonds-karp)
 
 # 写在前面
 
@@ -148,6 +150,23 @@ O(me), [spfa.cpp](single-source-shortest-path/spfa.cpp), 好写极了，也比�
 Tarjan 是一种求 LCA 的离线算法。这里只有一份效率不是很高的 Tarjan 模板，虽然似乎很好理解，然而我就是写不对 qwq
 
 [lca-tarjan-not-efficient-enough.cpp](lca/lca-tarjan-not-efficient-enough.cpp)
+
+# Network Flow
+
+网络流相关算法。预计收集完整之后有最大流、最小费用最大流、最大流最小割……等等。
+
+## 最大流
+### Edmonds Karp
+
+求解最大流的著名算法： Edmonds Karp 算法。对于这个算法的话我强烈推荐这篇博文：http://www.cnblogs.com/ZJUT-jiangnan/p/3632525.html ，文章里的概念、流程和代码等等都非常清楚，值得细读和借鉴。事实上这里的代码也正是参考了这篇文章当中给出的。
+
+> 问题背景： HDU3549: http://acm.hdu.edu.cn/showproblem.php?pid=3549
+
+[3549-maxflow.cpp](network-flow/3549-maxflow.cpp)
+
+该算法的模板 + 注释（推荐，虽然不具有广泛适用性，但这个模板好理解）：[edmonds-karp-maxflow.cpp](network-flow/edmonds-karp-maxflow.cpp)
+
+刘汝佳的 《算法竞赛入门经典（第二版）》 P368-369 中也给出了这个算法的实现代码，但是较难理解，这里只用于对比：[edmonds-karp-maxflow-rjliu.cpp](network-flow/edmonds-karp-maxflow-rjliu.cpp)
 
 # 其他 / Others
 
