@@ -33,6 +33,8 @@ Still collecting.....
     * [离线：Tarjan](#tarjan)
   * [网络流](#network-flow)
     * [最大流：Edmonds Karp 算法](#edmonds-karp)
+  * [nlogn 数据结构](#nlogn-data-structure)
+    * [线段树（单点/区间修改，区间求和）](#segmeng-tree-sum)
 
 # 写在前面
 
@@ -167,6 +169,21 @@ Tarjan 是一种求 LCA 的离线算法。这里只有一份效率不是很高�
 该算法的模板 + 注释（推荐，虽然不具有广泛适用性，但这个模板好理解）：[edmonds-karp-maxflow.cpp](network-flow/edmonds-karp-maxflow.cpp)
 
 刘汝佳的 《算法竞赛入门经典（第二版）》 P368-369 中也给出了这个算法的实现代码，但是较难理解，这里只用于对比：[edmonds-karp-maxflow-rjliu.cpp](network-flow/edmonds-karp-maxflow-rjliu.cpp)
+
+# nlogn 数据结构
+
+这里是一些 nlogn 级别的数据结构，有大家<s>熟悉</s>的线段树，树状数组……等等。
+
+## 线段树
+
+### 单点修改，区间修改，区间求和
+
+> 问题背景：https://www.luogu.org/problem/show?pid=3372
+
+本来 单点修改区间求和 跟 区间修改区间求和 应该是分开两种的，这里把它压到一份代码里了。背景题是区间修改的模板题，如果你有兴趣的话，HDU 有一道单点修改区间求和的模板题（HDU1166）：http://acm.hdu.edu.cn/showproblem.php?pid=1166
+
+[segment-tree-sum.cpp](nlogn-data-structure/segment-tree-sum.cpp)
+
 
 # 其他 / Others
 

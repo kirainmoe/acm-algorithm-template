@@ -33,3 +33,6 @@
 
 # Compiled Markdown document
 *.html
+
+# Local trash
+trash
