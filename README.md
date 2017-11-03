@@ -1,10 +1,6 @@
 # Algorithm Template of OI
 
-Some widely used algorithm templates in OI competition.
-
-Inspired from [Gitee: pantw/oi_templates](https://gitee.com/pantw/OI_templates).
-
-Still collecting.....
+Some widely used algorithm templates in OI competition. Still collecting.....
 
 > 一些 OI 算法竞赛里常用的算法模板，整理这个仓库是受到 [另一名本校选手](https://gitee.com/pantw/OI_templates) 的启发。 11 月前将不断更新中……
 
@@ -35,6 +31,8 @@ Still collecting.....
     * [最大流：Edmonds Karp 算法](#edmonds-karp)
   * [nlogn 数据结构](#nlogn-data-structure)
     * [线段树（单点/区间修改，区间求和）](#segmeng-tree-sum)
+    * [树状数组 (单点修改，区间求和)](#single-bit)
+    * [树状数组 (区间修改，区间求和)](#interval-bit)
 
 # 写在前面
 
@@ -176,14 +174,34 @@ Tarjan 是一种求 LCA 的离线算法。这里只有一份效率不是很高�
 
 ## 线段树
 
-### 单点修改，区间修改，区间求和
+### Segment Tree Sum
 
-> 问题背景：https://www.luogu.org/problem/show?pid=3372
+> 问题背景：https://www.luogu.org/problemnew/show?pid=3372
 
 本来 单点修改区间求和 跟 区间修改区间求和 应该是分开两种的，这里把它压到一份代码里了。背景题是区间修改的模板题，如果你有兴趣的话，HDU 有一道单点修改区间求和的模板题（HDU1166）：http://acm.hdu.edu.cn/showproblem.php?pid=1166
 
 [segment-tree-sum.cpp](nlogn-data-structure/segment-tree-sum.cpp)
 
+
+## 树状数组
+
+### Single BIT
+
+> 问题背景：http://acm.hdu.edu.cn/showproblem.php?pid=1166
+
+单点修改、区间查询，这个是最基础的树状数组模板= = [bit-1166.cpp](nlogn-data-structure/bit-1166.cpp)
+
+是不是这一题很眼熟呢，没错这道题用线段树同样可做~
+
+### Interval BIT
+
+> 问题背景：https://www.luogu.org/problemnew/show/3368
+
+树状数组的区间修改和区间求和~用到了一个很神奇的差分的思想。事实上用树状数组的区间求和和区间查询版，是可以把上面那道区间修改线段树切掉的（
+
+有两个版本，第一个版本是完整的，把所有数据都交给 BIT 处理，代码量有点大，细节也有点多。[bit-interval.cpp](nlogn-data-structure/bit-interval.cpp)
+
+另一个版本是只用树状数组来维护差分序列，然后查询的时候加上原数据，避免了把原数据全都丢进去的过程。这个效率更高，但是相对来说如果要做区间查询那就麻烦一些~ [bit-interval-2.cpp](nlogn-data-structure/bit-interval-2.cpp)
 
 # 其他 / Others
 
