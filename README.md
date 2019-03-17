@@ -1,8 +1,8 @@
-# Algorithm Template of OI
+# Yume's Algorithm Library
 
-Some widely used algorithm templates in OI competition. Still collecting.....
+Some widely used algorithm templates in OI/ACM competition. Still collecting.....
 
-> 一些 OI 算法竞赛里常用的算法模板，整理这个仓库是受到 [另一名本校选手](https://gitee.com/pantw/OI_templates) 的启发。 11 月前将不断更新中……
+> 一些 OI/ACM 算法竞赛里常用的算法模板。
 
 目录 / Table of Contents
 =======================
