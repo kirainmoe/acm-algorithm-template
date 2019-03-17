@@ -1,6 +1,5 @@
 /**
 * HDU1874 SSSP dijkstra with priority_queue solution
-* Time: 15ms
 */
 #include <cstdio>
 #include <cstring>
@@ -24,6 +23,7 @@ struct Edge {
 };
 int n, m;
 int dist[MAXN];
+bool vis[MAXN];
 vector<Edge> e[MAXN];
 
 void init()
@@ -62,6 +62,11 @@ int main()
       // fetch the first element of queue
       int cur = Q.top().first;
       Q.pop();
+      
+      if (vis[cur]) {
+      	continue;
+	  }
+	  vis[cur] = 1;
       
       // foreach the edges of point `cur`
       for (unsigned int i = 0; i < e[cur].size(); i++)
