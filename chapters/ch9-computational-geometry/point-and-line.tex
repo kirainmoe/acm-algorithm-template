@@ -1,0 +1,106 @@
+\section{点与线}
+\subsection{直线的表示方法}
+参数表示：可使用一点 $P_0$ 和方向向量 $\vec{v}$ 来表示直线；若已知直线两点 $A, B$，则 $\vec{v} = B-A$. 直线上的点为 $P'=P_0 + \vec{v}t$.
+
+\begin{minted}{c++}
+struct Line {
+    Point p;
+    Vector s;
+    double ang;
+    Line(Point p, Vector s): p(p), s(s) {
+        ang = atan2(s.y, s.x);
+    }
+    bool operator < (const Line L) const {
+        return ang < L.ang;
+    }
+};
+
+\end{minted}
+
+\subsection{两条直线的交点}
+将直线化为参数表示，设直线分别为 $P+t\vec{v}$, $Q+t\vec{w}$；向量 $\vec{u} = P-Q$. 交点在第一条直线的参数为 $t_1$，第二条直线上的参数为 $t_2$. 则交点参数公式为：
+
+$$t_1 = \frac{cross(w, u)}{cross(v,w)}, t_2 = \frac{cross(v, u)}{cross(v, w)}$$
+
+\begin{minted}{c++}
+Point getLineIntersection(Line a, Line b) {
+    Vector u = a.p - b.p;
+    double t = cross(b.s, u) / cross(a.s, b.s);
+    return a.p + a.s * t;
+}
+\end{minted}
+
+
+\subsection{点到直线的距离}
+\noindent 在系数表示下，点 $P(x_0, y_0)$ 到直线 $Ax+By+C=0$ 的距离 $d = \frac{|Ax_0+By_0+C|}{\sqrt{A^2+B^2}}$.
+
+\noindent 在参数表示下，可以在直线上取两点 $A, B$，作 $\vec{AB}$ 和 $\vec{AP}$，两向量的叉积（平行四边形面积）除以向量 $\vec{AB}$ 的模长即为点 $P$ 到直线 $AB$ 的距离。如果结果不取绝对值，则得到的是有向距离。
+
+\begin{minted}{c++}
+double distanceToLine(Point P, Point A, Point B) {  // ab is on the line 
+    Vector v1 = B - A, v2 = P - A;
+    return fabs(cross(v1, v2) / length(v1));
+}
+\end{minted}
+
+\subsection{点到线段的距离}
+
+\noindent 如果点 $P$ 投影到线段 $AB$ 所在的直线上得到的投影点在 $AB$ 上，则所求距离即为 $P$ 到 $AB$ 的距离；如果 $Q$ 在射线 $BA$ 上，则所求距离就是 $PA$；反之所求距离就是 $PB$。因此首先要判断 $P$ 与点 $A,B$ 的位置关系，可以用上文的象限判断法。
+
+\begin{minted}{c++}
+double distanceToSegment(Point P, Point A, Point B) {
+    if (A == B) {    // coincide
+        return length(A - P);
+    }
+    Vector v1 = B - A, v2 = P - A, v3 = P - B;
+    if (dcmp(dot(v1, v2)) < 0)      // Q is on the left
+        return length(v2);
+    else if (dcmp(dot(v1, v3) > 0))
+        return length(v3);          // Q is on the right
+    else
+        return distanceToLine(P, A, B);
+}
+\end{minted}
+
+\subsection{点在直线上的投影}
+设参数表示直线为 $A+t\vec{v}$；点 $P$ 在直线 $AB$ 上的投影点为 $Q$（对应参数 $t_0$），那么 $Q = A+t_0v$. 根据 $PQ \vert AB$，有 $\vec{PQ} \cdot \vec{AB} = 0$，因此 $\vec{v} \cdot \vec{AP} - (\vec{v} \cdot \vec{v})t_0$, 解得 $t_0 = \frac{\vec{v} \cdot \vec{AP}}{\vec{v} ^ 2}$.
+
+\begin{minted}{c++}
+Point pointProjection(Point P, Point A, Point B) {
+    Vector v = B - A;
+    return A + v * (dot(v, P - A) / dot(v, v));
+}
+\end{minted}
+
+\subsection{线段相交判定}
+给定两条线段，判断是否相交。
+
+\paragraph{规范相交} 两条线段规范相交，当且仅当两条线段恰好有一个公共点，且不在任何一条线段的端点。它的充要条件是：每条线段的两个端点都在两一条线段的两侧。
+
+端点与线段的位置关系可以用上文的象限判断法来判断。
+
+\begin{minted}{c++}
+bool checkIfSegmentProperIntersection(Point A1, Point B1, Point A2, Point B2) {
+    double c1 = cross(B1 - A1, A2 - A1), c2 = cross(B1 - A1, B2 - A1),
+        c3 = cross(B2 - A2, A1 - A2), c4 = cross(B2 - A2, B1 - A2);
+    return dcmp(c1) * dcmp(c2) < 0 && dcmp(c3) * dcmp(c4) < 0;
+}
+\end{minted}
+
+判断某个点 $P$ 是否在线段 $AB$ 上：
+
+\begin{minted}{c++}
+bool checkIfPointOnSegment(Point P, Point A, Point B) {
+    return dcmp(cross(A - P, B - P)) == 0 && dcmp(dot(A - P, B - P)) < 0;
+}
+\end{minted}
+
+两条线段的距离：
+
+\begin{minted}{c++}
+double getDist(Segment l1, Segment l2) {
+    double d1 = distToSegment(l1.p1, l2), d2 = distToSegment(l1.p2, l2),
+        d3 = distToSegment(l2.p1, l1), d4 = distToSegment(l2.p2, l1);
+    return min(min(d1, d2), min(d3, d4));
+}
+\end{minted}

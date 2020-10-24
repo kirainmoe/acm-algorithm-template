@@ -1,0 +1,62 @@
+\section{二分图}
+\subsection{二分图匹配-匈牙利算法}
+\begin{minted}{c++}
+int match[MAXN], vis[MAXN];
+bool dfs(int x) {
+    // 遍历 x 的每条出边 
+    for (int i = head[x], y; i; i = e[i].next) {
+        y = e[i].v;
+        // 如果在当前递归 DFS 的过程中，y 没有被访问过 
+        if (!vis[y]) {
+            vis[y] = 1;     // 先将 y 分配给 x, 标记 y 被访问
+            // 如果 y 没有被匹配，那就让它与 x 匹配
+            // 否则，尝试对 y 已匹配的边匹配其他的节点，然后再让 y 与 x 匹配 
+            if (!match[y] || dfs(match[y])) {
+                match[y] = x;
+                return true;
+            }
+        }
+    }
+    // 如果走到了这里，说明该点匹配失败 
+    return false;
+}
+int main() {
+    /* ... */
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+        // 重设 vis 数组，表示所有点都不在增广路中 
+        memset(vis, 0, sizeof vis);
+        // 尝试为每个点匹配（找增广路），如果匹配成功则 ans++ 
+        if (dfs(i))
+            ans++;
+    }
+    /* ... */
+}
+\end{minted}
+
+\subsection{二分图判定-染色算法}
+\begin{minted}{c++}
+int vis[MAXN], flag = 1;
+void dfs(int x, int cur) {
+    vis[x] = cur;
+    for (int i = head[x]; i; i = e[i].next) {
+        if (vis[e[i].v] == 0)
+            dfs(vis[e[i].v], 3 - cur);          // 注意这里的小技巧，3-1=2, 3-2=1.
+        else if (vis[e[i].v] == cur) {
+            flag = 0;
+            return;
+        }
+    }
+}
+for (int i = 0; i < n; i++) {
+    if (!vis[i] && flag)
+        dfs(i, 1);
+    if (!flag)
+        break;
+}
+printf(flag ? "Yes" : "No");
+\end{minted}
+
+% \subsection{二分图匹配关键点}
+
+\clearpage

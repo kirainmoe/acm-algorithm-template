@@ -1,0 +1,77 @@
+\section{带花树算法}
+
+\paragraph{问题场景} 用于解决一般图最大匹配问题。
+
+\begin{minted}{c++}
+namespace Blossom {
+    int head[MAXN], match[MAXN], fa[MAXN], pre[MAXN], top[MAXN], in[MAXN];
+    int q[MAXN * MAXN * 2], first, tail, lcatime = 0, ecnt = 1;
+    bool odd[MAXN], vis[MAXN];
+    Edge e[MAXN * MAXN * 2];
+    
+    void add_edge(int u, int v) {
+        e[ecnt] = Edge(u, v, head[u]), head[u] = ecnt++;
+    }
+    
+    int find(int x) {
+        return fa[x] == x ? x : fa[x] = find(fa[x]);
+    }
+    
+    int lca(int x, int y) {
+        lcatime++;
+        while (x)
+            in[x] = lcatime, x = find(top[x]);
+        x = y;
+        while (in[x] != lcatime)
+            x = find(top[x]);
+        return x;
+    }
+    
+    void blossom(int x, int y, int k) {
+        while (find(x) != k) {
+            pre[x] = y, y = match[x];
+            odd[y] && (odd[y] = 0, q[tail++] = y);
+            find(x) == x && (fa[x] = k);
+            find(y) == y && (fa[y] = k);
+            x = pre[y];
+        }
+    }
+    
+    bool augment(int s) {
+        for (int i = 0; i <= n; i++)
+            fa[i] = i, top[i] = pre[i] = odd[i] = vis[i] = 0;
+        vis[s] = 1, first = tail = 0, q[tail++] = s;
+        while (first < tail) {
+            int now = q[first++];
+            for (int i = head[now], v, x, y, j, k; i; i = e[i].next)  {
+                v = e[i].v;
+                if (!vis[v]) {
+                    top[v] = now, pre[v] = now,
+                    odd[v] = 1, vis[v] = 1;
+                    if (!match[v]) {
+                        j = v;
+                        while (j)
+                            x = pre[j], y = match[x], match[j] = x, match[x] = j, j = y;
+                        return true;
+                    }
+                    vis[match[v]] = 1, top[match[v]] = v, q[tail++] = match[v];
+                }
+                else if (find(now) != find(v) && !odd[v])
+                    k = lca(now, v), blossom(now, v, k), blossom(v, now, k);
+            }
+        }
+        return false;
+    }
+    
+    int solve() {
+        int ans = 0;
+        for (int i = 1; i <= n; i++)
+            if (!match[i])
+                ans += augment(i);
+        printf("%d\n", ans);
+        for (int i = 1; i <= n; i++)
+            printf("%d ", match[i]);
+        return ans;
+    }
+};
+\end{minted}

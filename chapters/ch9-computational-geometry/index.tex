@@ -1,0 +1,43 @@
+\chapter{计算几何}
+
+\begin{itemize}
+    \item 因为计算几何涉及大量浮点计算，为了减少浮点误差引发的悲剧，在比较和计算的时候需要引入 $\epsilon$ 精度误差。
+    \item 比较的时候，引入多态函数 $dcmp(x)$，某个浮点数 $x$ 的绝对值小于 $\epsilon$ 返回 $0$；如果 $x < 0$ 返回 $-1$，否则返回 $1$。
+    \item 点与向量在 C++ 中的运算和定义是相同的。
+\end{itemize}
+
+%  二维计算几何：点与向量基础定义
+\input{chapters/ch9-computational-geometry/point-and-vector}
+
+% 基本运算
+\input{chapters/ch9-computational-geometry/basic}
+
+% 点与线
+\input{chapters/ch9-computational-geometry/point-and-line}
+
+% 多边形
+\input{chapters/ch9-computational-geometry/polygon}
+
+% 圆
+\input{chapters/ch9-computational-geometry/circle}
+
+% 凸包
+\input{chapters/ch9-computational-geometry/convex-hell}
+
+% 旋转卡壳
+\input{chapters/ch9-computational-geometry/rotating-calipers}
+
+% 半平面交
+\input{chapters/ch9-computational-geometry/half-plane-intersection}
+
+% 扫描线
+\input{chapters/ch9-computational-geometry/scanning-line}
+
+% 平面最近点对
+\input{chapters/ch9-computational-geometry/nearest-points}
+
+% 三维计算几何
+\input{chapters/ch9-computational-geometry/computational-geometry-3d}
+
+% 常用公式
+\input{chapters/ch9-computational-geometry/formula}

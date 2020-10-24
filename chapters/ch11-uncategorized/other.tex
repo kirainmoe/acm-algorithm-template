@@ -1,0 +1,34 @@
+\section{开栈}
+
+Tips: 并不是在所有的地方都能用。
+
+\begin{minted}{c++}
+//64−bit
+int size = 1 << 20;     //256M
+char *p = (char *)malloc(size) + size;
+__asm__("movq %0, %%rsp\n" :: "r"(p));
+
+//32−bit
+int size = 1 << 20;     //256M
+char *p = (char *)malloc(size) + size;
+__asm__("movl %0, %%esp\n":: "r"(p));
+\end{minted}
+
+
+\section{随机数生成}
+
+default\_random\_engine 需要 C++11.
+
+\begin{minted}{c++}
+default_random_engine e;
+e.seed((int)time(0));
+
+int randInt(int minInt, int maxInt) {
+    uniform_int_distribution<int> rd(minInt, maxInt);
+    return rd(e);
+}
+double randDouble(double minD, double maxD) {
+    uniform_real_distribution<double> rd(minD, maxD);
+    return rd(e);
+}
+\end{minted}

@@ -1,0 +1,100 @@
+
+\section{欧拉回路}
+\begin{minted}{c++}
+stack<int> ans;
+multiset<int> e[MAXN];
+void dfs(int x) {
+  // 遍历与 x 相连的每条无向边
+  for (multiset<int>::iterator itor = e[x].begin(); itor != e[x].end(); itor = e[x].begin()) {
+    // 删除边（注意是无向图，要删两次）并对下一个节点遍历
+    int tmp = *itor;
+    to[x].erase(itor), to[u].erase(to[u].find(x));
+    dfs(tmp);
+  }
+  // DFS 完成后，将当前点加入队列
+  ans.push(x);
+}
+while (!ans.empty()) {  // 倒序输出栈中的内容即为答案
+  printf("%d", ans.top());
+  ans.pop();
+}
+\end{minted}
+\par 此外也有一种删边的做法是每次搜索边 $e_is$ 的时候，标记 $used[e_ij]=1$ 来表示删边，适用于用前向星存储图时的情况。
+
+\section{哈密尔顿路径}
+\begin{minted}{c++}
+int map[MAXN][MAXN], ans[MAXN];
+bool vis[MAXN];
+void hamilton() {
+  int s = 1, t, ansi = 2;     // 任选一个节点为起点
+  memset(vis, 0, sizeof vis);
+  for (int i = 1; i <= n; i++)
+    if (map[s][i]) {          // 找到一个与起点相连的点为终点
+      t = i;
+      break;
+    }
+  ans[0] = s, ans[1] = t;
+  vis[s] = 1, vis[t] = 1;        // 设置起点、终点的访问状态
+  for (;;) {
+    for (;;) {
+      int i;
+      for (i = 1; i <= n; i++)
+        if (map[t][i] && !vis[i]) {
+          ans[ansi++] = i;
+          vis[i] = true;
+          t = i;
+          break;
+        }
+      if (i > n)
+        break;
+    }
+    std::reverse(ans, ans + ansi);
+    std::swap(s, t);
+    for (;;) {
+      int i;
+      for (i = 1; i <= n; i++)
+        if (map[t][i] && !vis[i]) {
+          ans[ansi++] = i;
+          vis[i] = true;
+          t = i;
+          break;
+        }
+      if (i > n)
+        break;
+    }
+    int mid = 0;
+    if (!map[s][t]) {
+      for (int i = 1; i < ansi - 2; i++)
+        if (map[s][ans[i +1]] && map[ans[i]][t]) {
+          mid = i + 1;
+          break;
+        }
+      std::reverse(ans + mid, ans + ansi);
+      t = ans[ansi - 1];
+    }
+    
+    if (ansi == n)
+      return;
+    for (int i = 1; i <= n; i++)
+      if (!vis[i]) {
+        int j;
+        for (j = 1; j < ansi - 1; j++)
+          if (map[ans[j]][i]) {
+            mid = j;
+            break;
+          }
+        if (map[ans[mid]][i]) {
+          t = i, mid = j;
+          break;
+        }
+      }
+    s = ans[mid-1];
+    std::reverse(ans, ans + mid);
+    std::reverse(ans + mid, ans + ansi);
+    ans[ansi++] = t;
+    vis[t] = 1;
+  }
+}
+\end{minted}
+
+\clearpage

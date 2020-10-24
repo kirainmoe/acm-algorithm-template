@@ -1,0 +1,178 @@
+\section{后缀自动机}
+处理与子串相关问题的在线线性算法。
+\paragraph{名词解释}
+\begin{itemize}
+\item  $len$ 表示从当前 $endpos$ 可向前延伸的长度最大值。设当前构造的 $SAM$ 已得到的子串为 $s$， 从当前字符向前数 $[0, len]$ 个字符得到的新子串 $t$，$t$ 一定只作为 $s$ 的后缀出现。
+\item 如：对于母串 $abcdabcdbbcd$, 有三个子串 $d, cd, bcd$ 的 $endpos$ 集合相同，而从 $endpos$ 向前最多可以延伸 $3$ 个字符满足条件，所以 $len = 3$.
+\item  $link$ 表示后缀连接。定义一个子串 $v \in endpos(v)$ ($endpos(v)$ 称为 $v$ 的 endpos 等价类)，该等价类中长度最长的子串为 $w$, 则 $w$ 的“最长的且不在该 endpos 等价类中的后缀”记为 $t$，令 $link(v) = t$.
+\item 如：对于母串 $abcdabcdcd$, $abcd, bcd$ 在同一个 endpos 等价类中。设 $v = bcd$, 则显然 $w = abcd$, $w$ 的最长的且不再该等价类中的后缀显然为 $cd$，则令 $link(bcd) = cd$. Tips: 后缀也有长度为 0 的情况，即空后缀。
+\item  $nxt[i]$ 就是沿着字符 $'a' + i$ 走可以到达的下一个状态。
+\end{itemize}
+
+\paragraph{性质}
+
+\begin{itemize}
+\item 字符串 $s$ 的一个后缀自动机包含关于字符串 $s$ 的所有子串的信息。任意从初始状态 $t_0$ 开始的路径，如果我们将转移路径上的标号写下来，都会形成 $s$ 的一个 子串 。反之每个 $s$ 的子串对应从初始状态 $t_0$  开始的某条路径。
+\item 每个状态 $s$ 代表的子串是区间 $[len_{link(s)}+1, len_s]$.
+\item 一个长度为 $n$ 的字符串，它的 SAM 节点个数最多有 $2n-1$ 个，连边最多有 $3n-4$ 条。
+\item 树形结构的性质：设字符串长度为 $n$，考虑 extend 操作中 $cur$ 变量的值（代表当前状态在节点池中的下标），该节点对应的状态是：执行 extend 操作时的当前字符串，得到的 $n$ 个节点对应了$n$ 个不同的终点，第 $i$ 个状态对应 $S_{1...i}$。如果我们将 SAM 看作一棵树，树根为 $0$ 号节点（初始状态），其余节点 $v$ 满足其父亲为该节点的后缀连接 $link(v)$。这棵树叫 $parent$ 树。
+\item $parent$ 树中的每个节点的终点集合，等于其子树内所有终点节点对应的终点集合的并集。
+\item $parent$ 树中，如果节点 $a$ 是 $b$ 的祖先，则节点 $a$ 对应的字符串是节点 $b$ 对应的字符串的后缀。
+\item 构成的 $parent$ 树存在一些与树相关的性质，如 $S_{1...p}$ 和 $S_{1...q}$ 的最长公共后缀对应的是 $p, q$ 对应节点间的 LCA 的字符串。
+\item 除了初始状态（节点 $0$）以外，每个状态 $i$ 对应的字串数量是 $len(i) - len(link(i))$，因此计算时可以自上而下计算。
+\end{itemize}
+
+\begin{minted}{c++}
+class SuffixAutomaton {
+private:
+    static const int MAXN = 100050;
+    static const int MAXLOG = 25;
+public:
+    // 需要维护 right 集合时，加上以下动态开点线段树的代码
+    struct Node {
+        int val, lson, rson;
+    } a[MAXN * 50];
+    int tot;        // 权值线段树节点个数
+
+    void pushUp(int rt) {
+        a[rt].val = a[a[rt].lson].val + a[a[rt].rson].val;
+    }
+    void update(int &rt, int l, int r, int pos) {
+        if (!rt)
+            rt = ++tot, a[rt].lson = a[rt].rson = a[rt].val = 0;
+        if (l == r) {
+            a[rt].val++;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        if (pos <= mid)
+            update(a[rt].lson, l, mid, pos);
+        else
+            update(a[rt].rson, mid + 1, r, pos);
+        pushUp(rt);
+    }
+    int merge(int x, int y) {
+        if (!x || !y)
+            return x + y;
+        int z = ++tot;
+        a[z].lson = merge(a[x].lson, a[y].lson);
+        a[z].rson = merge(a[x].rson, a[y].rson);
+        pushUp(z);
+        return z;
+    }
+    int query(int rt, int l, int r, int k) {
+        if (!rt)
+            return 0;
+        if (l == r)
+            return l;
+        int mid = (l + r) >> 1;
+        if (a[a[rt].lson].val >= k)
+            return query(a[rt].lson, l, mid, k);
+        if (a[a[rt].rson].val >= k - a[a[rt].lson].val)
+            return query(a[rt].rson, mid + 1, r, k - a[a[rt].lson].val);
+        return -1;
+    }
+
+    /* 后缀自动机 */
+    struct State {
+        int len, link, nxt[26];
+        State(int _len = 0, int _link = 0): len(_len), link(_link) {
+            memset(nxt, 0, sizeof nxt);
+        }
+    } st[MAXN << 1];    // 最多有 2n-1 个节点，开两倍空间
+
+    // sz: 状态个数，last: 上一次插入的字符对应状态，cnt：当前产生子串个数，len 字符串长度
+    // ws wv 基数排序数组, endpos[i] 表示 i 状态所代表的 endpos 集合线段树的树根
+    int sz, last, cnt, len;
+    int endpos[MAXN << 1], ws[MAXN << 1], wv[MAXN << 1], pos[MAXN << 1];
+    int f[MAXN << 1][MAXLOG];
+    
+    int extend(int c, int idx) {
+        int cur = sz++, p = last;
+        st[cur] = State(st[last].len + 1);
+
+        endpos[cur] = 0;
+        update(endpos[cur], 1, len, idx + 1);  // 更新当前点的 endpos，注意权值线段树值域范围
+
+        while (p != -1 && !st[p].nxt[c])
+            st[p].nxt[c] = cur, p = st[p].link;
+        if (p == -1)
+            st[cur].link = 0;
+        else {
+            int q = st[p].nxt[c];
+            if (st[q].len == st[p].len + 1)
+                st[cur].link = q;
+            else {
+                int clone = sz++;
+                st[clone] = State(st[p].len + 1, st[q].link);
+                memcpy(st[clone].nxt, st[q].nxt, sizeof st[q].nxt);
+                
+                endpos[clone] = 0;			  // 为克隆节点新建 endpos，但不建树
+
+                while (p != -1 && st[p].nxt[c] == q)
+                    st[p].nxt[c] = clone, p = st[p].link;
+                st[q].link = st[cur].link = clone;
+            }
+        }
+        last = cur;   
+        cnt += st[cur].link == -1 ? st[cur].len : st[cur].len - st[st[cur].link].len;   // 字串个数
+        return cnt;          
+    }
+    
+    // 基于基数排序的拓扑排序，保证状态间的拓扑关系，即子状态在后，父状态在前
+    // 后缀自动机更新信息时，需要先更新子状态 s，再更新父状态 link[s]
+    void toposort() {
+        memset(ws, 0, sizeof ws);
+        memset(wv, 0, sizeof wv);
+        for (int i = 0; i < sz; i++)
+            wv[st[i].len]++;			// 排序的关键字是 len
+        for (int i = 1; i < sz; i++)
+            wv[i] += wv[i-1];
+        for (int i = 0; i < sz; i++)
+            ws[wv[st[i].len]--] = i;
+    }
+    // 建立后缀自动机
+    void build(char str[]) {
+        len = strlen(str);
+        for (rint i = 0; i < len; i++) {
+            extend(str[i] - 'a', i);
+            pos[i] = last;
+        }
+        // 预处理倍增表
+        for (rint i = 0; i < sz; i++)
+            f[i][0] = st[i].link;
+        for (rint j = 1; j < MAXLOG; j++)
+            for (rint i = 0; i < sz; i++)
+                f[i][j] = f[f[i][j-1]][j-1];
+        toposort();
+        // 如果需要维护 right 集合：从子节点开始，合并 endpos 集合
+        for (rint i = sz; i > 0; i--) {
+            int tmp = ws[i];
+            if (st[tmp].link != -1)
+                endpos[st[tmp].link] = merge(endpos[st[tmp].link], endpos[tmp]);
+        }
+    }
+    
+    int solve(int l, int r, int k) {
+        // 首先从 endpos 为 r 的节点开始，倍增找到与目标串一样长的点
+        int p = pos[r], curlen = r - l + 1;
+        for (rint i = MAXLOG - 1; i >= 0; i--)
+            if (st[f[p][i]].len >= curlen)
+                p = f[p][i];
+        int ans = query(endpos[p], 1, len, k);
+        
+        if (ans != -1)
+            ans -= (curlen - 1);
+        return ans;
+    }
+
+    void init() {
+        cnt = 0, tot = 0, sz = 0;
+        st[sz] = State(0, -1), last = sz++;
+        memset(a, 0, sizeof a);     // 清空权值线段树
+    }
+    SuffixAutomaton() { init(); }
+} SAM;
+\end{minted}
+
+\clearpage

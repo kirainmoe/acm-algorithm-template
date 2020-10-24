@@ -1,0 +1,38 @@
+\section{KMP 算法}
+\begin{minted}{c++}
+namespace KMP {
+    int next[MAXN];
+    void calcNextArr() {
+      next[0] = -1;
+      int j = 0, k = -1, len = strlen(pattern) - 1;
+      while (j < len) {
+        if (k == -1 || pattern[j] == pattern[k]) {
+          next[++j] = ++k;
+          if (pattern[j] == pattern[k])
+            next[j] = next[k];
+        } else
+          k = next[k];
+      }
+    }
+
+    int KMP() {
+      int i = 0, j = 0;
+      int tlen = strlen(target), plen = strlen(pattern);
+      while (i < tlen && j < plen)
+        if (j == -1 || target[i] == pattern[j])
+          i++, j++;
+        else
+          j = next[j];  
+      if (j == plen)
+        return i - j;
+      else
+        return -1;
+    }
+}
+\end{minted}
+
+\paragraph{KMP 求最小循环节} 假设 $S$ 的长度为 $len$，则 $S$ 存在最小循环节，循环节的长度 $L$ 为 $len-next[len]$，子串为 $S[0…len-next[len]-1]$。
+\begin{itemize}
+  \item 如果 $len$ 可以被 $len - next[len]$ 整除，则表明字符串 $S$ 可以完全由循环节循环组成，循环周期 $T=len/L$。
+  \item 如果不能，说明还需要再添加几个字母才能补全。需要补的个数是循环个数 $L-len \mod L=L-(len-L) \mod L=L-next[len] \mod L，L=len-next[len]$。
+\end{itemize}

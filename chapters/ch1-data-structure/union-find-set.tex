@@ -1,0 +1,47 @@
+\section{并查集}
+
+\subsection{路径压缩}
+\begin{minted}{c++}
+namespace UnionFindSet {
+    int p[MAXN], n;
+    void init() {
+        for (int i = 0; i <= n; i++)
+            p[i] = i;
+    }
+    int find(int x) {
+        return x == p[x] ? x : p[x] = find(p[x]);
+    }
+    void unions(int x, int y) {
+        int px = find(x), py = find(py);
+        if (px != py)
+            p[py] = px;
+    }
+}
+\end{minted}
+
+\subsection {按秩合并}
+\par 把子树小的集合合并到子树大的集合上，不会破坏路径结构。
+\begin{minted}{c++}
+namespace UnionFindSet {
+    int p[MAXN], rank[MAXN], n;       // rank 表示集合的秩(大小)
+    void init() {
+        for (int i = 0; i <= n; i++)
+            p[i] = i, rank[i] = 1;
+    }
+    int find(int x) {
+        return x == p[x] ? x : find(p[x]);
+    }
+    void unions(int x, int y) {
+        int px = find(x), py = find(y);
+        if (px == py)
+            return;
+        else
+            if (rank[px] > rank[py])
+                p[py] = px;
+            else if (rank[px] == rank[py])
+                p[py] = px, rank[px]++;
+            else
+                p[px] = py;
+    }
+}
+\end{minted}

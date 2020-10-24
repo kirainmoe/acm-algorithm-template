@@ -1,0 +1,18 @@
+\section{字符串循环同构的最小表示法}
+\begin{minted}{c++}
+// 返回最小表示下起始位置的下标
+int MinimumRepresentation(char *s, int l) {  
+    int i = 0, j = 1, k = 0, t;  
+    while(i < l && j < l && k < l) {  
+        t = s[(i + k) >= l ? i + k - l : i + k] - s[(j + k) >= l ? j + k - l : j + k];  
+        if(!t) k++;  
+        else{  
+            if(t > 0) i = i + k + 1;  
+            else j = j + k + 1;  
+            if(i == j) ++ j;  
+            k = 0;  
+        }  
+    }  
+    return (i < j ? i : j);  
+}  
+\end{minted}

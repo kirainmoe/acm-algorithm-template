@@ -1,0 +1,101 @@
+\section{点分治}
+\paragraph{问题场景}
+\noindent \par 点分治是大规模处理树上路径问题的工具。大意是找到一个点，递归统计其所有子树的答案，然后利用容斥原理或其它方式合并答案，最后得到整棵树的答案。
+\paragraph{步骤}
+\begin{itemize}
+    \item 找到整棵树的重心点 $rt$，由 $rt$ 向下递归求解。
+    \item 统计以 $rt$ 为根的子树的答案 $ans_{rt}^\prime$，并使用容斥原理、染色法等去除不合法的答案，得到 $rt$ 的最终答案 $ans_{rt}$
+    \item 对 $rt$ 的子树 $ch_i$ 求解，同样先找到以 $ch_i$ 为根的子树的重心 $r^\prime$，然后从重心 $r^\prime$ 向下递归求解，回到步骤 (1).
+\end{itemize}
+\par 例：计算一棵树上距离为 $k$ 的点是否存在
+\begin{minted}{c++}
+struct Edge {
+    int u, v, next;
+    ll w;
+};
+struct Dist {
+    ll w;
+    int par;
+    bool operator < (const Dist &b) const {
+        return w < b.w;
+    }
+};
+
+const int MAXN = 10050, MAXM = 150, INF = 0x3f3f3f3f;
+    
+int n, m, cnt = 1, minv = INF, rt = 0, tot = 0, dcnt = 0;
+
+bool vis[MAXN];
+int head[MAXN], qry[MAXM], ans[MAXM], size[MAXN], son[MAXN];
+Edge e[MAXN << 1];
+Dist d[MAXN];
+
+void findRoot(int u, int p) {
+    size[u] = 1, son[u] = 0;
+    for (int i = head[u], v; i; i = e[i].next) {
+        if (vis[(v = e[i].v)] || v == p)
+            continue;
+        findRoot(v, u);
+        size[u] += size[v];
+        son[u] = max(son[u], size[v]);
+    }
+    son[u] = max(son[u], tot - size[u]);
+    if (son[u] < minv)
+        minv = son[u], rt = u;		
+}
+void getDist(int u, int p, int par, ll dt) {
+    d[dcnt++] = (Dist) { dt, par };
+    for (int i = head[u], v; i; i = e[i].next) {
+        if (vis[(v = e[i].v)] || p == v)
+            continue;
+        getDist(v, u, par, dt + e[i].w);
+    }
+}
+void solve(int cur) {
+    dcnt = 0;
+    for (int i = head[cur], v; i; i = e[i].next) {
+        if (vis[(v = e[i].v)])
+            continue;
+        getDist(v, cur, v, e[i].w);
+    }
+    d[dcnt++] = (Dist){ 0ll, 0 };
+    sort(d, d + dcnt);
+    
+    for (int i = 0; i < m; i++) {
+        if (ans[i])
+            continue;
+        int l = 0;
+        while (l < dcnt && d[l].w + d[dcnt-1].w < qry[i])
+            l++;
+        while (l < dcnt && !ans[i]) {
+            if (qry[i] - d[l].w < d[l].w)
+                break;
+            int pos = lower_bound(d, d + dcnt, (Dist){ qry[i] - d[l].w, 0 }) - d;
+            while (pos < dcnt && d[pos].par == d[l].par)
+                pos++;
+            if (pos < dcnt && d[pos].w + d[l].w == qry[i])
+                ans[i] = 1;
+            l++;
+        }
+    }
+}
+void work(int x) {
+    vis[x] = 1;
+    solve(x);
+    for (int i = head[x], v; i; i = e[i].next) {
+        if (vis[(v = e[i].v)])
+            continue;
+        rt = 0, minv = INF, tot = size[v];
+        findRoot(v, 0);
+        work(rt);
+    }
+}
+int main() {
+    // ...
+    tot = n;
+    findRoot(1, 0);
+    work(rt);
+    // ...
+    return 0;
+}
+\end{minted}

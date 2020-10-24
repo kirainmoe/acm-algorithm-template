@@ -1,0 +1,25 @@
+\section{ST 表}
+\par \noindent ST 表可用于查询区间最值，需要 $O(n\log n)$ 时间预处理，查询可以在 $O(1)$ 时间内完成。不支持修改:
+\begin{minted}{c++}
+namespace STTable {
+    int log2[MAXN], st[MAXN][MAXLOG];
+    void preprocess() {
+        for (int i = 0; i < n; i++) {
+            scanf("%d", &st[i][0]);
+        }
+        // 预处理 log2
+        log2[0] = -1;
+        for(int i = 1; i <= n; i++)
+            log2[i] = (i & (i - 1)) ? log2[i-1] : log2[i-1] + 1 ;    
+        // 预处理
+        for (int i = 1; (1 << i) <= n; i++)
+            for (int j = 0; j + (1 << i) - 1 < n; j++)
+                st[j][i] = max(st[j][i - 1], st[j + (1 << (i - 1))][i-1]);
+    }
+    int query(int x, int y) {
+        // 如果数组从 0 开始，要注意 x, y 的起点
+        int k = log2(y - x + 1);
+        return max(st[x][k], st[y - (1 << k) + 1][k]);
+    }
+};
+\end{minted}

@@ -1,0 +1,87 @@
+\section{分治}
+\subsection{二分}
+\begin{minted}{c++}
+int x, y, flag, m, ans = -1;
+int a[MAXN];
+while (x < y) {
+    m = x + (y - x) / 2;        // 找中点，向下取整
+    if (a[m] == flag) {         // 恰好中点就是结果
+        ans = m;
+        break;
+    } else if (a[m] > flag) {
+        y = m;                  // 往左边找
+    } else {
+        x = m + 1;              // 往右边找，注意起点 +1
+    }
+}
+\end{minted}
+
+\subsection{三分法}
+\noindent \par 三分查找是在二分查找分出了两个区间（左区间，右区间）的情况下，再对左区间或右区间进行一次二分，以快速确定最值。三分法要求序列是一个有凹凸性的函数。步骤如下：
+
+\begin{itemize}
+    \item 取得区间的中间值 $mid = \lfloor \frac{(left + right)}{2} \rfloor$
+    \item 取右区间的中间值 $rmid = \lfloor \frac{(mid + right)}{2} \rfloor$
+    \item 判断 $a[rmid]$ 和 $a[mid]$ 的关系，若 $a[mid]$ 比 $a[rmid]$ 更接近最值，舍弃右区间搜索左区间；否则搜索左区间。
+\end{itemize}
+
+\begin{minted}{c++}
+int x, y;
+while (x < y) {
+    double mid = (x + y) / 2.0, rmid = (mid + y) / 2.0;
+    if (check(mid) > check(rmid))
+        r = rmid;
+    else
+        l = mid;
+}
+\end{minted}
+
+\section{CDQ 分治求三维偏序}
+\begin{minted}{c++}
+struct Node {
+    int a, b, c, cnt, id;
+    bool operator < (const Node &t) const {
+        if (a != t.a)
+            return a < t.a;
+        else {
+            if (b != t.b)
+                return b < t.b;
+            else
+                return c < t.c;
+        }
+    }
+    bool operator == (const Node &t) const {
+        return a == t.a && b == t.b && c == t.c;
+    } 
+} t[MAXN], tmp[MAXN];   // tmp 是归并用的数组
+int n, k, cnt = 1;
+int ans[MAXN], f[MAXN];
+void cdq(int l, int r) {
+    if (r - l <= 1)
+        return;
+    int m = (l + r) >> 1;
+    cdq(l, m), cdq(m, r);
+    int i = l, j = m, idx = l;
+    // 统计影响并将左侧可能对右侧造成影响的节点加入树状数组
+    // 如果右侧的节点不受左侧的影响，那么直接更新答案
+    while (i < m && j < r) {
+        if (t[i].b <= t[j].b) {
+            T.add(t[i].c, t[i].cnt);
+            tmp[idx++] = t[i++];
+        } else {
+            ans[t[j].id] += T.query(t[j].c);
+            tmp[idx++] = t[j++];
+        }
+    }
+    while (j < r) {
+        ans[t[j].id] += T.query(t[j].c);
+        tmp[idx++] = t[j++];
+    }
+    for (int x = l; x < i; x++)
+        T.add(t[x].c, -t[x].cnt); 
+    while (i < m)
+        tmp[idx++] = t[i++];
+    for (int i = l; i < r; i++)
+        t[i] = tmp[i];
+}
+\end{minted}

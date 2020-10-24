@@ -1,0 +1,97 @@
+\section{线性规划的单纯形算法}
+
+\paragraph{问题场景} 有 $n$ 个实数变量和 $m$ 个约束，其中第 $i$ 个约束形如 $\sum_{j=1}^n a_{ij}x_j \le b_i (x_j \ge 0)$，求目标函数 $F = \sum_{j=1}^n c_jx_j$ 的最大值。
+
+\paragraph{转化标准形式}
+
+\begin{itemize}
+    \item 如果目标函数为最小化，则可以通过将目标函数取负转化为求最大值：$\max -z = \sum_{j=1}^n c_j'x_j (c_j' = -c_j)$
+    \item 将小于等于形式的不等式约束转化为等式约束：在等式左侧加上松弛变量 $x_{m+i}$
+    \item 将大于等于形式的不等式约束转化为等式约束：在等式左侧减去松弛变量 $x_{m+i}$
+    \item 无约束变量 $\inf < x_j < \inf$ 可以转化为两个非负变量的差值：$x_j = x_j' - x_j''$
+\end{itemize}
+
+\begin{minted}{c++}
+const int maxn = 25, maxm = 100050;
+const double eps = 1e-8, inf = (double)(1ll << 60);
+
+int n, m, t, id[maxn << 1];    // n: variables, m: constraint
+double a[maxn][maxn], ans[maxn];    // a: coefficient matrix
+void pivot(int l, int e) {
+    swap(id[n+l], id[e]);
+    double tmp = a[l][e];
+    a[l][e] = 1;
+    for (int j = 0; j <= n; j++)
+        a[l][j] /= tmp;
+    for (int i = 0; i <= m; i++)
+        if (i != l && abs(a[i][e]) > eps) {
+            tmp = a[i][e], a[i][e] = 0;
+            for (int j = 0; j <= n; j++)
+                a[i][j] -= a[l][j] * tmp;
+        }
+}
+bool init() {
+    while (1) {
+        int e = 0, l = 0;
+        for (int i = 1; i <= m; i++)
+            if (a[i][0] < -eps && (!l || (rand() & 1)))
+                l = i;
+        if (!l)
+            break;
+        for (int j = 1; j <= n; j++)
+            if (a[l][j] < -eps && (!e || (rand() & 1)))
+                e = j;
+        if (!e) {
+            printf("Infeasible\n");        // 不存在满足约束的解
+            return false;
+        }
+        pivot(l, e);
+    }
+    return true;
+}
+bool simplex() {
+    while (1) {
+        int l = 0, e = 0;
+        double minv = inf;
+        for (int j = 1; j <= n; j++)
+            if (a[0][j] > eps) {
+                e = j;
+                break;
+            }
+        if (!e)
+            break;
+        for (int i = 1; i <= m; i++)
+            if (a[i][e] > eps && a[i][0] / a[i][e] < minv)
+                minv = a[i][0] / a[i][e], l = i;
+        if (!l) {
+            printf("Unbounded\n");            // 任意解
+            return false;
+        }
+        pivot(l, e);
+    }
+    return true;
+}
+int main() {
+    srand(time(NULL));
+    read(n), read(m), read(t);
+    for (int i = 1; i <= n; i++)
+        read(a[0][i]);              // 目标函数 F(x) = $C_ix_i$
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++)
+            read(a[i][j]);
+        read(a[i][0]);
+    }
+    for (int i = 1; i <= n; i++)
+        id[i] = i;                  // 保存变量顺序
+    if (init() && simplex()) {
+        printf("%.8lf\n", -a[0][0]);
+        if (t) {
+            for (int i = 1; i <= m; i++)
+                ans[id[n + i]] = a[i][0];
+            for (int i = 1; i <= n; i++)
+                printf("%.8lf ", ans[i]);
+        }
+    }
+    return 0;
+}
+\end{minted}

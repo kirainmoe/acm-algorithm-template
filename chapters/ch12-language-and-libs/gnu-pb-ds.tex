@@ -1,0 +1,94 @@
+\section{GNU pbds Reference}
+\subsection{头文件和命名空间定义}
+\begin{minted}{c++}
+#include <ext/pb_ds/assoc_container.hpp>    // 基本组件
+#include <ext/pb_ds/tree_policy.hpp>        // set/map/rbt/splay
+#include <ext/pb_ds/hash_policy.hpp>        // hash table
+#include <ext/pb_ds/priority_queue.hpp>        // 优先队列
+using namespace __gnu_pbds;                    // 命名空间
+\end{minted}
+
+\subsection{Hash Table}
+
+比 map 更快, 近似认为 $O(n)$，建议用 gp\_hash\_table.
+
+\begin{minted}{c++}
+cc_hash_table<int, int> h1;                // 拉链法哈希表
+gp_hash_table<int, int> h2;                // 探测法哈希表
+h2.insert(std::make_pair(key, value));
+h2.erase(key);
+for (gp_hash_table<int, int>::iterator = h2.begin(); itor != h2.end(); itor++) {
+    cout << itor->first << " " << itor->second << endl;
+}
+if (h2.find(key) != h2.end())    return;
+h2.clear();
+cout << h2.size();
+\end{minted}
+
+\subsection{Priority Queue}
+\begin{minted}{c++}
+/* definition: priority_queue<value_type, cmp_func, tag> pq; */
+priority_queue<pair<int, int>, greater<pair<int, int> >, pairing_heap_tag> heap;
+
+int len = pq.size();
+bool isEmpty = pq.empty();
+heap::point_iterator itor = pq.push(el);    // 返回元素的迭代器
+int cur = pq.top();
+pq.erase(itor);
+pq.modify(itor, new_value);        // 修改元素迭代器指向的元素
+pq.clear();                        // 清空优先队列
+pq.join(pq2);                    // 合并优先队列
+\end{minted}
+
+\noindent \par 各种堆的效率比较：
+\par \includegraphics[height=3cm]{chapters/ch12-language-and-libs/image/pbds_pq.png}
+
+\par 使用 pb\_ds 的优先队列优化 Dijkstra：如果目标点的 dist 存在优先队列中，直接修改；否则 push. 
+
+\begin{minted}{c++}
+typedef priority_queue<pair<int, int> > heap;
+vector<heap::point_iterator> id;
+id.reserve(MAXM);
+
+// 松弛时
+if (id[y] != 0)
+    pq.modify(id[y], make_pair(-dist[y], y));
+else
+    id[y] = pq.push(make_pair(-dist[y], y));
+\end{minted}
+
+\subsection{Tree}
+\begin{minted}{c++}
+/* 各种树的封装 */
+/* 定义格式为 tree<key_type, value_type, cmp_function, tree_type_tag, [tree_order_statistics_node_update]> T; */
+/* 最后一个是可选的，加上会额外获得 order_of_key() 和 find_by_order()，第二个如果没有映射类型则为 null_type */
+/* tree_tag 可以是 rb_tree_tag(红黑树)，splay_tree_tag（伸展树） */
+typedef tree<int, int, std::less<int>, rb_tree_tag> pbds_map;
+pbds_map t;                                             // 大概和 map<int, int> mp 差不多 
+t.insert(make_pair(key, value)); t[key] = value;        // 插入元素
+for (pbds_map::iterator itor = t.begin(); itor != t.end(); itor++) {    // 遍历
+    std::cout << itor->first << " " << itor->second << std::endl;
+}
+pbds_map::iterator ft = t.find(key);                    // 根据 key 查找元素
+t.erase(key);                                           // 根据 key 删除元素
+t.clear();                                              // 清空
+int len = t.size();   bool isEmpty = t.empty();
+pbds_map t1;
+t.join(t1);     /* 合并  */       t.split(v, t1);  // key <= v 的留在 t 中，其余分到 t1 中
+int lp = t.lower_bound(x) - t, up = t.upper_bound(x) - t;
+pbds_map::iterator r = t.find_by_order(k);              // 找到树中第 k+1 大/小的数
+int order = t.order_of_key(k);                          // 返回 key 为 k 的元素是第几大
+
+/* 第一个参数必须为字符串类型，tag也有别的tag，但pat最快，与tree相同，node_update支持自定义 */
+typedef trie<string, null_type, trie_string_access_traits<>, pat_trie_tag, trie_prefix_search_node_update> tr;
+tr.insert(s);           // 插入 s 
+tr.erase(s);            // 删除 s 
+tr.join(b);             // 将另一棵 Trie 树 b 并入 tr 
+// 遍历 Trie 树
+// pair 中第一个是起始迭代器，第二个是终止迭代器，遍历过去就可以找到所有字符串了。 
+pair<tr::iterator,tr::iterator> range = base.prefix_range(x);
+for(tr::iterator it = range.first; it != range.second; it++)
+    cout << *it << ' ' << endl;
+\end{minted}
+
+

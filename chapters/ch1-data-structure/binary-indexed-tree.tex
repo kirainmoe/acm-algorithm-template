@@ -1,0 +1,148 @@
+\section{树状数组}
+
+\par \noindent $C[i] = A[i - 2^k+1] + A[i - 2^k+2] + ... + A[i]$
+\par \noindent $sum[i] = C[i] + C[i-2^{k1}] + C[(i - 2^{k1}) - 2^{k2}] + .....$
+
+\subsection{单点修改，区间求和}
+
+\par Tips: lowbit(x) => (x \& (-x)) 的含义：
+    当 $x$ 为 $0$ 时，结果为 $0$。
+    当 $x$ 为奇数时，结果为 $1$。
+    当 $x$ 为偶数时，结果为 $x$ 中 $2$ 的最大次方的因子。
+
+\begin{minted}{c++}
+class BinaryIndexedTree {
+public:
+    int n, c[MAXN];
+    int lowbit(int x) {
+        return x & (-x);
+    }
+    void add(int i, int value) {
+        while (i <= n)
+            c[i] += value, i += lowbit(i);
+    }
+    int sum(int x) {
+        int res = 0;
+        while (x > 0)
+            res += c[x], x -= lowbit(x);
+        return res;
+    }
+    void scale(int c) {
+        for (int i = 1; i < n; i++)
+            sum[i] *= c;
+    }    
+};
+\end{minted}
+
+\subsection{区间修改，区间求和}
+
+\par \noindent 引入差分序列，试树状数组支持区间修改。树状数组中维护的是差分序列，需要有一个数组维护原数据。
+
+\begin{minted}{c++}
+class IntervalBinaryIndexedTree {
+public:
+    int n;
+    ll a[MAXN], data[MAXN];
+    int lowbit(int x) {
+        return x & (-x);
+    }
+    void add(int pos, LL addVal) {
+        while (pos <= n)
+            a[pos] += addVal, pos += lowbit(pos);
+    }
+    ll sum(int pos) {
+      ll res = 0;
+      while (pos > 0)
+          res += a[pos], pos -= lowbit(pos);
+      return res;
+    }
+
+    /* 向区间 [x,y] 加上 val, 在点 x 加上 val, y+1 加上 -val */
+    void update(int x, int y, ll val) {
+        add(x, val), add(y + 1, -val);
+    }
+    /* 单点查询时，需要加上该点的原数据 */
+    ll query(int x) {
+        return data[x] + sum(x);
+    }
+} T;
+\end{minted}
+
+\subsection{二维树状数组（矩阵求和与修改）}
+\begin{minted}{c++}
+class BinaryIndexedTree2D {
+public:
+    int a[MAXN][MAXN], a1[MAXN][MAXN], a2[MAXN][MAXN], a3[MAXN][MAXN];
+    int lowbit(int x) {
+        return x & (-x);
+    }
+    void add(int x, int y, int val) {
+        for (int i = x; i <= n; i += lowbit(i))
+            for (int j = y; j <= m; j += lowbit(j)) {
+                a[i][j] += val;
+                a1[i][j] += val * (x - 1);
+                a2[i][j] += val * (y - 1);
+                a3[i][j] += val * (x - 1) * (y - 1);
+            }
+    }
+    int query(int x, int y) {
+        int t1 = 0, t2 = 0, t3 = 0, t4 = 0;
+        for (int i = x; i > 0; i -= lowbit(i))
+            for (int j = y; j > 0; j -= lowbit(j))
+                t1 += a[i][j], t2 += a1[i][j], t3 += a2[i][j], t4 += a3[i][j];
+        return t1 * x * y + t4 - t2 * y - t3 * x;
+    }
+    /* 在矩形 $(x_1, y_1), (x_2, y_2)$ 上加上 val */
+    void update_matrix(int x1, int y1, int x2, int y2, int val) {
+        add(x2 + 1, y2 + 1, tmp), add(x1, y1, tmp);
+        add(x2 + 1, y1, -tmp), add(x1, y2 + 1, -tmp);
+    }
+    /* 查询矩形 (x1, y1) (x2, y2) 所有元素的和 */
+    int sum_matrix(int x1, int y1, int x2, int y2) {
+        return query(x2, y2) + query(x1 - 1, y1 - 1)
+            - query(x2, y1 - 1) - query(x1 - 1, y2);
+    }
+};
+\end{minted}
+
+\subsection{树状数组维护 MEX}
+\begin{minted}{c++}
+class MEX {
+public:
+    int n, a[maxn], b[maxn];	
+    inline int lowbit(int x) {
+        return x & (-x);
+    }
+    void init() {
+        for (int i = 0; i <= n; i++)
+            a[i] = 0, b[i] = 0;
+    }
+    void update(int x, int val) {
+        if (x > n)
+            return;
+        b[x] += val;
+        if ((b[x] == 1 && val == 1) || (b[x] == 0 && val == -1))
+            while (x <= n)
+                a[x] += val, x += lowbit(x);
+    }
+    int query(int x) {
+        int ans = 0;
+        while (x > 0)
+            ans += a[x], x -= lowbit(x);
+        return ans;
+    }
+    int mex() {
+        int l = 1, r = n, mid, cnt, ans;
+        while (l <= r) {
+            mid = (l + r) >> 1;
+            cnt = tree[idx[x]].query(mid);
+            if (cnt == mid)
+                ans = mid, l = mid + 1;
+            else
+                r = mid - 1;
+        }
+        return ans;
+    }
+};
+\end{minted}
+\clearpage

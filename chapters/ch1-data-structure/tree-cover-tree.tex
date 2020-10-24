@@ -1,0 +1,178 @@
+\section{树套树}
+
+\subsection{线段树套平衡树 (Treap)}
+
+\paragraph{应用场景} 维护多维度的信息，例如查询某个数在区间内的排名、查询区间第 $k$ 大，单点修改，查询区间内 $k$ 的前驱和后继等等。
+
+\begin{minted}{c++}
+class SegTree {
+public:
+    Treap::Node* t[MAXN << 2];
+    SegTree() {
+        fill(t, t + (MAXN << 2), T.NIL);
+    }
+    void build(int rt, int l, int r) {
+        for (int i = l; i <= r; i++)
+            T.insert(t[rt], a[i]);
+        if (l != r) {
+            int mid = (l + r) >> 1;
+            build(rt << 1, l, mid);
+            build(rt << 1 | 1, mid + 1, r);
+        }
+    }
+    void update(int rt, int l, int r, int x, int y) {
+        T.erase(t[rt], a[x]);
+        T.insert(t[rt], y);
+        if (l == r)
+            return;
+        int mid = (l + r) >> 1;
+        if (x <= mid)
+            update(rt << 1, l, mid, x, y);
+        else
+            update(rt << 1 | 1, mid + 1, r, x, y);
+    }
+    int rank(int rt, int l, int r, int ql, int qr, int k) {
+        if (qr < l || ql > r )
+            return 0;
+        if (ql <= l && r <= qr)
+            return T.rank(t[rt], k);
+        else {
+            int mid = (l + r) >> 1;
+            return rank(rt << 1, l, mid, ql, qr, k) + rank(rt << 1 | 1, mid + 1, r, ql, qr, k);
+        }
+    }
+    int kth(int x, int y, int k) {
+        int minx = 0, maxx = 1e8, mid, tmp;
+        while (minx < maxx) {
+            mid = (minx + maxx + 1) >> 1;
+            if ((tmp = rank(1, 1, n, x, y, mid)) < k)
+                minx = mid;
+            else 
+                maxx = mid - 1;
+        }
+        return maxx;
+    }
+    int prev(int rt, int l, int r, int ql, int qr, int k) {
+        if (qr < l || ql > r )
+            return -INT_MAX;
+        if (ql <= l && r <= qr)
+            return T.prev(t[rt], k);
+        else {
+            int mid = (l + r) >> 1;
+            return max(prev(rt << 1, l, mid, ql, qr, k), prev(rt << 1 | 1, mid + 1, r, ql, qr, k));
+        }
+    }
+    int next(int rt, int l, int r, int ql, int qr, int k) {
+        if (qr < l || ql > r )
+            return INT_MAX;
+        if (ql <= l && r <= qr)
+            return T.next(t[rt], k);
+        else {
+            int mid = (l + r) >> 1;
+            return min(next(rt << 1, l, mid, ql, qr, k), next(rt << 1 | 1, mid + 1, r, ql, qr, k));
+        }
+    }    
+};
+\end{minted}
+
+
+\subsection{树状数组套动态开点权值线段树}
+
+\paragraph{应用场景} 查询一段区间内数的个数 + 单点修改。
+
+\begin{minted}{c++}
+const int maxn = 2e5 + 10, lim = 2e5;
+
+// 动态开点权值线段树
+class SegTree {
+public:
+    int tot;
+    struct Node {
+        ll sum;
+        int lc, rc;
+    } t[maxn * 80];
+
+    SegTree(): tot(0) {}
+    void pushUp(int x) {
+        t[x].sum = t[t[x].lc].sum + t[t[x].rc].sum;
+    }
+    void update(int &root, int l, int r, int x, int val) {
+        if (!root)
+            root = ++tot;
+        if (l == r) {
+            t[root].sum += val;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        if (x <= mid)
+            update(t[root].lc, l, mid, x, val);
+        else
+            update(t[root].rc, mid + 1, r, x, val);
+        pushUp(root);
+    }
+    int query(int root, int l, int r, int ql, int qr) {
+        if (!root)
+            root = ++tot;
+        if (l >= ql && r <= qr)
+            return t[root].sum;
+        int mid = (l + r) >> 1, ans = 0;
+        if (ql <= mid)
+            ans += query(t[root].lc, l, mid, ql, qr);
+        if (qr > mid)
+            ans += query(t[root].rc, mid + 1, r, ql, qr);
+        return ans;
+    }
+} T;
+
+/* 树状数组 */
+// rt[i] 保存每个单点对应的权值线段树根节点，rt1, rt2 分别表示区间 [l, r] 的树根
+int rt[maxn], rt1[maxn], rt2[maxn], cnt1, cnt2, n, m;
+int lowbit(int x) {
+    return x & (-x);
+}
+// 单点修改：update_BIT(i, a[i], $\pm$ a[i]) 
+void update_BIT(int pos, int x, int val) {
+    for (int i = pos; i <= n; i+= lowbit(i))
+        T.update(rt[i], 1, lim, x, val);
+}
+// 求区间 [l, r] 的端点在两端的根
+void locate(int l, int r) {
+    cnt1 = cnt2 = 0;
+    for (int i = l-1; i > 0; i -= lowbit(i))
+        rt1[cnt1++] = rt[i];
+    for (int i = r; i > 0; i-= lowbit(i))
+        rt2[cnt2++] = rt[i];
+}
+// 求区间 [l, r] 有多少个数字 k
+ll ask(int l, int r, int k) {
+    ll ans = 0;
+    if (r == k) {
+        for (int i = 0; i < cnt1; i++)
+            ans -= T.t[rt1[i]].sum;
+        for (int i = 0; i < cnt2; i++)
+            ans += T.t[rt2[i]].sum;
+        return ans;
+    }
+    int mid = (l + r) >> 1;
+    if (k <= mid) {
+        for (int i = 0; i < cnt1; i++)
+            rt1[i] = T.t[rt1[i]].lc;
+        for (int i = 0; i < cnt2; i++)
+            rt2[i] = T.t[rt2[i]].lc;
+        return ask(l, mid, k);
+    } else {
+        for (int i = 0; i < cnt1; i++)
+            ans -= T.t[T.t[rt1[i]].lc].sum;
+        for (int i = 0; i < cnt2; i++)
+            ans += T.t[T.t[rt2[i]].lc].sum;
+        for (int i = 0; i < cnt1; i++)
+            rt1[i] = T.t[rt1[i]].rc;
+        for (int i = 0; i < cnt2; i++)
+            rt2[i] = T.t[rt2[i]].rc;
+        return ans + ask(mid + 1, r, k);
+    }
+}
+
+\end{minted}
+
+\clearpage

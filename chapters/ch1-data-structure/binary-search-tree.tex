@@ -1,0 +1,813 @@
+\section{平衡二叉树}
+\subsection{替罪羊树}
+\begin{minted}{c++}
+class ScapeGoat {
+public:
+    struct Node {
+        /* p: 父节点编号; size: 以该节点为根的子树节点个数(包括自身)
+            num: 当前节点维护的数; ch[0]: 左儿子, ch[1]: 右儿子 */
+        int p, num, size, ch[2];
+    };
+
+    const double alpha;     /* 旋转因子 0.5 <= α <= 1 */
+    Node t[MAXN];           /* 节点池 */
+    int cnt, root,          /* cnt: 记录节点个数，root: 记录根节点编号 */
+        sum, idx[MAXN];     /* idx[] 和 sum 用于重构时储存链状数据在节点池中的下标和节点数 */
+    #define lson(x) t[x].ch[0]
+    #define rson(x) t[x].ch[1]
+
+    /* 构造函数，默认旋转因子为 0.75，树根为 1，需要构建两个 -inf 和 inf 的虚拟节点便于后序操作 */
+    ScapeGoat(): alpha(0.75), cnt(2), root(1) {
+        t[1].num = -INF, t[1].size = 2, t[1].ch[1] = 2;
+        t[2].num = INF, t[2].size = 1, t[2].p = 1;
+    }
+    /**
+        * 检查以 x 为根的子树是否平衡
+        * 替罪羊树的平衡机制：当 0.5 <= alpha(旋转因子) <= 1 时，对于某个结点 x，如果该结点满足：
+        * 1. size(lch(x)) <= alpha * size(x) --- x 的左子树节点数小于等于(旋转因子 * x 的子节点数)
+        * 2. size(rch(x)) <= alpha * size(x) --- x 的右子树节点数小于等于(旋转因子 * x 的子节点数)
+        * 即：这个节点两棵子树的 size 都不超过以该节点为根的子树的 size，那么就称该节点及其子树是平衡的。
+        * 如果子树不是平衡的，那么直接重构成完全二叉树即可。
+        */
+    bool balance(int x) {
+        return (
+            ((double) t[x].size * alpha >= (double) t[lson(x)].size)
+            && ((double) t[x].size * alpha >= (double) t[rson(x)].size)
+        );
+    }
+    /* 将平衡树的元素变成链存在 idx[] 数组中 */
+    void recycle(int x) {
+        if (lson(x))
+            recycle(lson(x));
+        idx[++sum] = x;
+        if (rson(x))
+            recycle(rson(x));
+    }
+    /* 根据 idx[] 数组建立平衡树 */
+    int build(int l, int r) {
+        if (l > r)
+            return 0;
+        int mid = (l + r) >> 1, x = idx[mid];
+        // 递归建立左右子树并为左右儿子写入父节点信息，然后更新子树根节点的 size
+        lson(x) = build(l, mid - 1), rson(x) = build(mid + 1, r);
+        t[lson(x)].p = t[rson(x)].p = x;
+        t[x].size = t[lson(x)].size + t[rson(x)].size + 1;
+        return x;
+    }
+    /* 重建替罪羊树以保证平衡结构 */
+    void rebuild(int x) {
+        sum = 0;        // 重置 sum，重新写入信息到 idx[] 数组中
+        recycle(x);     // 拍扁成链
+        int fa = t[x].p,            // 保存 x 当前的父节点
+            son = t[fa].ch[1] == x, // 如果 son = 1, 更新右儿子；否则更新左儿子
+            cur = build(1, sum);
+        t[fa].ch[son] = cur, t[cur].p = fa; // 更新父节点和当前节点数据
+        if (x == root)
+            root = cur;
+    }
+    /* 将数字 x 插入到当前树中 */
+    void insert(int x) {
+        int u = root, cur = ++cnt;
+        t[cur].size = 1, t[cur].num = x;        // 插入数 x 到新分配的节点中
+        while (1) {
+            t[u].size++;                        // 从根节点向下更新节点的数量
+            int son = (x >= t[u].num);
+            if (t[u].ch[son])
+                u = t[u].ch[son];
+            else {
+                t[u].ch[son] = cur, t[cur].p = u;
+                break;
+            }
+        }
+        // 检查平衡性
+        int flag = 0;
+        for (int i = cur; i; i = t[i].p)
+            if (!balance(i))
+                flag = i;
+        // 如果不平衡，则暴力重构
+        if (flag)
+            rebuild(flag);
+    }
+    /* 删除编号为 x 的数 */
+    void erase(int x) {
+        if (lson(x) && rson(x)) {
+            int cur = lson(x);
+            while (rson(cur))
+                cur = rson(cur);
+            t[x].num = t[cur].num, x = cur;
+        }
+        int son = lson(x) ? lson(x) : rson(x),
+            k = rson(t[x].p) == x;
+        t[t[x].p].ch[k] = son, t[son].p = t[x].p;
+
+        for (int i = t[x].p; i; i = t[i].p)
+            t[i].size--;                // 更新节点数目
+        if (x == root)
+            root = son;                 // 特殊处理删除的节点为根的情况
+    }
+    /* 查找数 x 在树节点池 t[] 数组中的下标 */
+    int getPos(int x) {
+        int u = root;
+        while (1) {
+            if (t[u].num == x)
+                return u;
+            else
+                u = t[u].num < x ? rson(u) : lson(u);
+        }
+    }
+    /* 询问 x 在树中的排名 */
+    int getRank(int x) {
+        int u = root, ans = 0;
+        while (u)
+            if (t[u].num < x) {
+                ans += t[lson(u)].size + 1;
+                u = rson(u);
+            } else
+                u = lson(u);
+        return ans;
+    }
+    /* 询问第 k 个数的值 */
+    int getKth(int k) {
+        int u = root;
+        k++;
+        while (1)
+            if (t[lson(u)].size == k - 1)
+                return t[u].num;
+            else if (t[lson(u)].size >= k)
+                u = lson(u);
+            else
+                k -= t[lson(u)].size + 1, u = rson(u);
+        return t[u].num;
+    }
+    /* 获取 x 的前驱结点 */
+    int getForward(int x) {
+        int u = root, ans = -INF;
+        while (u) {
+            if (t[u].num < x)
+                ans = max(ans, t[u].num), u = rson(u);
+            else
+                u = lson(u);
+        }
+        return ans;
+    }
+    /* 获取 x 的后继结点 */
+    int getBackword(int x) {
+        int u = root, ans = INF;
+        while (u) {
+            if (t[u].num > x)
+                ans = min(ans, t[u].num), u = lson(u);
+            else
+                u = rson(u);
+        }
+        return ans;
+    }
+} T;    
+\end{minted}
+
+\subsection{Treap (指针版)}
+\begin{minted}{c++}
+class Treap {
+public: 
+    struct Node {
+        int val /* 当前结点维护的数值 */, size /* 子树结点和本身的数个数 */,
+            cnt /* 值为 val 的数个数 */,  rd   /* 优先级，通常是随机值 */;
+        Node *ch[2];    /* ch[0] 左儿子，ch[1] 右儿子 */
+    } t[MAXN], nil;     /* 结点池 & 空指针 */
+    
+    int cnt;            /* 结点池节点总数 */
+    Node *root, *NIL;   /* 根节点 & 空指针 */
+    
+    #define lson(p) p->ch[0]
+    #define rson(p) p->ch[1]
+    
+    Treap(): cnt(0), root(NULL) {
+        srand(time(0));
+        nil = (Node) { 0, 0, 0, 0, 0, 0 }, NIL = &nil;
+        build();
+    }
+    
+    /**
+    * 初始化操作，首先插入两个初始结点(inf 和 -inf) 并构造其关系 
+    * 令树根为无穷小结点 (1) ，不要忘记 pushUp 
+    */
+    void build() {
+        alloc(-INF), alloc(INF);
+        root = &t[1], rson(root) = &t[2];
+        pushUp(root);
+    }
+    
+    /**
+    * 在结点池中为新结点分配空间 
+    */
+    Node* alloc(int val) {
+        t[++cnt].val = val, t[cnt].cnt = t[cnt].size = 1, t[cnt].rd = rand();
+        t[cnt].ch[0] = t[cnt].ch[1] = NIL;
+        return &t[cnt];
+    }
+    
+    /**
+    * 利用左右儿子的信息更新当前结点的 size, size[p] = size[lson] + size[rson] + cnt[p]
+    */
+    void pushUp(Node *p) {
+        p->size = lson(p)->size + rson(p)->size + p->cnt;
+    }
+    
+    /**
+    * 右旋操作，注意 p 传入的是指针引用 
+    *    P                     L              1. *ls = L
+    *  /   \                     \            2. lson[rt]: L => rson[ls]: Q
+    * L     R  == zig(P) ==>      P           3. rson[ls]: Q => P(*rt)
+    *  \                        /  \          4. *rt => *ls(L)
+    *   Q                      Q    R         5. pushUp(rt): L, pushUp(rson[rt]): P
+    */
+    void zig(Node *&p) {
+        Node *ls = lson(p);
+        lson(p) = rson(ls), rson(ls) = p;
+        p = ls;
+        pushUp(p), pushUp(rson(p));
+    }
+    
+    /**
+    * 左旋操作同理 
+    *    P                     L              1. *rs = P
+    *  /   \                     \            2. rson[rt]: P => lson[rs]: Q
+    * L     R  <== zag(L) ==      P           3. son[rs]: Q => L(*rt)
+    *  \                        /  \          4. *rt => *rs(L)
+    *   Q                      Q    R         5. pushUp(rt): P, pushUp(lson[p]): L
+    */
+    void zag(Node *&p) {
+        Node *rs = rson(p);
+        rson(p) = lson(rs), lson(rs) = p;
+        p = rs;
+        pushUp(p), pushUp(lson(p));
+    }
+    
+    /**
+    * 插入一个新的结点，rt 为当前操作子树的指针，val 是待插入的数 
+    * 1. 如果 rt 是空，说明当前 rt 是叶结点，可以直接分配空间
+    * 2. 如果 rt 指向结点的 val 等于待插入数，说明有相同的数，直接让 cnt 自增 
+    * 3. 如果 val < 当前 val，那么向左子树插入，完成后判断优先级关系，不满足则右旋
+    * 4. 如果 val > 当前 val，那么向右子树插入，完成后判断优先级关系，不满足则左旋
+    * 5. 最后调用 pushUp 更新 size 和 cnt
+    * 无论何时，根节点的 rd 值应该始终大于等于左右儿子的 rd 值 
+    */
+    void insert(Node *&rt, int val) {
+        if (rt == NIL) {
+            rt = alloc(val);
+            return;
+        } else if (rt->val == val) {
+            rt->cnt++;
+        } else if (val < rt->val) {
+            insert(lson(rt), val);
+            if (rt->rd < lson(rt)->rd)
+                zig(rt);
+        } else {
+            insert(rson(rt), val);
+            if (rt->rd < rson(rt)->rd)
+                zag(rt);
+        }
+        pushUp(rt);
+    }
+    
+    /**
+    * 删除结点，rt 为当前操作的子树的指针，val 是待删除的数值，每次只删除一次 
+    * 1. 如果 rt 为空，说明代表该值的结点不存在 
+    * 2. 如果 rt 指向的当前结点的值等于待删除的数值，则分两种情况处理：
+    *   (a) 如果当前结点维护的数的数量不止一个 (rt->cnt > 1)，那么让其减一并 pushUp 更新
+    *   (b) 如果当前结点维护的数只有一个，则判断其是否存在左右儿子：
+    *       (i) 如果不存在左右儿子，说明这是一个叶结点，直接将其删除（rt = NIL)
+    *       (ii) 如果存在左右儿子，则判断
+    *           (1) 如果右儿子为空或左儿子的优先级大于右儿子，右旋并从右子树查找删除 
+    *           (2) 反之则左旋并从左子树查找删除
+    * 3. 其他情况则根据 val 和 rt->val 的大小情况进入左右子树查找删除
+    * 4. 最后不要忘记 pushUp 更新结点信息 
+    */
+    void erase(Node *&rt, int val) {
+        if (rt == NIL) {
+            return;
+        } else if (rt->val == val) {
+            if (rt->cnt > 1) {
+                rt->cnt--;
+            } else if (lson(rt) != NIL || rson(rt) != NIL) {
+                if (rson(rt) == NIL || lson(rt)->rd > rson(rt)->rd)
+                    zig(rt), erase(rson(rt), val);
+                else
+                    zag(rt), erase(lson(rt), val);
+            } else {
+                rt = NIL;
+                return;
+            }
+        } else if (val < rt->val)
+            erase(lson(rt), val);
+        else
+            erase(rson(rt), val);
+        pushUp(rt);
+    }
+
+    /**
+    * 查询某个数 val 在所给的以 rt 为根的子树中的排名，注意 Treap 满足二叉搜索树的性质 
+    * 如果 rt 为空，说明是叶子结点，那么返回 0
+    * 如果 val == rt->val，那么直接返回在左子树中 val 所在节点的左子树的 size + 1 
+    * 如果 val 在左子树中，则递归进入左子树中继续查询；
+    * 如果在右子树中，排名即为 rt 左子树的 size + rt 的 cnt + 右子树中的查询结果 
+    */ 
+    int rank(Node *rt, int val) {
+        if (rt == NIL)
+            return 0;
+        else if (rt->val == val)
+            return lson(rt)->size + 1;
+        else if (val < rt->val)
+            return rank(lson(rt), val);
+        else
+            return lson(rt)->size + rt->cnt + rank(rson(rt), val);
+    }
+    
+    /**
+    * 查询在以 rt 为根的子树中排名为第 k 大的数 
+    * 如果 rt 为空，说明到了叶子结点都没有找到，随便返回啥都行 
+    * 如果 rt 的左儿子的 size 大于 k，说明第 k 大的数在左子树中
+    * 否则如果 rt 左儿子的 size + rt->cnt >= k，说明 rt 指向的数就是第 k 大的数 
+    * 其他情况就在右子树中寻找 k - lson(rt)->size - rt->cnt 大的数 
+    */
+    int kth(Node *rt, int rk) {
+        if (rt == NIL)
+            return INF;
+        else if (lson(rt)->size >= rk)
+            return kth(lson(rt), rk);
+        else if (lson(rt)->size + rt->cnt >= rk)
+            return rt->val;
+        else
+            return kth(rson(rt), rk - lson(rt)->size - rt->cnt);
+    }
+    
+    /**
+    * 求 val 的前驱（前驱定义为比 val 小的第一个数） 
+    */
+    int prev(int val) {
+        int ans = -INF;
+        Node *rt = root;
+        while (rt != NIL) {
+            if (val == rt->val) {
+                if (lson(rt) != NIL) {
+                    rt = lson(rt);
+                    while (rson(rt) != NIL)
+                        rt = rson(rt);
+                    ans = rt->val;
+                }
+                break;
+            }
+            if (rt->val < val && rt->val > ans)
+                ans = rt->val;
+            rt = val < rt->val ? lson(rt) : rson(rt);
+        }
+        return ans;
+    }
+    
+    /**
+    * 求 val 的后继（后继定义为比 val 大的第一个数） 
+    */
+    int next(int val) {
+        int ans = INF;
+        Node *rt = root;
+        while (rt != NIL) {
+            if (val == rt->val) {
+                if (rson(rt) != NIL) {
+                    rt = rson(rt);
+                    while (lson(rt) != NIL)
+                        rt = lson(rt);
+                    ans = rt->val;
+                }
+                break;
+            }
+            if (rt->val > val && rt->val < ans)
+                ans = rt->val;
+            rt = val < rt->val ? lson(rt) : rson(rt);
+        }
+        return ans;
+    }
+} T;    
+\end{minted}
+\clearpage
+
+\subsection{FHQTreap (无旋 Treap)}
+\begin{minted}{c++}
+class FHQTreap {
+public:
+    struct Node {
+        int val, size, cnt, rd;
+        Node *ch[2];
+    } t[MAXN], nil, *root, *NIL;
+    int cnt;
+    
+    #define lson(x) x->ch[0]
+    #define rson(x) x->ch[1]
+    
+    FHQTreap(): cnt(0) {
+        srand((int)time(NULL));
+        nil = (Node) { 0, 0, 0, 0, 0, 0 }, root = NIL = &nil;
+    }
+    void pushUp(Node *p) {
+        p->size = lson(p)->size + rson(p)->size + p->cnt;
+    }
+    void split(Node *now, int k, Node *&x, Node *&y) {
+        if (now == NIL)
+            x = y = NIL;
+        else if (now->val <= k)
+            x = now, split(rson(now), k, rson(now), y);
+        else
+            y = now, split(lson(now), k, x, lson(now));
+        pushUp(now);
+    }
+    void rankSplit(Node *now, int k, Node *&x, Node *&y) {
+        if (now == NIL)
+            x = y = NIL;
+        else {
+            if (k <= lson(now)->size)
+                y = now, split(lson(now), k, x, lson(now));
+            else
+                x = now, split(rson(now), k - lson(now)->size - 1, rson(now), y);
+            pushUp(now);
+        }
+    }
+    Node* merge(Node *a, Node *b) {
+        if (a == NIL || b == NIL)
+            return a == NIL ? b : a;
+        if (a->rd < b->rd) {
+            rson(a) = merge(rson(a), b), pushUp(a);
+            return a;
+        } else {
+            lson(b) = merge(a, lson(b)), pushUp(b);
+            return b;
+        }
+    }
+    Node* alloc(int val) {
+        t[++cnt] = (Node) { val, 1, 1, rand(), NIL, NIL };
+        return &t[cnt];
+    }
+    void insert(int val) {
+        Node *x, *y;
+        split(root, val, x, y), root = merge(merge(x, alloc(val)), y);
+    }
+    void erase(int val) {
+        Node *x, *y, *z;
+        split(root, val, x, z), split(x, val-1, x, y);
+        y = merge(lson(y), rson(y)), root = merge(merge(x, y), z);
+    }
+    int rank(int val) {
+        Node *x, *y;
+        split(root, val-1, x ,y);
+        int res = x->size - 1;
+        root = merge(x, y);
+        return res;
+    }
+    Node *kth(Node *cur, int k) {
+        while (1)
+            if (k <= lson(cur)->size)
+                cur = lson(cur);
+            else
+                if (k <= lson(cur)->size + cur->cnt)
+                    return cur;
+                else
+                    k = k - (lson(cur)->size + cur->cnt), cur = rson(cur);
+    }
+    int prev(int t) {
+        Node *x, *y;
+        split(root, t-1, x, y);
+        int ans = kth(x, x->size)->val;
+        root = merge(x, y);
+        return ans;
+    } 
+    int next(int t) {
+        Node *x, *y;
+        split(root, t, x, y);
+        int ans = kth(y, 1)->val;
+        root = merge(x, y);
+        return ans;
+    }
+};    
+\end{minted}
+\clearpage
+
+
+\subsection{伸展树 Splay (指针版)}
+\begin{minted}{c++}
+class Splay {
+private:
+    static const int MAXN = 200050,
+        INF = 0x3f3f3f3f;
+public:
+    struct Node {
+        int val,  /* 结点维护的数值 */
+            size, /* 子树结点和本身的数个数 */
+            cnt;  /* 值为 val 的数个数 */
+        Node *ch[2], *p;    /* 左右儿子和父亲指针 */
+    } t[MAXN]  /* 结点池 */,     nil  /* 逻辑空结点 */;
+    Node *root /* 根节点指针 */, *NIL /* 逻辑空结点指针 */;
+    
+    int cnt;   /* 结点池中结点总数 */
+    
+    #define lson(x) x->ch[0]
+    #define rson(x) x->ch[1]
+    #define son(x, d) x->ch[d]
+    #define p(x) x->p
+    
+    /* 构造函数 */
+    Splay(): cnt(0) {
+        nil = (Node) { 0, 0, 0, 0, 0, 0 }, root = NIL = &nil;
+    }
+    /**
+    * 利用左右儿子信息更新当前结点的 size 
+    */
+    void pushUp(Node *p) {
+        p->size = lson(p)->size + rson(p)->size + p->cnt;
+    }
+    /**
+    * 根据所给数组，直接建立平衡树
+    */
+    Node* build(int l, int r, Node *p, int a[], int d, int offset) {
+        if (l > r)
+            return NIL;
+        int m = (l + r) >> 1;
+        Node *mid = alloc(m + offset, a[m], p);
+        if (p != NIL)
+            son(p, d) = mid;
+        else if (!offset)
+            root = mid;
+        build(l, m - 1, mid, a, 0, offset);
+        build(m + 1, r, mid, a, 1, offset);
+        pushUp(mid);
+        return mid;
+    }    
+    /**
+    * 单旋操作函数, x 为待操作的结点，dir 是方向 (0左旋,1右旋) 
+    * splay 每个结点都记录了它的父亲，因此可以直接传入操作结点，并得到它的父亲
+    * 也因此，在操作修改父子关系的时候，不要忘记修改子结点的父亲 
+    * 下面的注释以 zig(右旋) 为例，zag(左旋) 是同理的 
+    *    P                           L              
+    *  /   \                           \ 
+    * L     R  == rotate(L, 1) ==>      P 
+    *  \                              /  \        
+    *   Q                            Q    R   
+    */
+    void rotate(Node *x, bool dir) {
+        /* step1: 获得操作结点的父结点 */
+        Node *y = p(x);                 // P
+        // pushDown(x), pushDown(y);
+        /* step2: 将当前结点的右儿子赋给父结点的左儿子 */
+        son(y, !dir) = son(x, dir);     // lson(P) <= rson(L): Q
+        if (son(x, dir) != NIL)
+            son(x, dir)->p = y;             // parent(Q) <= P
+        /* step3: 将操作结点接到其父结点的父结点 */
+        p(x) = p(y);                    // parent(L) <= parent(P)
+        /* step4: 判断父结点的父结点是否为空（如果为空说明当前父结点是根）
+                    否则就断开祖先结点与父结点的联系，建立祖先结点与操作结点的联系。
+                    更新父结点的父结点的左/右子树信息；两个节点随意旋转不会改变相对祖先结点的方向 */ 
+        if (p(y) != NIL) {
+            if (y == son(p(y), dir))    // 这一步在图中就没法体现了 
+                son(p(y), dir) = x;
+            else 
+                son(p(y), !dir) = x;
+        }
+        /* step5: 最后将操作结点旋转方向上的儿子设为原先的父结点 */
+        son(x, dir) = y, p(y) = x;      // rson(L) <= P, parent(P) <= L
+        /* step6: 不要忘记更新结点的信息 */
+        pushUp(y), pushUp(x);           // 先 y 后 x，顺序不能变 
+    }
+    /**
+    * 伸展(splay) 操作，将结点 x 伸展到 y 的子节点处
+    * 如果要将 x 旋转到根，那么 y 可以传入 Splay::NIL 
+    * 分三种情况：
+    * (1) 如果当前结点的父结点即为（子树的）根节点，单旋即可
+    * (2) 设 x, y=p(x), z=p(y)，如果 x, y 都是对应父亲相同方向上的子结点，则同时对两个结点右旋或左旋
+    * (3) 如果 x, y 是对应父亲不同方向上的子结点，那么对两者进行反方向的旋转，可以直接用 while 完成 
+    */
+    void splay(Node *x, Node *y) {
+        Node *tmp;
+        while (p(x) != y) {             // 循环进行旋转操作 
+            // pushDown(x);
+            // if (y != NIL)    pushDown(y);
+            tmp = x->p;
+            if (x == lson(tmp)) {       // 如果 x 是左儿子 
+                // 当前 tmp 的父结点不是 y，并且 tmp 也是祖先的左儿子 
+                // 都在左侧一条链上的情况，进行 zig-zig 
+                if (p(tmp) != y && tmp == lson(tmp->p))
+                    rotate(tmp, 1);
+                rotate(x, 1);
+            } else {                    // x 是右儿子 
+                // 都在右侧一条链上的情况，进行 zag-zag 
+                if (p(tmp) != y && tmp == rson(tmp->p))
+                    rotate(tmp, 0);
+                rotate(x, 0);
+            }
+        }
+        if (y == NIL) {
+            root = x;   // 如果 y 是NIL，说明旋转后 x 是根 
+        }
+    }
+    Node* alloc(int val, Node *p) {
+        t[++cnt] = (Node) {
+            val, 1, 1, NIL, NIL, p      // val, size, cnt, lson, rson, p
+        };
+        return &t[cnt];
+    }
+    /**
+    * 插入一个新数到 splay 中 
+    */
+    void insert(int val) {
+        if (root == NIL) {      // root 为 NIL 说明树为空 
+            cnt = 0, root = alloc(val, NIL);
+            return;
+        }
+        Node *x = root, *y;
+        while (1) {
+            /* 插入新节点的时候，从根节点向下更新以 i 为根的子树结点数 */
+            x->size++;
+            if (val == x->val) {
+                x->cnt++;
+                pushUp(x);
+                y = x;
+                break;
+            } else if (val < x->val) {
+                if (lson(x) != NIL)
+                    x = lson(x);
+                else {          // 在左儿子处插入新节点 
+                    lson(x) = y = alloc(val, x);
+                    break;
+                }
+            } else {
+                if (rson(x) != NIL)
+                    x = rson(x);
+                else {
+                    rson(x) = y = alloc(val, x);
+                    break;
+                }
+            }
+        }
+        
+        splay(y, NIL);      // 完成插入后将新节点旋转到根 
+    }
+    /**
+    * 查找一个数字所在的结点并返回指针 
+    * 操作后，被查找的数会被旋转到根节点 
+    */
+    Node *search(int val) {
+        if (root == NIL)
+            return NIL;         // 不存在的结点 
+        Node *x = root, *y = NIL;
+        while (1) {
+            if (val == x->val) {
+                y = x;
+                break;
+            } else if (val < x->val) {
+                if (lson(x) != NIL)
+                    x = lson(x);
+                else
+                    break;          // 404
+            } else {
+                if (rson(x) != NIL)
+                    x = rson(x);
+                else
+                    break;          // 404
+            }
+        }
+        splay(x, NIL);       // 完成查找后将离 val 最近的结点伸展到根部
+        return y; 
+    }
+    /**
+    * 查询在以 rt 为根的子树中的最小值，只需要一直往左儿子走，走到底就可以 
+    */
+    Node *minNode(Node *rt) {
+        Node *y = p(rt);
+        while (lson(rt) != NIL)
+            rt = lson(rt);
+        splay(rt, y);       // 记录原先 rt 的根节点，将最小值旋到子树的根部 
+        return rt;
+    }
+    /**
+    * 根据值删除结点（如果一个数有多个，只删除一个） 
+    */
+    void erase(int val) {
+        if (root == NIL)
+            return;         // splay 为空 
+        Node *x = search(val),  // search 之后，值为 val 的结点会被旋转到根部 
+                *y;
+        if (x == NIL)       // 不存在值为 val 的结点 
+            return; 
+        if (x->cnt > 1) {   // 值为 val 的数有两个以上，直接减掉一个 
+            x->cnt--;
+            pushUp(x);
+            return; 
+        } else if (lson(x) == NIL && rson(x) == NIL) {  // x 没有左右儿子，直接删除 
+            root = NIL, cnt = 0;    // 因为 search(val) 将值为 val 的数旋到了根，所以如果没有左右子结点说明树为空 
+            return;
+        } else if (lson(x) == NIL) {
+            root = rson(x);
+            p(rson(x)) = NIL;
+            return;
+        } else if (rson(x) == NIL) {
+            root = lson(x);
+            p(lson(x)) = NIL;
+            return;
+        } else {       // 左右子树都为空，从右子树中找最小替换根 
+            y = minNode(rson(x));       // 完成后最小值会被旋到 x 的右儿子 
+            p(y) = NIL, p(lson(x)) = y, lson(y) = lson(x);
+            pushUp(y);
+            root = y;
+        }
+    }
+    /**
+    * 求某个数是第几大 
+    * 直接旋到根，然后返回左儿子的 size + 1 
+    */
+    int rank(int val) {
+        Node *x = search(val);
+        return x == NIL ? 0 /* 404 */ : lson(x)->size + 1;
+    }
+    /**
+    * 求第 k 大的数是多少 
+    */
+    Node* kth(int k) {
+        if (root == NIL || k > root->size)    // 不存在或比当前数的数量大 
+            return NIL;
+        Node *x = root;
+        while (1) {
+            // pushDown(x);
+            if (lson(x)->size + 1 <= k && k <= lson(x)->size + x->cnt)
+                break;      // 当前 x 指向即为目标
+            else if (k <= lson(x)->size)
+                x = lson(x);    // 到左子树中找
+            else
+                k -= lson(x)->size + x->cnt, x = rson(x); 
+        }
+        splay(x, NIL);      // 将 x 旋到根部 
+        return x;
+    } 
+    /* 查询前驱结点（第一个小于 num 的结点） */
+    int prev(int val) {
+        Node *u = root;
+        int res = -INF;
+        while (u != NIL) {
+            if (u->val < val && u->val > res)
+                res = u->val;
+            if (val > u->val)
+                u = rson(u);
+            else
+                u = lson(u);
+        }
+        return res;
+    }
+    /* 查询后继结点（第一个大于 num 的结点） */
+    int next(int val) {
+        Node *u = root;
+        int res = INF;
+        while (u != NIL) {
+            if (u->val > val && u->val < res)
+                res = u->val;
+            if (val < u->val)
+                u = lson(u);
+            else
+                u = rson(u); 
+        }
+        return res;
+    }
+} T;    
+\end{minted}
+
+
+\noindent\par Splay 的基本区间操作（例题：NOI2005 维护数列）： 
+\begin{itemize}
+    \item 操作区间 [l, r]：首先先把 (l-1) 旋到根节点，再把 (r+1) 旋到根节点右儿子上，那么现在根节点的右儿子的左儿子（即 r+1 的左儿子）即为所求区间。
+    \item Splay 维护区间最大子序列：每个结点记录 lmx, rmx, mmx； 分别表示：从区间左端点 l/右端点 r 开始的连续的前缀最大子序列，以及该区间的最大子序列。
+    \item 转移方程 $lmx = max(lson->lmx, lson->sum + x->val + rson->lmx)$，$rmx$ 同理对偶；$mmx = max(lson->mmx, rson->mmx, lson->rmx + x->val + rson->lmx)$.
+    \item 将区间 [l, r] 变为同一个数：打标记并修改值，$sum = size \times val$，如果待修改的值 $val > 0$，那么 $lmx = rmx = mmx = sum$；否则 $lmx = rmx = 0, mmx = val$.
+    \item 将区间 [l, r] 翻转：打上修改标记，并交换左右儿子，然后交换当前结点的 $lmx$ 和 $rmx$.
+\end{itemize}
+
+
+\subsection{平衡树测试数据}
+1. 插入，2. 删除，3. 查询某数排名，4. 按排名查数，5. 查某个数前驱，6. 求某个数后继。
+\begin{lstlisting}
+Input:               Output:
+20                   964673
+1 964673             964673
+5 968705             1
+4 1                  964673
+3 964673             3
+5 965257             1
+1 915269             1
+1 53283              964673
+3 964673             964673
+3 53283
+3 53283
+1 162641
+5 973984
+1 948119
+2 915269
+2 53283
+6 959161
+1 531821
+1 967521
+2 531821
+1 343410
+\end{lstlisting}
+\clearpage

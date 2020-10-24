@@ -1,0 +1,55 @@
+\section{旋转卡壳}
+\paragraph{对踵点对} 对于点 $P_i, P_j$，如果存在两条分别穿过这两个点的平行直线，把凸包夹在中间（即 $P_i, P_j$ 与凸包相切），则这样的点对成为对踵点对。对踵点对最多只能有四对。
+
+\noindent 用两条平行且与已知凸包相切的直线在凸包上进行扫描，用于解决一些问题，如：凸多边形直径（凸多边形上或平面距离最远的两点）；凸多边形之间的最大、最小距离；最小面积/周长外接矩形。旋转卡壳具体思想如下：
+\begin{itemize}
+    \item 使用两条有向直线将凸包夹在中间，上面的水平向左，下面的水平向右；
+    \item 初始的时候找到 $y$ 坐标最小和最大的两个点 $P_i$ 和 $P_j$.
+    \item 逆时针旋转两条直线，假设穿过 $P_i, P_j$ 的有向直线分别需要逆时针旋转 $\theta_i, \theta_j$角度才能贴边 $P_iP_{i+1}, P_jP_{j+1}$.
+    \item 如果 $\theta_i < \theta_j$，则当旋转角为 $\theta_i$时，对踵点对中 $P_i$ 变为 $P_{i+1}$；同理$\theta_j > \theta_i$,旋转角 $\theta_j$，$P_j$ 变成 $P_{j+1}$.
+    \item 如果 $\theta_i = \theta_j$，两条直线同时贴住新的边，$P_i P_j, P_{i+1} P_{j+1}$ 分别为对踵点对.
+    \item 重复上述过程，直到穿过 $P_i$ 的直线倾斜角大于 $\pi$ 时终止。
+\end{itemize}
+
+\noindent 实际上，判断最远点对的时候如何得到距离每条对应边的的最远点呢?可以把点到直线的距离化解为三角形的面积，再运用叉积进行比较。同时，凸包上的点依次与对应边产生的距离成单峰函数,面积上升到最高点后，又会下降。利用单峰函数这一性质，我们可以根据凸包上点的顺序，枚举对踵点，直到下一个点的距离小于当前点就可以停止了，而且随着对应边的旋转，最远点也只会顺着这个方向旋转，我们可以从上一次的对踵点开始继续寻找这一次的。
+
+\noindent 但是下面的模板不具有普遍适用性。
+
+\begin{minted}{c++}
+double rotatingCalipers(Point p[], int n) {
+    double res = 0.0;
+    if (n == 2)
+        return lengthSquare(p[1] - p[0]);
+
+    p[n++] = p[0];      // put first point to the end        
+    int m = 1;
+    // foreach every point
+    for (int i = 0; i < n; i++) {
+        Vector v1 = p[i+1] - p[i], v2 = p[m] - p[i], v3 = p[m + 1] - p[i];
+        // compare area
+        while (dcmp(cross(v1, v2) - cross(v1, v3)) < 0) {
+            m = (m + 1) % n;
+            v2 = p[m] - p[i], v3 = p[m + 1] - p[i];
+        }
+        res = std::max(res, std::max(lengthSquare(p[i] - p[m]), lengthSquare(p[i + 1] - p[m])));
+    }
+    return res;
+}    
+\end{minted}
+
+可以改进上面的代码，原理如下：
+\begin{minted}{c++}
+for (int i = 0, m = 1; i < n; i++) {
+    // when area(p[i], p[i+1], p[m+1]) <= area(p[i], p[i+1], p[m]), stop rotate
+    // ===> cross(p[i+1]-p[i], p[m+1]-p[i]) - cross(p[i+1]-p[i], p[m]-p[i]) <= 0
+    // because cross(a, b) - cross(a, c) = cross(a, b-c)
+    // thus cross(p[i+1]-p[i], p[m+1]-p[m]) <= 0
+    Vector v1 = p[i+1] - p[i], v2 = p[m+1] - p[m];
+    // compare area
+    while (dcmp(cross(v1, v2)) > 0) {
+        m = (m + 1) % n;
+        v2 = p[m+1] - p[m];
+    }
+    res = std::max(res, std::max(lengthSquare(p[i] - p[m]), lengthSquare(p[i + 1] - p[m])));
+}
+\end{minted}

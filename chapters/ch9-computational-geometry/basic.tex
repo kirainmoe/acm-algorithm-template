@@ -1,0 +1,80 @@
+\section{基本运算}
+\subsection{求向量的极角}
+向量的极角：从 $x$ 轴的正半轴转到该向量方向所需要的角度。比较的时候有精度误差。
+\begin{minted}{c++}
+double getVectorPolarAngle(Vector a) {
+    return atan2(a.y, a.x);
+} 
+\end{minted}
+
+\subsection{点积、向量模、两向量夹角}
+\begin{minted}{c++}
+double dot(Vector a, Vector b) {
+    return a.x * b.x + a.y * b.y;
+}
+
+double length(Vector a) {
+    return sqrt(dot(a, a)); 
+} 
+
+double cosine(Vector a, Vector b) {
+    return dot(a, b) / length(a) / length(b);
+}
+
+double angle(Vector a, Vector b) {
+    return acos(cosine(a, b));
+}
+\end{minted}
+
+
+\subsection{叉积，三角形有向面积}
+向量叉乘。二维向量 $\vec{a}, \vec{b}$ 叉积 $\vec{a} \times \vec{b}$ 得到的向量为 $(0, 0, x)$，$x = A_x \cdot B_y - A_y \cdot B_x$.
+\begin{minted}{c++}
+double cross(Vector a, Vector b) {
+    return a.x * b.y - a.y * b.x;
+}
+\end{minted}
+
+\par 性质：
+\begin{itemize}
+    \item 两个向量 $\vec{v}$ 和 $\vec{w}$ 的叉积等于 $\vec{v}, \vec{w}$ 组成的三角形的有向面积的两倍。
+    \item $\vec{v} \times \vec{w} = -\vec{w} \times \vec{v}$.
+\end{itemize}
+
+\paragraph{三角形的有向面积}
+向量 $\vec{v}, \vec{w}$ 构成的三角形，设有向面积为 $A=\frac{1}{2}(\vec{v} \times \vec{w})$，如果 $\vec{w}$ 在 $\vec{v}$ 的左边，则 $A > 0$；如果 $\vec{w}$ 在 $\vec{v}$ 的右边，则 $A < 0$.
+
+\par 以 $\vec{AB}, \vec{AC}$ 构成的三角形的有向面积：
+
+\begin{minted}{c++}
+double area(Point A, Point B, Point C) {
+    return cross(B - A, C - A) / 2.0;
+}
+\end{minted}
+
+\subsection{向量位置关系}
+
+判断向量 $\vec{a}, \vec{b}$ 的位置关系：固定其中一个向量 $\vec{a}$ 的方向，令其指向水平向右 ($x$ 轴正方向)；然后计算 $dot(\vec{a}, \vec{b})$ 和 $cross(\vec{a}, \vec{b})$，将其符号分别对应点 $(x, y)$ 参数的符号；按照直角坐标系下点的位置判断两向量的位置关系。
+
+\subsection{向量旋转、求向量的单位法向量}
+\par 向量绕起点旋转：向量 $\vec{a} = (x, y)$，旋转 $\alpha$ 角后得到新向量 $\vec{a'} = (x', y')$, 有：
+
+$$\begin{bmatrix}x' \\ y'\end{bmatrix} = \begin{bmatrix}cos\alpha & -sin\alpha \\ sin\alpha & cos\alpha \end{bmatrix} \cdot \begin{bmatrix}x \\ y\end{bmatrix}$$
+
+\begin{minted}{c++}
+Vector rotateVector(Vector a, double rad) {
+    return Vector(a.x * cos(rad) - a.y * sin(rad), a.x * sin(rad) + a.y * cos(rad));
+}
+\end{minted}
+
+\par 求单位法向量，旋转 90 后除掉模即可，注意特判一下模长为 0 的情况。
+
+\begin{minted}{c++}
+Vector normalVector(Vector a) {
+    double len = length(a);
+    if (dcmp(len) == 0)  {
+        return Vector(0, 0);        // ensure |a| != 0
+    }
+    return Vector(-a.y / len, a.x / len);
+}
+\end{minted}

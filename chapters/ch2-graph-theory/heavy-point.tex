@@ -1,0 +1,104 @@
+\section{树 \& 子树的重心}
+\paragraph{定义} 找到一个点,其所有的子树中最大的子树节点数最少,那么这个点就是这棵树的重心,删去重心后,
+生成的多棵树尽可能平衡.
+\paragraph{性质}
+\begin{itemize}
+\item 树中所有点到某个点的距离和中,到重心的距离和是最小的;如果有两个重心,那么他们的距离和一样.
+\item 把两个树通过一条边相连得到一个新的树,那么新的树的重心在连接原来两个树的重心的路径上.
+\item 把一个树添加或删除一个叶子,那么它的重心最多只移动一条边的距离.
+\end{itemize}
+\paragraph{应用} 树的重心在树的点分治中有重要的作用,可以避免 $O(n^2)$ 的极端复杂度(从退化链的一端出发),保证NlogN
+的复杂度.
+
+\begin{minted}{c++}
+int sz[MAXN], maxcnt[MAXN], rt;         // 每个结点的儿子所在子树的最大结点数, rt 为所求重心
+void getCenter(int u, int fa) {
+    maxcnt[u] = 0;
+    for (int i = head[u]; i; i = e[i].next) {
+        if (e[i].v == fa)
+            continue;
+        getCenter(e[i].v, u);
+        maxcnt[u] = max(maxcnt[u], sz[e[i].v]);
+    }
+    maxcnt[u] = max(maxcnt[u]. n - sz[u]);
+    if (maxcnt[u] < maxcnt[rt])
+        rt = u;
+}    
+\end{minted}
+
+\paragraph{原理} 利用重心的性质：把两个树通过一条边相连得到一个新的树，那么新的树的重心在连接原来两个树的重心的路径上。由于一棵树的重心可能不只有一个，因此默认保存深度更深的重心，然后在深度更深的重心与根节点之间查找另一个重心。
+\paragraph{性质} $a$ 可能是以 $rt$ 为根的子树的重心，当且仅当满足 $size[rt] - size[a] > size[a]$。
+
+\begin{minted}{c++}
+// 子树大小 & 父节点 & 深度 & 以 i 为根的子树较深的重心
+int size[maxn], fa[maxn], depth[maxn], c[maxn];
+
+// 在 (a, b) 之间寻找以 rt 为根的子树重心
+void update(int rt, int a, int b) {
+    while (depth[a] > depth[rt] && size[rt] - size[a] > size[a])
+        a = fa[a];
+    while (depth[b] > depth[rt] && size[rt] - size[b] > size[b])
+        b = fa[b];
+    c[rt] = depth[a] > depth[b] ? a : b;
+}
+
+void dfs(int u, int p) {
+    fa[u] = p, size[u] = 1, c[u] = u;
+    for (int i = head[u]; i; i = e[i].next) {
+        int v = e[i].v;
+        if (v == p)
+            continue;
+        depth[v] = depth[u] + 1, dfs(v, u);
+        size[u] += size[v];
+        update(u, c[u], c[v]);
+    }
+}
+
+void solve(int n) {
+    depth[1] = 1, dfs(1, 0);
+    int ans[10] = {0};
+    for (int i = 1; i <= n; i++) {
+        int cnt = 0;
+        ans[cnt++] = c[i];
+        if (fa[c[i]] && size[i] - size[c[i]] == size[c[i]])
+            ans[cnt++] = fa[c[i]];
+        sort(ans, ans + cnt);
+        for (int j = 0; j < cnt; j++)
+            printf("%d%c", ans[j], " \n"[j == cnt-1]);
+    }
+}
+\end{minted}
+
+\section{树的直径}
+任选一个点找到最远的点，然后再从那个最远点 s 找离 s 最远的点 t，dist(s, t) 即为树的直径。
+\begin{minted}{c++}
+int diameter() {
+    queue<pair<int, int> > q;
+    q.push(make_pair(1, 0)), vis[1] = 1;
+    int idx = 0, maxl = 0;
+    while (!q.empty()) {
+        int cur = q.front().first, len = q.front().second;
+        q.pop();
+        if (len > maxl)
+            idx = cur, maxl = len;
+        for (int i = head[cur], v; i; i = e[i].next) {
+            v = e[i].v;
+            if (!vis[v])
+                q.push(make_pair(v, len + 1)), vis[v] = 1;
+        }
+    }
+    memset(vis, 0, sizeof vis);
+    q.push(make_pair(idx, 0)), maxl = 0, vis[idx] = 1;
+    while (!q.empty()) {
+        int cur = q.front().first, len = q.front().second;
+        q.pop();
+        maxl = max(maxl, len);
+        for (int i = head[cur], v; i; i = e[i].next) {
+            v = e[i].v;
+            if (!vis[v])
+                q.push(make_pair(v, len + 1)), vis[v] = 1;
+        }
+    }
+    return maxl;
+}
+\end{minted}

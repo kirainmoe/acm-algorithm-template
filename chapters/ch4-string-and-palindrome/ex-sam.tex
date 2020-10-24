@@ -1,0 +1,134 @@
+\section{广义后缀自动机}
+
+\paragraph{问题场景} 对多个子串或给定的 Trie 树建立后缀自动机。
+
+\begin{minted}{c++}
+namespace exSAM {
+    #define clr(x) memset(x, 0, sizeof x);
+    const int maxn = 300050,
+              maxm = maxn << 1,
+              maxlog= 20,
+              maxch = 26;
+    int pos[maxn], n;        // pos[i]: 第i 个字符在 trie 树中的节点编号 
+    char s[maxn];
+    
+    namespace SAM {
+        struct Node {
+            // len: 状态最大长度, link: 后缀连接, nxt: 节点转移, cnt: 状态代表子串数量 
+            int len, cnt, link, nxt[maxch];
+            Node(int _l = 0, int _c = 0, int _lk = 0) {
+                len = _l, cnt = _c, link = _lk, clr(nxt);
+            }
+        } t[maxm];
+        int tot, c[maxm], rk[maxm], f[maxm][maxlog + 2];  // 拓扑计数和倍增用数组 
+        vector<vector<int> > G; 
+        void init() {
+            tot = 1;
+        }
+        // 拓展节点，id: 当前字符，last: 从哪一个状态转移来，cnt: Trie 树中的当前状态个数 
+        int extend(int id, int last, int cnt) {
+            int cur = ++tot, p;
+            t[cur] = Node(t[last].len + 1, cnt);
+            for (p = last; p && !t[p].nxt[id]; p = t[p].link)
+                t[p].nxt[id] = cur;
+            if (!p)
+                t[cur].link = 1;
+            else {
+                int q = t[p].nxt[id];
+                if (t[q].len == t[p].len + 1)
+                    t[cur].link = q;
+                else {
+                    int clone = ++tot;
+                    t[clone] = t[q], t[clone].cnt = 0, t[clone].len = t[p].len + 1;
+                    for (; p && t[p].nxt[id] == q; p = t[p].link)
+                        t[p].nxt[id] = clone;
+                    t[cur].link = t[q].link = clone;
+                }
+            }
+            return cur;
+        }
+        // 处理每个状态的后缀链接倍增数组 & 递归统计 
+        void dfs(int u) {
+            for (int i = 1; i < maxlog; i++)
+                f[u][i] = f[f[u][i-1]][i-1];
+            for (auto &v : G[u])
+                f[v][0] = u, dfs(v), t[u].cnt += t[v].cnt;
+        }
+        // 统计每个节点代表的状态个数 
+        void topoSort() {
+            clr(c);
+            for (int i = 1; i <= tot; i++)
+                c[t[i].len]++;
+            for (int i = 1; i <= tot; i++)
+                c[i] += c[i-1];
+            // 如果不需要处理倍增父节点，那么直接使用拓扑排序计算 
+            /*
+            for (int i = 1; i <= tot; i++)
+                rk[c[t[i].len]--] = i;
+            for (int i = tot; i; i--)
+                t[t[rk[i]].link].cnt += t[rk[i]].cnt;
+            */
+            
+            // 否则用DFS处理 
+            G.clear(), G.resize(tot + 1);
+            for (int i = 1; i <= tot; i++)
+                if (t[i].link)
+                    G[t[i].link].emplace_back(i);
+            f[1][0] = 0, dfs(1);
+        }
+        int query(int x, int len) {
+            for (int i = maxlog - 1; i >= 0; i--)
+                if (t[f[x][i]].len >= len)
+                    x = f[x][i];
+            return t[x].cnt;
+        }
+    } // SAM
+    
+    namespace Trie {
+        struct Node {
+            int nxt[maxch], cnt, spos; // sam_pos
+            Node(int _c = 0, int _sp = 0) {
+                cnt = _c, spos = _sp, clr(nxt);
+            }
+        } t[maxm];
+        int rt, tot;
+        vector<vector<int> > G;
+        void init() {
+            rt = tot = 1;
+        }
+        int add(int p, int ch) {
+            if (!t[p].nxt[ch])
+                t[p].nxt[ch] = ++tot;
+            int now = t[p].nxt[ch];
+            t[now].cnt++;
+            return now;
+        }
+        void dfs(int u) {
+            for (auto &v : G[u])
+                pos[v] = add(pos[u], s[v] - 'A'), dfs(v);
+        }
+        void bfs() {
+            queue<int> q;
+            q.push(1), t[1].spos = 1;
+            while (q.size()) {
+                int u = q.front();
+                q.pop();
+                for (int i = 0, now; i < maxch; i++) {
+                    if (!t[u].nxt[i])
+                        continue;
+                    now = t[u].nxt[i];
+                    t[now].spos = SAM::extend(i, t[u].spos, t[now].cnt);
+                    q.push(now);
+                }
+            }
+        }
+        void build() {
+            pos[0] = 1, pos[1] = add(pos[0], s[1] - 'A');    // 首先插入根节点和第一个字符，注意边界 
+            // for (int i = 1; i <= n; i++)  pos[i] = add(parent, s[i]-'A');
+            dfs(1), bfs();        // 使用 BFS 建立后缀数组 
+        }
+    }
+}
+\end{minted}
+
+\clearpage

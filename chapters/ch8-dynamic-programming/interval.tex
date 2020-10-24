@@ -1,0 +1,14 @@
+\section{区间 DP}
+第一维枚举区间长度 k，第二维枚举左端点 l。根据区间长度和左端点算出右端点 r=l+k−1，然后第三维枚举区间 [l,r) 上的分界点 x.状态转移方程：$$f(l, r) = better\{f(l, r), f(l, x) + f(x + 1, r)\}$$
+
+\begin{minted}{c++}
+for (int k = 2; k <= n; k++)
+    for (int l = 1; l + k - 1 <= n; l++) {
+        int r = l + k - 1;
+        for (int j = l; j < r; j++)
+            if (dp[l][j] == dp[j+1][r]) {
+                dp[l][r] = std::max(dp[l][r], dp[l][j] + 1);
+                ans = std::max(ans, dp[l][r]);
+            }
+    }
+\end{minted}

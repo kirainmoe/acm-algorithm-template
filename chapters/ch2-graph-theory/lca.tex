@@ -1,0 +1,72 @@
+\section{最近公共祖先 (LCA)}
+\subsection{倍增法求 LCA}
+\begin{minted}{c++}
+int anc[MAXN][MAXLOG + 5], depth[MAXN];
+bool vis[MAXN];
+void dfs(int rt, int dep, int p) {
+    anc[rt][0] = p, depth[rt] = dep, vis[rt] = 1;
+    for (int i = 1; (1 << i) <= dep; i++)
+        anc[rt][i] = anc[anc[rt][i-1]][i-1];
+    for (int i = head[rt]; i; i = e[i].next)
+        if (!vis[e[i].v])
+            dfs(e[i].v, dep + 1, rt);
+}
+int lca(int a, int b) {
+    if (depth[a] < depth[b])
+        swap(a, b);
+    int delta = depth[a] - depth[b];
+    for (int i = 0; i <= MAXLOG; i++)
+        if (delta & (1 << i))
+            a = anc[a][i];
+    if (a == b)
+        return b;
+    for (int i = MAXLOG; i >= 0; i--)
+        if (anc[a][i] != anc[b][i])
+            a = anc[a][i], b = anc[b][i];
+    return anc[a][0];
+}
+\end{minted}
+
+\subsection{Tarjan 求 LCA}
+\begin{minted}{c++}
+struct Edge {
+    int v, next, res;
+} e[MAXN << 1], query[MAXM << 1];
+int head[MAXN], qhead[MAXN], q[MAXN], cnt = 1, qcnt = 2;
+bool vis[MAXN];
+void add_query(int x, int y) {
+    query[qcnt] = (Edge) { y, qhead[x], 0 };
+    qhead[x] = qcnt++;
+}
+int find(int x) {
+    return x == p[x] ? x : p[x] = find(p[x]);
+}
+void tarjan(int t) {
+    vis[t] = 1;
+    for (int i = head[t]; i; i = e[i].next)
+        if (!vis[e[i].v]) {
+            tarjan(e[i].v);
+            p[e[i].v] = t;
+        }
+    for (int i = qhead[t]; i; i = query[i].next)
+        if (vis[query[i].v]) {
+            query[i].res = find(query[i].v);
+            query[i^1].res = query[i].res;
+        }
+}
+void solve(int n, int m) {
+    for (int i = 0; i < m; i++) {
+        read(a), read(b);
+        add_query(a, b);
+        add_query(b, a);
+    }
+    for (int i = 0; i < n; i++)
+        p[i] = i;
+    tarjan(s);
+    for (int i = 2; i < qcnt; i += 2) {
+        printf("%d\n", query[i].res);
+    }
+}
+\end{minted}
+
+% todo: 树链剖分求 LCA

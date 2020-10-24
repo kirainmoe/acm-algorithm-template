@@ -1,0 +1,69 @@
+\section{常用公式}
+\subsection{三角形}
+\begin{itemize}
+    \item 半周长：$P=\frac{(a+b+c)}{2}$
+    \item 海伦公式：$S=\sqrt{P(P-a)(P-b)(P-c)}$
+    \item 角$A$到$BC$边的中线长度公式 $\frac{\sqrt{2(b^2+c^2)-a^2}}{2} = \frac{\sqrt{b^2+c^2-2bccosA}}{2}$
+    \item 角$A$的角平分线长度公式：$\frac{\sqrt{bc((b+c)^2-a^2)}}{(b+c)} = \frac{2bccos(\frac{A}{2})}{(b+c)}$
+    \item $BC$ 边的高线长度公式：$H_a = bsinC = csinB = \sqrt{b^2-(\frac{a^2+b^2-c^2}{2a})^2}$
+    \item 内切圆半径 $r = asin(\frac{B}{2})sin(\frac{C}{2})sin(\frac{(B+C)}{2})=\frac{S}{P}$，其它同理。
+    \item 外接圆半径 $R = \frac{abc}{4S} =  \frac{a}{2sinA} = \frac{b}{2sinB} = \frac{c}{2sinC}$
+\end{itemize}
+
+\subsection{四边形}
+\noindent 记 $D_1, D_2$ 为对角线，$M$ 为对角线中点连线，$A$ 为对角线夹角。
+\begin{itemize}
+    \item $a^2+b^2+c^2+d^2=D_1^2+D_2^2+4M^2$
+    \item $S=\frac{D_1D_2sinA}{2}$
+    \item 若为圆的内接四边形：$ac+bd=D_1D_2$
+    \item 若为圆的内接四边形：$S=\sqrt{(P-a)(P-b)(P-c)(P-d)}$，其中 $P$ 为半周长
+\end{itemize}
+
+\subsection{正 n 边形}
+\noindent $R$ 为外接圆半径，$r$ 为内切圆半径。
+\begin{itemize}
+    \item 中心角 $A = \frac{2\pi}{n}$
+    \item 内角 $C=\frac{(n-2)\pi}{n}$
+    \item 边长 $a = 2\sqrt{R^2-r^2} = 2Rsin\frac{A}{2} = 2rtan\frac{A}{2}$
+    \item 面积 $S = \frac{n \dot a \ dot r}{2}=\frac{nR^2sinA}{2}$，其中 $a$ 为正 $n$ 边形的边长
+\end{itemize}
+
+\subsection{圆}
+\noindent $A$ 为对应的圆心角。
+\begin{itemize}
+    \item 弧长 $l=rA$，弦长 $a = 2 \sqrt{2hr - h^2} = 2rsin\frac{A}{2}$，其中 $h$ 是圆心到弦的距离
+    \item 弓形高 $h = r - \sqrt{r^2-\frac{a^2}{4}}=r(1-cos\frac{A}{2})$
+    \item 扇形面积 $S_1 = \frac{rl}{2} = \frac{Ar^2}{2}$
+    \item 弓形面积 $S_2 = \frac{(r_1 - a(r-h))}{2} = r^2\frac{A-sinA}{2}$
+\end{itemize}
+
+\subsection{棱柱}
+\begin{itemize}
+    \item 体积：$V=Ah$，$A$ 为底面积，$h$ 为高
+    \item 侧面积：$S=lp$，$l$ 为棱长，$p$ 为直截面周长
+    \item 全面积：$T=S+2A$，侧面积加2倍底面积
+\end{itemize}
+
+\subsection{棱锥}
+\begin{itemize}
+    \item 体积：$V=\frac{Ah}{3}$
+    \item 侧面积： $S=\frac{lp}{2}$，$l$ 为斜高（侧面图形的高），$p$ 为底面周长
+    \item 全面积：$T=S+A$，底面只有一个。
+\end{itemize}
+
+\subsection{圆锥}
+\begin{itemize}
+    \item 母线 $l=\sqrt{h^2+r^2}$
+    \item 侧面积 $S=\pi rl$
+    \item 全面积 $T=\pi r(l+r)$
+    \item 体积 $V= \frac{\pi r^2h}{3}$
+\end{itemize}
+
+\subsection{圆台}
+\noindent 设圆台的下底面半径为 $r_1$，上底面半径为 $r_2$.
+\begin{itemize}
+    \item 母线 $l=\sqrt{h^2+(r_1-r_2)^2}$
+    \item 侧面积 $S = \pi l (r_1+r_2)$
+    \item 全面积 $T = \pi r_1(l + r_1) + \pi r_2(l + r_2)$
+    \item 体积 $V = \frac{\pi(r_1^2+r_2^2+r_1r_2)h}{3}$
+\end{itemize}

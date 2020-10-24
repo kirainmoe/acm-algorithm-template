@@ -1,0 +1,88 @@
+\section{Kirchoff 矩阵树定理}
+
+\begin{itemize}
+    \item 问题场景：解决一张图（有向图、无向图）的生成树个数计数问题。
+    \item 使用前提：计数的图都允许重边，但是不允许自环。
+\end{itemize}
+
+\subsection{无向图中的矩阵树定理}
+\par 设 $G$ 是一个有 $n$ 个顶点的无向图，定义：
+\begin{itemize}
+\item 度数矩阵 $D(G)=\begin{cases} d_{ij}=deg(i), i = j \\ d_{ij} = 0, i \neq j \end{cases}$
+\item 邻接矩阵 $A(G)=\begin{cases} a_{ij}=a_{ji}=c(i,j), i \neq j \\ a_{ij}=a_{ji}=0, i=j \end{cases}$，其中 $c_(i,j)$ 为点 $i$ 与 $j$ 相连的边的数量。
+\item 拉普拉斯 (Laplace) 矩阵（或 Kirchoff 基尔霍夫矩阵） $L(G)=D(G)-A(G)$
+\item 图 $G$ 的所有生成树个数 $t(G)$
+\end{itemize}
+\par 则无向图的矩阵树定理描述为：
+\begin{itemize}
+\item 行列式描述：对于 $\forall$ i，有 $t\left(G\right)=det\left[L\left(G,i\right)\right]$，其中 $L\left(G,i\right) $表示 Laplace 矩阵中去掉第 i 行和第 i 列后构成的子矩阵，$det\left(L\right)$ 表示取 L 的行列式。
+\item 特征值描述：设 $\lambda_1,\lambda_2,\ldots,\lambda_{n-1}$ 为 $L\left(G\right)$ 的 $n-1$ 个\textbf{非零特征值}，则 $t\left(G\right)=\frac{1}{n}\left(\lambda_1,\lambda_2,\ldots,\lambda_{n-1}\right)$
+\item 性质：对于无向图的 Laplace 矩阵，它的 $n-1$ 阶主子式都相等。
+\end{itemize}
+
+\subsection{有向图中的矩阵树定理}
+\par 设 $G$ 是一个有 $n$ 个顶点的有向图，定义：
+\begin{itemize}
+\item 出度矩阵 $D^{out}\left(G\right)=\begin{cases}d_{ij}=deg^{out}(i), i=j \\ d_{ij} = 0, i \neq j\end{cases}$ 
+\item 入度矩阵 $D^{in}(G) = \begin{cases}d_{ij}=deg^{in}(i), i=j \\ d_{ij} = 0, i \neq j\end{cases}$
+\item 邻接矩阵 $A(G) = \begin{cases}a_{ij}=a_{ji}=c(i,j) \\ a_{ij}=a_{ji}=0, i = j \end{cases}$，其中 $c(i, j)$ 为点 i 与点 j 相连的边的数量.
+\item 出度 Laplace 矩阵 $L^{out}(G)=D^{out}(G)-A(G)$
+\item 入度 Laplace 矩阵 $L^{in}(G)=D^{in}(G)-A(G)$
+\item 图 G 所有以 r 为根的所有根向树形图（基图为树，所有边指向父亲）的个数为 $t^{root}\left(G,r\right)$
+\item 图 G 所有以 r 为根的所有叶向树形图（基图为树，所有边指向儿子）的个数为 $t^{leaf}\left(G,r\right)$
+\end{itemize}
+\par 则有向图的矩阵树定理描述为：
+\begin{itemize}
+\item 根向形式：对于 $\forall k$，有 $t^{root}\left(G,k\right)=det\left[L^{out}\left(G,k\right)\right]$
+\item 叶向形式：对于 $\forall k$，有 $t^{leaf}\left(G,k\right)=det\left[L^{in}\left(G,k\right)\right]$
+\item 如果要统计一张有向图中所有的根向/叶向树形图，只要枚举所有的根 $k$ 并对$t^{root}\left(G,r\right)$ 或 $t^{leaf}(G,r)$ 求和即可
+\end{itemize}
+\par BEST定理：	设 $G$ 是有向欧拉图，那么 $G$ 的不同欧拉回路总数 $ec\left(G\right)=t^{root}\left(G,k\right)\Pi_{v\in V}\left(deg\left(v\right)-1\right)!$
+对于欧拉图 $G$ 的任意两个节点 $k,k^\prime$，都有 $t^{root}\left(G,k\right)=t^{root}\left(G,k^\prime\right)$，且欧拉图G所有节点的出度和入度相等。
+
+\begin{minted}{c++}
+namespace MatrixTree {
+    ll L[maxn][maxn];
+
+    ll mod_pow(ll a, ll b) {
+        ll ans = 1ll;
+        while (b) {
+            if (b & 1)
+                ans = ans * a % mod;
+            a = a * a % mod, b >>= 1;
+        }
+        return ans;
+    }
+
+    void add_edge(int u, int v, ll val, bool dir) {
+        if (!dir)
+            L[u][u] = (L[u][u] + val) % mod,
+            L[v][v] = (L[v][v] + val) % mod,
+            L[u][v] = (L[u][v] - val + mod) % mod,
+            L[v][u] = (L[v][u] - val + mod) % mod;
+        else
+            L[v][v] = (L[v][v] + val + mod) % mod,
+            L[u][v] = (L[u][v] - val + mod) % mod;
+    }
+
+    ll det(int n) {
+        ll inv, tmp, ans = 1;
+        for (int i = 2; i <= n; i++) {
+            for (int j = i + 1; j <= n; j++)
+                if (!L[i][i] && L[j][i]) {
+                    ans *= -1, swap(L[i], L[j]);
+                    break;
+                }
+            inv = mod_pow(L[i][i], mod - 2);
+            for (int j = i + 1; j <= n; j++) {
+                tmp = L[j][i] * inv % mod;
+                for (int k = i; k <= n; k++)
+                    L[j][k] = (L[j][k] - L[i][k] * tmp % mod + mod) % mod;
+            }
+        }
+        for (int i = 2; i <= n; i++)
+            ans = ans * L[i][i] % mod;
+        return ans;
+    }
+}
+\end{minted}

@@ -1,0 +1,18 @@
+\section*{现场赛自用 vim 配置}
+\addcontentsline{toc}{section}{现场赛自用 vim 配置}
+
+\begin{minted}{c++}
+set nu
+syntax on
+set ts=4
+set shiftwidth=4
+set cindent
+set ruler
+set mouse=a
+set smartindent
+set showcmd
+set expandtab
+colo evening
+map <F9> :!g++ -O2 -DLOCAL -std=c++11 % -o %<<cr>
+map <F10> :!clear && ./%<<cr>
+\end{minted}

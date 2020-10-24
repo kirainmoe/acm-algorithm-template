@@ -1,0 +1,29 @@
+\section{扩展 KMP (Z 函数)}
+
+长度为 $n$ 的字符串 $s$，它的 $Z$ 函数定义为：$Z[i] =$  从位置 $i$ 开始且为 $s$ 的前缀的字符串的最大长度，即：
+
+$$\begin{cases}z[0] = 0 \\z[i] = max(l), s[0...l-1] = s[i, i+l-1]\end{cases}$$
+
+\par 应用：
+\begin{itemize}
+    \item 求 $s$ 的每个后缀与 $t$ 的最长公共前缀：构造 $r = t + s$ 后计算 Z 函数即可。
+    \item 在 $t$ 中查找模式串 $p$ 的所有出现次数：构造 $s = p + \$ + t$ 后计算 $s$ 的 Z 函数，对于区间 $[0,|t|-1]$ 的任意 $i$ 考虑 $k=z[i+|p|+1]$，如果 $k = |p|$ 则有一个 $p$ 出现在 $t[i]$ 处。
+\end{itemize}
+
+\begin{minted}{c++}
+namespace ZFunction {
+    int z[maxn << 1];
+    int* calc(char s[]) {
+        int len = strlen(s);
+        for (int i = 1, l = 0, r = 0; i < len; i++) {
+            if (i <= r)
+                z[i] = min(r - i + 1, z[i-l]);
+            while (i + z[i] < len && s[z[i]] == s[i + z[i]])
+                z[i]++;
+            if (i + z[i] - 1 > r)
+                l = i, r = i + z[i] - 1;
+        }
+        return z;
+    }
+}
+\end{minted}

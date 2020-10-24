@@ -1,0 +1,53 @@
+\section{斯特林数}
+\subsection{第一类斯特林数}
+\paragraph{定义} 第一类斯特林数表示将 $n$ 个不同元素构成 $m$ 个圆排列的数目，可以把 “$m$ 个圆”理解为 “$m$ 个非空的循环队列”。具有如下性质：
+\begin{itemize}
+    \item $s_1(n,0) = 0$
+    \item $s_1(n,n) = 1$
+    \item $s_1(n, 1) = (n-1)!$
+    \item $s_1(n, n-1) = C(n, 2)$
+    \item $s_1(n, 2) = (n-1)! \cdot \Sigma_{i=1}^{n-1}\frac{1}{i}$
+\end{itemize}
+\par 根据上述性质可以得到第一类斯特林数的递推式：$s_1(n, k) = s_1(n-1, k-1) + s_1(n-1, k) \times (n-1), n,k \geq 1$.
+\begin{minted}{c++}
+s[1][1] = 1;
+for (int i = 2; i < MAXN; i++) {
+    s[i][0] = 0;
+    for (int j = 1; j < i; j++) {
+        s[i][j] = s[i-1][j-1] + (i-1) * s[i-1][j];
+    }
+    s[i][i] = 1;
+}
+\end{minted}
+
+\subsection{第二类斯特林数}
+\paragraph{定义} 第二类斯特林数表示将 $n$ 个不同的元素分成 $m$ 个非空集合的方案数。具有如下性质：
+
+\begin{itemize}
+    \item $S(n,0) = 0, n \geq 0$
+    \item $S(n,1) = 1$
+    \item $S(n,n) = 1$
+    \item $S(n, n-1) = C(n, 2)$
+    \item $S(n, 2) = S(n-1, 1) +S(n-1, 2) \times 2 = 2^{n-1}-1$
+    \item $S(n, n-2) = C(n, 3) + 3 \cdot C(n, 4)$ 
+    \item $S(n, 3) = \frac{1}{2}(3^{n-1}+1)-2^{n-1}$
+    \item $S(n, n-3) = C(n,4) + 10 \cdot C(n, 5) +15 \cdot C(n, 6)$
+\end{itemize}
+
+\paragraph{常见的问题模型}
+\begin{itemize}
+    \item 场景1：n 个不同的球，放入 m 个无区别的盒子，不允许盒子为空，方案数 $ans = S(n, m)$。
+    \item 场景2：n 个不同的球，放入 m 个有区别的盒子，不允许盒子为空，方案数 $ans = S(n, m) \times A(m, m)$，在第二类斯特林数的基础上乘上 $m$ 的全排列即可，即 $ans = m! \cdot S(n, m)$。
+    \item 场景3：n 个不同的球，放入 m 个无区别的盒子，允许盒子为空，方案数 $ans = \Sigma_{k=0}^{m}S(n, k)$，这个也比较容易理解。
+    \item 场景4：n 个不同的球，放入 m 个有区别的盒子，允许盒子为空，方案数 $ans = \Sigma_{k=0}^{m} A(m, k) \cdot S(n, k)$，因为盒子也是有区别的，所以这里不是乘上 $k!$，而是乘上 $A(m, k)$.
+\end{itemize}
+\begin{minted}{c++}
+s[1][1] = 1;
+for (int i = 2; i < MAXN; i++) {
+    s[i][0] = 0;
+    for (int j = 1; j < i; j++) {
+        s[i][j] = s[i-1][j-1] + (j) * s[i-1][j];
+    }
+    s[i][i] = 1;
+}
+\end{minted}

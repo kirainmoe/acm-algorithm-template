@@ -1,0 +1,18 @@
+\section{拉格朗日插值法}
+
+\begin{minted}{c++}
+// 给定 n 组 $(x_i, y_i)$，求 $f(k) \mod mod$
+ll Lagrange(ll x[], ll y[], int n, ll k, ll mod) {  
+    ll s1 = 0ll, s2 = 0ll, ans = 0ll;  
+    for (int i = 0; i < n; i++) {  
+        s1 = y[i] % mod, s2 = 1ll;  
+        for (int j = 0; j < n; j++)  
+            if (i != j)  
+                s1 = s1 * (k - x[j]) % mod,  
+                s2 = s2 * ((x[i] - x[j] % mod) % mod) % mod;  
+        ans += s1 * inv(s2) % mod;  
+        ans = (ans + mod) % mod;  
+    }  
+    return ans;  
+} 
+\end{minted}

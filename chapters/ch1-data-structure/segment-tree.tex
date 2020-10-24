@@ -1,0 +1,375 @@
+\section{线段树}
+
+\subsection{单点/区间修改，区间查询}
+
+\par 以维护区间和、区间积为例，根据情况修改 lazytag 和传递过程，还可以维护区间最值、区间异或等等：
+
+\begin{minted}{c++}
+class SegTree {
+public:
+    #define lson (rt << 1)          
+    #define rson (rt << 1) + 1      
+    long long sum[MAXN << 2], lmul[MAXN << 2], lplus[MAXN << 2], mod;
+    void pushUp(int rt) {
+        sum[rt] = (sum[lson] + sum[rson]) % mod;
+    }
+    void pushDown(int rt, int l, int r) {
+        int mid = (l + r) >> 1;
+        sum[lson] = (sum[lson] * lmul[rt] % mod + lplus[rt] * (mid - l + 1)) % mod;
+        sum[rson] = (sum[rson] * lmul[rt] % mod + lplus[rt] * (r - mid)) % mod;
+        lmul[lson] = (lmul[lson] * lmul[rt]) % mod;
+        lmul[rson] = (lmul[rson] * lmul[rt]) % mod;
+        lplus[lson] = (lplus[lson] * lmul[rt] % mod + lplus[rt]) % mod;
+        lplus[rson] = (lplus[rson] * lmul[rt] % mod + lplus[rt]) % mod;
+        lplus[rt] = 0, lmul[rt] = 1;
+    }
+    void build(int rt, int l, int r) {
+        lmul[rt] = 1, lplus[rt] = 0;
+        if (l == r) {
+            read(sum[rt]);
+            sum[rt] %= mod;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+        pushUp(rt);
+    }
+    void multiply(int rt, int l, int r, int ul, int ur, long long val) {
+        if (ur < l || ul > r)
+            return;
+        if (ul <= l && r <= ur) {
+            sum[rt] = (sum[rt] * val) % mod;
+            lmul[rt] = (lmul[rt] * val) % mod;
+            lplus[rt] = (lplus[rt] * val) % mod;
+            return;
+        }
+        pushDown(rt, l, r);
+        int mid = (l + r) >> 1;
+        if (ul <= mid)
+            multiply(lson, l, mid, ul, ur, val);
+        if (mid < ur)
+            multiply(rson, mid + 1, r, ul, ur, val);
+        pushUp(rt);
+    }
+    void add(int rt, int l, int r, int ul, int ur, long long val) {
+        if (ur < l || ul > r)
+            return;
+        if (ul <= l && r <= ur) {
+            sum[rt] = (sum[rt] + val * (r - l +  1)) % mod;
+            lplus[rt] = (lplus[rt] + val) % mod;
+            return;
+        }
+        pushDown(rt, l, r);
+        int mid = (l + r) >> 1;
+        if (ul <= mid)
+            add(lson, l, mid, ul, ur, val);
+        if (mid < ur)
+            add(rson, mid + 1, r, ul, ur, val);
+        pushUp(rt);
+    }
+    void singleAdd(int rt, int l, int r, int pos, long long val) {
+        if (l == r) {
+        sum[rt] += val;
+        return;
+        }
+        pushDown(rt);
+        int mid = (l + r) >> 1;
+        if (pos <= mid)
+        singleAdd(lson, l, mid, pos, val);
+        else
+        singleAdd(rson, mid + 1, r, pos, val);
+        pushUp(rt);
+    }
+    long long query(int rt, int l, int r, int ql, int qr) {
+        if (qr < l || ql > r)
+            return 0LL;
+        if (ql <= l && r <= qr)
+            return sum[rt] % mod;
+        pushDown(rt, l, r);
+        int mid = (l + r) >> 1;
+        return (
+            query(lson, l, mid, ql, qr) + query(rson, mid + 1, r, ql, qr)
+        ) % mod;
+    }
+} T;
+\end{minted}
+
+\subsection{二维线段树（线段树套线段树，矩阵区间最值）}
+\par 维护矩阵区间最大值/最小值。
+\begin{minted}{c++}
+class SegTree2D {
+public:
+    int maxm[MAXN << 1][MAXN << 1], minm[MAXN << 1][MAXN << 1];
+    void pushUp(int x, int y, int dir) {
+        if (dir == 1)        // x-axis direction
+            maxm[x][y] = max(maxm[x << 1][y], maxm[x << 1 | 1][y]),
+            minm[x][y] = min(minm[x << 1][y], minm[x << 1 | 1][y]);
+        if (dir == 2)        // y-axis direction
+            maxm[x][y] = max(maxm[x][y << 1], maxm[x][y << 1 | 1]),
+            minm[x][y] = min(minm[x][y << 1], minm[x][y << 1 | 1]);
+    }
+    void build2D(int rtx, int rty, int l, int r, int u) {
+        if (l == r) {
+            if (u > 0)
+                maxm[rtx][rty] = minm[rtx][rty] = a[u][l];
+            else
+                pushUp(rtx, rty, 1);    // update 1D
+        } else {
+            int mid = (l + r) >> 1;
+            build2D(rtx, rty << 1, l, mid, u);
+            build2D(rtx, rty << 1 | 1, mid + 1, r, u);
+            pushUp(rtx, rty, 2);        // update 2D
+        }
+    }
+    void build(int rt, int u, int d) {        // u:up, d:down
+        if (u == d)
+            build2D(rt, 1, 1, n, u);
+        else {
+            int mid = (u + d) >> 1;
+            build(rt << 1, u, mid), build(rt << 1 | 1, mid + 1, d);
+            build2D(rt, 1, 1, n, -1);        // -1: more than one line
+        }
+    }
+    void update2D(int rtx, int rty, int l, int r, int ql, int qr, int u, int val) {
+        if (ql <= l && qr >= r) {
+            if (u > 0)
+                maxm[rtx][rty] = minm[rtx][rty] = val;
+            else
+                pushUp(rtx, rty, 1);
+        } else {
+            int mid = (l + r) >> 1;
+            if (ql <= mid)
+                update2D(rtx, rty << 1, l, mid, ql, qr, u, val);
+            if (mid + 1 <= qr)
+                update2D(rtx, rty << 1 | 1, mid + 1, r, ql, qr, u, val);
+            pushUp(rtx, rty, 2);
+        }
+    }
+    void update(int rt, int u, int d, int qu, int qd, int ql, int qr, int val) {
+        if (u == d)
+            update2D(rt, 1, 1, n, ql, qr, u, val);
+        else {
+            int mid = (u + d) >> 1;
+            if (qu <= mid)
+                update(rt << 1, u, mid, qu, qd, ql, qr, val);
+            if (mid + 1 <= qd)
+                update(rt << 1 | 1, mid + 1, d, qu, qd, ql, qr, val);
+            update2D(rt, 1, 1, n, ql, qr, -1, val);
+        }
+    }
+    pair<int, int> query2D(int rtx, int rty, int l, int r, int ql, int qr, int u) {
+        if (ql <= l && r <= qr)
+            return make_pair(maxm[rtx][rty], minm[rtx][rty]);
+        else {
+            int mid = (l + r) >> 1;
+            pair<int, int> res = make_pair(-INF, INF), tmp;
+            if (ql <= mid) {
+                tmp = query2D(rtx, rty << 1, l, mid, ql, qr, u);
+                res.first = max(res.first, tmp.first), res.second = min(res.second, tmp.second);
+            }
+            if (mid + 1 <= qr) {
+                tmp = query2D(rtx, rty << 1 | 1, mid + 1, r, ql, qr, u);
+                res.first = max(res.first, tmp.first), res.second = min(res.second, tmp.second);
+            }
+            return res;    
+        }
+    }
+    pair<int, int> query(int rt, int u, int d, int qu, int qd, int ql, int qr) {
+        if (qu <= u && d <= qd)
+            return query2D(rt, 1, 1, n, ql, qr, u == d ? u : -1);
+        else {
+            int mid = (u + d) >> 1;
+            pair<int, int> res = make_pair(-INF, INF), tmp;
+            if (qu <= mid) {
+                tmp = query(rt << 1, u, mid, qu, qd, ql, qr);
+                res.first = max(res.first, tmp.first), res.second = min(res.second, tmp.second);
+            }
+            if (mid + 1 <= qd) {
+                tmp = query(rt << 1 | 1, mid + 1, d, qu, qd, ql, qr);
+                res.first = max(res.first, tmp.first), res.second = min(res.second, tmp.second);
+            }
+            return res;
+        }
+    }
+} T;
+\end{minted}
+
+\subsection{可持久化线段树（主席树）}
+\par 可持久化线段树的主要思想：保存每次插入操作的历史版本，实际上是在动态开点线段树的基础上，通过复用某些未修改的节点，创建 $n$ 棵线段树。每进行一次修改时，产生新的节点数 = 树的高度，是 $O(n\log n)$ 级别的。
+\begin{minted}{c++}
+/**
+* 求静态区间 $k$ 大值
+* 如果要求区间 $[1,r]$ 区间 $k$ 小值，那么只需要找到插入 $r$ 时的版本，通过权值线段树可以求 $k$ 大值。
+* 求 $[l, r]$ 区间最小值呢？前缀和呗，用 $[1, r]$ 的信息减去 $[1, l-1]$ 的信息即可。
+*/
+class PersistSegTree {
+private:
+    static const int MAXN = 2 * 1e5 + 50,
+        MAXM = 2 * 1e5 + 50,
+        MAX_NLOGM = MAXN << 5;
+public:
+    struct Node {
+        int val;
+        Node *lc, *rc;
+    } t[MAX_NLOGM];
+    Node* root[MAXM];
+    
+    int cnt;
+    
+    PersistSegTree(): cnt(0) {}
+    void pushUp(Node *x) {
+        x->val = x->lc->val + x->rc->val;
+    }
+    Node* build(int l, int r, int a[]) {
+        Node *cur = &t[++cnt];
+        if (l == r) {
+            cur->val = a[l];
+            return cur;
+        }
+        int m = (l + r) >> 1;
+        cur->lc = build(l, m, a), cur->rc = build(m + 1, r, a), pushUp(cur);
+        return cur;
+    }
+    Node* update(Node *now, int l, int r, int pos, int val) {
+        t[++cnt] = *now;
+        Node *cur = &t[cnt];
+        if (l == r) {
+            cur->val += val;
+            return cur;
+        }
+        int m = (l + r) >> 1;
+        if (pos <= m)
+            cur->lc = update(now->lc, l, m, pos, val);
+        else
+            cur->rc = update(now->rc, m + 1, r, pos, val);
+        pushUp(cur);
+        return cur;
+    }
+    int query(Node *p, Node *q, int l, int r, int k) {
+        if (l == r)
+            return l;
+        int m = (l + r) >> 1, lcnt = p->lc->val - q->lc->val;
+        if (k <= lcnt)
+            return query(p->lc, q->lc, l, m, k);
+        else
+            return query(p->rc, q->rc, m + 1, r, k - lcnt);
+    }
+} T;
+
+// 区间查询：anspos = T.query(T.root[r], T.root[l-1], 1, t, k);
+\end{minted}
+
+\subsection{动态开点线段树}
+\par\noindent 有的时候，线段树需要维护的区间很大很大，但是实际用到的节点很少；那么干脆就不要开这么多的节点，用到的时候再向内存要。
+\par\noindent 例如要建立一个权值线段树，但是在线操作不让离散化，值域又是 $\infty$ 级别的。即使这个区间的范围很大，但是如果询问 $q$ 比较少的话，我们只需要 $q \log inf$ 个节点，就可以办到。
+\par\noindent 由于是动态开点的，左右子节点的下标代数关系就不再成立，因此节点中需要记录当前节点的左子树和右子树根节点位置。
+
+\begin{minted}{c++}
+class DynamicSegTree {
+public: 
+    struct Node {
+        int val, lc, rc;
+    } a[maxn << 2];
+    int cnt = 0;
+
+    // 修改操作，若 $rt$ 不存在，则首先动态开点；否则直接更新
+    void update(int &rt, int l, int r, int pos, int val) {
+        if (!rt)
+            rt = ++cnt;
+        // ...
+    }
+    // 查询操作，若 rt 不存在直接返回空值（可能是 0 或者反向最值）
+    int query(int rt, int l, int r, int ql, int qr) {
+        if (!rt)
+            return 0;
+        // ...
+    }
+};
+\end{minted}
+
+\subsection{Segment Tree Beats! (区间取 min)}
+\begin{minted}{c++}
+class SegmentTreeBeats {
+private:
+    static const int maxn = 1000050;
+    struct Node {
+        int maxv, secmaxv, maxcnt;
+        ll sum;
+    } t[maxn << 2];
+public:
+    #define lson (rt << 1)
+    #define rson (rt << 1) | 1
+    void pushUp(int rt) {
+        t[rt].maxcnt = 0, t[rt].sum = t[lson].sum + t[rson].sum;
+        t[rt].maxv = max(t[lson].maxv, t[rson].maxv);
+        t[rt].secmaxv = max(t[lson].secmaxv, t[rson].secmaxv);
+        if (t[lson].maxv ^ t[rson].maxv)
+            t[rt].secmaxv = max(t[rt].secmaxv, min(t[lson].maxv, t[rson].maxv));
+        if (t[lson].maxv == t[rt].maxv)
+            t[rt].maxcnt += t[lson].maxcnt;
+        if (t[rson].maxv == t[rt].maxv)
+            t[rt].maxcnt += t[rson].maxcnt;
+    }
+    void build(int rt, int l, int r, int a[]) {
+        if (l == r) {
+            t[rt].sum = t[rt].maxv = a[l];
+            t[rt].secmaxv = -1, t[rt].maxcnt = 1;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        build(lson, l, mid, a), build(rson, mid + 1, r, a);
+        pushUp(rt);
+    }
+    void pushMin(int rt, int v) {
+        if (v >= t[rt].maxv)
+            return;
+        t[rt].sum += 1ll * (v - t[rt].maxv) * t[rt].maxcnt;
+        t[rt].maxv = v;
+    }
+    void pushDown(int rt) {
+        pushMin(lson, t[rt].maxv), pushMin(rson, t[rt].maxv);
+    }
+    void setMin(int rt, int l, int r, int ul, int ur, int val) {
+        if (val >= t[rt].maxv)
+            return;
+        if (ul <= l && r <= ur && t[rt].secmaxv < val) {
+            pushMin(rt, val);
+            return;
+        }
+        int mid = (l + r) >> 1;
+        pushDown(rt);
+        if (ul <= mid)
+            setMin(lson, l, mid, ul, ur, val);
+        if (mid < ur)
+            setMin(rson, mid + 1, r, ul, ur, val);
+        pushUp(rt);
+    }
+    ll query(int rt, int l, int r, int ql, int qr, int op) {
+        if (ql <= l && r <= qr)
+            return op == 2 ? t[rt].sum : t[rt].maxv;
+        int mid = (l + r) >> 1;
+        pushDown(rt);
+        ll ans = 0;
+        if (op == 2) {
+            ans = 0;
+            if (ql <= mid)
+                ans += query(lson, l, mid, ql, qr, op);
+            if (mid < qr)
+                ans += query(rson, mid + 1, r, ql, qr, op);
+        } else {
+            ans = -1;
+            if (ql <= mid)
+                ans = max(ans, query(lson, l, mid, ql, qr, op));
+            if (mid < qr)
+                ans = max(ans, query(rson, mid + 1, r, ql, qr, op));
+        }
+        pushUp(rt);
+        return ans;
+    }
+} T;
+
+\end{minted}
+
+\clearpage
+

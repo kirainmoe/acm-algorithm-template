@@ -1,0 +1,53 @@
+\section{负环判定}
+
+\subsection{BFS 判负环}
+基于 SPFA 的负环判定，使用 $incnt[v]$ 记录节点 $v$ 的入队次数；在松弛的时候有状态转移 $incnt[u] = incnt[v] + 1$, 如果有一个点的 $incnt[v] \ge n$，说明存在负环。
+
+\begin{minted}{c++}
+bool spfa(int s) {
+    memset(vis, 0, sizeof vis);
+    dist[s] = 0;
+    vis[s] = 1;
+    queue<int> q;
+    q.push(s);
+    while (q.size()) {
+        int cur = q.front();
+        q.pop();
+        vis[cur] = 0;
+        for (rint i = head[cur]; i; i = e[i].next) {
+            int v = e[i].v;
+            if (dist[v] > dist[cur] + e[i].w) {
+                dist[v] = dist[cur] + e[i].w;
+                incnt[v] = incnt[cur] + 1;
+                if (incnt[v] >= n)
+                    return true;
+                if (!vis[v])
+                    vis[v] = 1, q.push(v);
+            }
+        }
+    }
+    return false;
+}
+\end{minted}
+
+\subsection{DFS 判负环}
+
+\begin{minted}{c++}
+int dist[maxn];
+bool vis[maxn];
+bool SPFA(int x) {
+    vis[x] = 1;
+    for (int i = head[x], v; i; i = e[i].next) {
+        v = e[i].v;
+        if (dist[v] < dist[x] + e[i].w) {
+            dist[v] = dist[x] + e[i].w;
+            if (vis[v])
+                return 0;
+            if (!SPFA(v))
+                return 0;
+        }
+    }
+    vis[x] = 0;
+    return 1;
+}
+\end{minted}

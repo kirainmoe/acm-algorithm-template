@@ -1,0 +1,69 @@
+\section{半平面交}
+\paragraph{半平面} 半平面指一条直线的一侧的点构成的点集，一般包含直线上的点。数学表示即 $Ax+By+C \ge(\le) 0$ 或 $y \ge kx + b$.
+
+\subsection{半平面的表示}
+使用有向的方向向量和直线上一点的参数表示法表示直线，规定方向向量的左侧即为半平面。
+
+\subsection{半平面交}
+求形如 $n$ 条 $y \ge kx + b$ 的半平面的并，类似线性规划。答案应该是形如凸包的下凸壳。如果是 $t \le kx +b$ 的半平面，则求的就是上凸壳。
+
+\noindent 算法1：如果半平面的交不封闭，只需要将 $y=kx+b$ 对偶成点 $(k, -b)$，然后水平排序求这些点的下凸壳。
+
+\noindent 算法2：增量法。如果半平面的交封闭，则维护一个双端队列，将边按照极角排序，用求凸包的方法来求。步骤如下：
+
+\begin{itemize}
+    \item 对目标向量进行极角排序（如果排序时遇到共线向量，则取靠近可行域的一个）
+    \item 维护一个凸壳，使用双端单调队列维护。后来加入的向量只会影响最开始加入的或最后加入的边。
+    \item 维护一个交点数组。当单调队列中的元素超过 2 个的时候，就会产生一个交点。对于当前向量，如果上一个交点在这条向量表示的半平面交的异侧，则上一条边就没有意义。
+    \item 后加入的边也可能会影响队首的边。
+    \item 如果半平面交是一个凸 $n$ 边形，则最后在交点数组里会得到 $n$ 个点。注意判断半平面交不存在或面积为 0 的情况。
+\end{itemize}
+
+\begin{minted}{c++}
+/* 半平面交：封闭 */
+bool checkPointOnLeft(Line l, Point P) {
+    return dcmp(cross(l.s, P - l.p)) > 0;
+}
+// l[]: 多个半平面的边集，poly[]: 结果数组 
+int halfPlaneIntersection(Line l[], Point poly[], int n) {
+    // step 1: sort lines with angle 
+    std::sort(l, l + n);
+    // step 2: create a deque
+    Point *p = new Point[n];    // p[i] is the intersection of q[i] and q[i+1]
+    Line *q = new Line[n];
+    int first, last;
+    // at the beginning there is only a half plane l[0]
+    q[first = last = 0] = l[0];
+    // step 3: for each vector
+    // check the position of intersection of current vector & last/first vector in the hell
+    for (int i = 1; i < n; i++) {
+        while (first < last && !checkPointOnLeft(l[i], p[last - 1]))
+            last--;
+        while (first < last && !checkPointOnLeft(l[i], p[first]))
+            first++;
+        q[++last] = l[i];       // add current vector
+        // step 4: if vectors are parallel, preserve the inner one
+        if (fabs(cross(q[last].s, q[last - 1].s)) < eps) {
+            last--;
+            if (checkPointOnLeft(q[last], l[i].p))
+                q[last] = l[i];
+        }
+        // step 5: get the intersection of last 2 vectors(if exists)
+        if (first < last)
+            p[last - 1] = getLineIntersection(q[last - 1], q[last]);
+    }
+    // step 6: delete the useless plane
+    while (first < last && !checkPointOnLeft(q[first], p[last - 1]))
+        last--;
+    // hale plane intersection not exists
+    if (last - first <= 1)
+        return 0;
+    // the intersection of first and last intersection
+    p[last] = getLineIntersection(q[last], q[first]);
+    // copy to dist array
+    int m = 0;
+    for (int i = first; i <= last; i++)
+        poly[m++] = p[i];
+    return m;
+}
+\end{minted}

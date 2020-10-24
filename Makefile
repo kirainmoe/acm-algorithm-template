@@ -1,0 +1,10 @@
+compile : template.tex
+	xelatex -shell-escape template.tex
+	xelatex -shell-escape template.tex
+update : template.tex
+	xelatex -shell-escape template.tex
+clean : template.tex
+	rm -rf template.aux
+	rm -rf template.log
+	rm -rf template.out
+	rm -rf template.toc

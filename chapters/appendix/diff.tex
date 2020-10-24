@@ -1,0 +1,25 @@
+\section*{对拍脚本}
+\addcontentsline{toc}{section}{对拍脚本}
+\subsection*{Windows}
+\begin{minted}{batch}
+:loop
+datagen.ext
+problem.exe
+std.exe
+fc problem.out std.out
+if errorlevel 1 pause
+goto loop
+\end{minted}
+
+\subsection*{Linux}
+\begin{minted}{bash}
+#!/bin/bash
+while true; do
+    ./data > data.in && ./std < data.in > std.out && ./problem < data.in > problem.out
+    if diff std.out problem.out; then printf "Accepted\n"
+    else
+        printf "Wrong Answer\n"
+        exit 0
+    fi
+done
+\end{minted}

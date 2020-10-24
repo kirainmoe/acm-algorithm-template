@@ -1,0 +1,57 @@
+\section{回文树/回文自动机}
+\paragraph{功能}
+\begin{itemize}
+\item 求前缀字符串 $s[0] \sim s[i]$ 中的本质不同的回文串种类
+\item 求每个本质不同的回文串出现的次数，求回文串的个数
+\item 求以下标 $i$ 的字符结尾的回文串个数/种类
+\item 每个本质不同的回文串，包含的本质不同回文串种类
+\end{itemize}
+\begin{minted}{c++}
+class PalindromicTree {
+public:
+    struct Node {
+        // len: 当前节点回文串长度；fail: 失配指针
+        // cnt: 当前节点表示的回文串在 s 中出现的次数
+        // num: 以节点 i 表示的回文串末尾字符结尾，但不包含本条路径上的回文串的数目（fail 指针路径深度） 
+        int len, fail, cnt, num, next[26];
+        Node(int l = 0, int c = 0, int f = 0, int n = 0): len(l), fail(f), cnt(c), num(n) {
+            memset(next, 0, sizeof next);
+        }
+    } t[MAXN];
+    int p, n, cur, last, s[MAXN];	// p: 节点数，n: 字符数
+    
+    int alloc(int len, int fail) {
+        t[p] = Node(len, 0, fail);
+        return p++;
+    }
+    
+    void init() {
+        p = n = cur = last = 0;
+        alloc(0, 1), alloc(-1, 0);	// len, fail
+        s[0] = -1;
+    }
+    
+    int getFail(int x) {
+        while (s[n - t[x].len - 1] != s[n])
+            x = t[x].fail;
+        return x;
+    }
+    
+    void add(int c) {
+        c = c >= 'a' ? c - 'a' : c;
+        s[++n] = c;
+        
+        int cur = getFail(last);
+        if (!t[cur].next[c])
+            t[cur].next[c] =  alloc(t[cur].len + 2, t[getFail(t[cur].fail)].next[c]);
+        last = t[cur].next[c];
+        t[last].cnt++;
+    }
+    
+    void count() {
+        for (rint i = p - 1; i >= 0; i--)
+            t[t[i].fail].cnt += t[i].cnt;
+    }
+} PT;
+\end{minted}
+

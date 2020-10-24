@@ -1,0 +1,28 @@
+\section{拓扑排序}
+\begin{minted}{c++}
+struct Edge {
+    int u, v, next;
+} e[MAXM];
+int head[MAXN], in[MAXN], ans[MAXN], cnt = 0;
+queue<int> q;
+for (int i = 0; i < ecnt; i++)     // 统计入度
+    in[e[i].v]++;
+for (int i = 0; i < n; i++)        // 将入度为 0 的节点加入队列中
+    if (in[i] == 0)
+        q.push(in[i]);
+while (!q.empty()) {
+    int next = q.front();
+    q.pop();
+    ans[cnt++] = next;
+    for (int i = head[next]; i != 0; i = e[i].next) {
+        in[e[i].v]--;
+        if (in[e[i].v] == 0)
+            q.push(e[i].v);
+    }
+}
+if (cnt == n - 1)   // 判断是否存在拓扑序列
+    for (int i = 0; i < cnt; i++)
+        printf("%d", ans[i]);
+else
+    printf("No Answer!");
+\end{minted}

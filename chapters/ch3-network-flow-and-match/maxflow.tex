@@ -1,0 +1,132 @@
+\section{最大流}
+
+\subsection{Edmonds-Karp 增广路算法}
+
+\par 算法思想：不断地使用 BFS 寻找增广路，直至网络上不存在增广路位置。BFS 时只考虑 $f(x,y) < c(x,y)$ 的边并找到一条 $S->T$ 的路径，同时计算出路径上各边的剩余容量最小值 $minf$，则网络的流量可以增加 $minf$。根据斜对称性质，该算法增广时需要考虑正向边和反向边。找到增广路之后就回溯更新增广路及其反向边的剩余容量。
+\begin{minted}{c++}
+namespace EdmondsKarp {
+    Edge e[MAXN << 1];
+    int cnt, head[MAXN], flow[MAXN], prev[MAXN], s, t, maxflow;
+    bool vis[MAXN];
+  
+    void init(int ts, int tt) {
+        memset(head, 0, sizeof head);
+        memset(flow, 0, sizeof flow);
+        memset(prev, 0, sizeof prev);
+        cnt = 2, s = ts, t = tt, maxflow = 0;
+    }
+
+    void add_edge(int x, int y, int z) {
+        e[cnt] = (Edge) { x, y, z, head[x] };
+        head[x] = cnt++;
+        e[cnt] = (Edge) { y, x, 0, head[y] };   // 容量为 0 的反向边
+        head[y] = cnt++;
+    }
+
+    bool bfs() {    // 寻找增广路
+        memset(vis, 0, sizeof vis);
+        queue<int> q;
+        q.push(s);
+        vis[s] = 1;
+        flow[s] = INF;
+        while (q.size()) {
+            int cur = q.front();
+            q.pop();
+            for (int i = head[cur]; i; i = e[i].next) {
+                if (e[i].c) {   // 存在这条边并有剩余容量
+                    int y = e[i].v;
+                    if (vis[y])
+                        continue;
+                    flow[y] = min(flow[cur], e[i].c);
+                    prev[y] = i;    // 记录前驱便于更新
+                    q.push(y);
+                    vis[y] = 1;
+
+                    if (y == t) {   // 到达汇点，返回增广路存在
+                        return true;
+                    }
+                } // if
+            } // for
+        } // while
+        return false;       // 增广路不存在
+    } // bool dfs
+
+    void update() {    // 当增广路存在，更新增广路及其反向边的剩余容量
+        int x = t, i;
+        while (x != s) {
+            i = prev[x], e[i].c -= flow[t];
+            e[i ^ 1].c += flow[t];
+            x = e[i].u;
+        }
+        maxflow += flow[t];
+    }
+
+    int work() {        // 主算法
+        while (bfs())
+            update();
+        return maxflow;
+    }
+}
+\end{minted}
+
+\subsection{Dinic 算法 (带当前弧优化)}
+\par 不断在残量图上使用 BFS 求出结点的层次，构建分层图（即给结点标注 $d[i]$）；然后在分层图上 DFS 寻找增广路，回溯时实时更新剩余容量。每个点可以流向多条出边。时间复杂度为 $O(n^2m)$。
+\begin{minted}{c++}
+namespace Dinic {
+    struct Edge {
+        int v, next, c;
+        Edge(int v = 0, int c = 0, int nxt = 0): v(v), next(nxt), c(c) {}
+    } e[maxm << 1];
+    
+    int head[maxm], cur[maxm], d[maxm], q[maxm], s, t, cnt = 2, first, tail;
+    void add_edge(int u, int v, int c) {
+        e[cnt] = Edge(v, c, head[u]);
+        head[u] = cnt++;
+        e[cnt] = Edge(u, 0, head[v]);
+        head[v] = cnt++;
+    }
+    bool bfs() {
+        for (int i = 0; i <= t; i++)
+            d[i] = 0, cur[i] = head[i];
+        first = tail = 0;
+        q[tail++] = s, d[s] = 1;
+        while (first < tail) {
+            int cur = q[first++];
+            for (int i = head[cur]; i; i = e[i].next) {
+                if (e[i].c && !d[e[i].v]) {
+                    q[tail++] = e[i].v;
+                    d[e[i].v] = d[cur] + 1;
+                    if (e[i].v == t)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+    int dinic(int x, int flow) {
+        if (x == t)
+            return flow;
+        int rest = flow, k;
+        for (int i = cur[x]; i && rest; i = e[i].next) {
+            cur[x] = i;
+            if (e[i].c && d[e[i].v] == d[x] + 1) {
+                k = dinic(e[i].v, min(rest, e[i].c));
+                if(!k)
+                    d[e[i].v] = 0;
+                e[i].c -= k, e[i ^ 1].c += k;
+                rest -= k;
+            }
+        }
+        return flow - rest;
+    }
+    int work() {
+        int maxflow = 0, flow = 0;
+        while (bfs()) 
+            while (flow = dinic(s, inf))
+                maxflow += flow;
+        return maxflow;
+    }
+}
+\end{minted}
+
+\clearpage

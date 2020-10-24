@@ -1,0 +1,48 @@
+\section{Nim 游戏}
+\subsection{定义}
+\noindent\par Nim 游戏：有两个玩家，轮流进行操作；是公平游戏，即面对同一局面两个玩家所能进行的操作是相同的；一个玩家是输掉当且仅当他无法进行操作。
+\noindent\par 一般形式：给定 $n$ 堆物品，第 $i$ 堆物品有 $A_i$ 个；两名玩家分别轮流行动，每次可以任选一堆取走任意多个物品，可把一堆取完但不可以不取，取走最后一件物品者获胜。两人都采取最优策略，问先手能否必胜。
+
+\subsection{概念和性质}
+\noindent\par 必胜点和必败点的概念：
+\begin{itemize}
+    \item P点：必败点，换而言之，就是谁处于此位置，则在双方操作正确的情况下必败。
+    \item N点：必胜点，处于此情况下，双方操作均正确的情况下必胜。
+\end{itemize}
+\noindent\par 必胜点和必败点的性质：
+\begin{itemize}
+    \item 所有终结点是 必败点 P 。（我们以此为基本前提进行推理，换句话说，我们以此为假设）
+    \item 从任何必胜点N 操作，至少有一种方式可以进入必败点 P。
+    \item 无论如何操作，必败点P 都只能进入 必胜点 N。
+\end{itemize}
+
+\subsection{结论}
+\noindent\par 一个 Nim 游戏中的状态是必败状态当且仅当每个子游戏的异或和为0。
+\noindent\par Nim 博弈先手必胜，当且仅当 $A_1 xor A_2 xor ... xor A_n \neq 0$ 
+\noindent\par \textbf{SG定理：} 游戏和的SG函数等于各个游戏SG函数的Nim和。
+\noindent\par \textbf{mex (minimal excludant) 运算}：施加于集合的运算，表示最小的不属于这个集合的非负整数。对于任意状态 $x$，定义 $SG(x) = mex(S)$,其中 $S$ 是 $x$ \textbf{后继状态}的 SG 函数值的集合。
+
+\subsection{SG 函数打表模板}
+\begin{minted}{c++}
+// f[N]: 可改变当前状态的方式，N 为方式的种类，f[N] 要在 getSG 之前先预处理
+// 比如，如果每次可以取走 1,3,4 个石子，那么 f[] = {1, 3, 4}
+// SG[i]: 0~n 的 SG 函数值; S[]: 为x后继状态的集合
+int f[N], SG[MAXN], S[MAXN];
+void  getSG(int n) {
+    int i, j;
+    memset(SG, 0, sizeof SG);
+    // 初始化最终状态的 SG 值，如 SG[0] = 0;
+    for(i = 1; i <= n; i++){
+        // 每一次都要将上一状态的后继集合重置
+        memset(S, 0, sizeof S);
+        // 将后继状态的 SG 函数值进行标记
+        for(j = 0; f[j] <= i && j <= N; j++)
+            S[SG[i - f[j]]] = 1;
+        for(j = 0; ; j++)       // mex 运算
+            if (!S[j]) {
+                SG[i] = j;
+                break;
+            }
+    }
+}
+\end{minted}

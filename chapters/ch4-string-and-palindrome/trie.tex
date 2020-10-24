@@ -1,0 +1,49 @@
+\section{字典树 (Trie)}
+\begin{minted}{c++}
+class Trie {
+public:
+    int node[MAXN][30];
+    bool has[MAXN], vis[MAXN];
+    int cnt;
+    void init() {
+        memset(node, 0, sizeof node);
+        memset(has, 0, sizeof has);
+        memset(vis, 0, sizeof vis);
+        cnt = 1;
+    }
+    int idx(char s) {
+        return s - 'a';
+    }
+    void insert(char *s, int n) {
+        int u = 0;
+        for (int i = 0; i < n; i++) {
+            int c = idx(s[i]);
+            if (!node[u][c])
+                node[u][c] = ++cnt;
+            u = node[u][c];
+        }
+        has[u] = 1;
+    }
+    int query(char *s, int n) {
+        int u = 0;
+        for (int i = 0; i < n; i++) {
+            int c = idx(s[i]);
+            if (!node[u][c])
+                return -1;
+            u = node[u][c];
+        }
+        if (!has[u])
+            return -1;
+        if (!vis[u]) {
+            vis[u] = 1;
+            return 0;
+        } else
+            return 1;
+    }
+};
+\end{minted}
+对于 0-1 字典树：
+\begin{itemize}
+\item 找异或最大值:当前位是 1 就走 0，是 0 就走 1,；走不通再走另一个；
+\item 找与/或的最大值：以与运算为例，如果当前位是 1，那么肯定优先走 1；如果当前位是 0，那么当前位 和 0 或 1 运算的结果都是 0，我们无法确定走哪条支路才是最优解。于是我们可以将两条路合并成一条，把 1 的树自底向上合并到 0 的树
+\end{itemize}

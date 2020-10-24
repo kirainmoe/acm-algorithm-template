@@ -1,0 +1,121 @@
+\section{Link-Cut Tree}
+
+\paragraph{动态树问题}
+
+\par 要求维护一个\textbf{有根树森林}，支持树的分割、合并等操作，即支持在线维护树的连通性，并且在一条链上或路径上做修改。
+
+\paragraph{实链剖分}
+
+\par 动态树 / LCT 维护的是一个森林，希望通过实链剖分，使得动态树的链成为我们指定的、便于求解的链；
+对于节点 $u$ 及 $u$ 的所有子树与 $u$ 的连边 $(u, v_i) \in E$，选择一条边 $(u, v*)$，以该边进行剖分，则称 $(u, v*)$ 为实边，$(u, v_i), v_i \neq v*$ 为虚边。
+
+\paragraph{辅助树}
+
+\begin{itemize}
+\item 若干棵 splay 构成了辅助树，每棵 splay 维护原树中的一条路径
+\item 每棵“辅助树”维护的是“一棵原树”
+\item 若干棵辅助树构成了 LCT，维护整个森林
+\item 辅助树中 splay 的根节点的父节点，指向\textbf{原树中当前链的父节点}，即当前链最顶端的节点它的父节点。
+\item 每个连通块中恰好有一个节点的父节点为空。
+\end{itemize}
+
+\begin{minted}{c++}
+class LinkCutTree {
+public:
+    #define lson(x) ch[x][0]
+    #define rson(x) ch[x][1]
+    int ch[maxn][2], fa[maxn], size[maxn], stk[maxn], rev[maxn];
+    inline bool isRoot(int x) {
+        return lson(fa[x]) != x && rson(fa[x]) != x;
+    }
+    inline bool get(int x) {
+        return rson(fa[x]) == x;
+    }
+    inline void pushUp(int x) {
+        size[x] = size[lson(x)] + size[rson(x)] + 1;
+    }
+    inline void reverse(int x)  {
+        swap(lson(x), rson(x));
+        rev[x] ^= 1;
+    }
+    inline void pushDown(int x) {
+        if (!rev[x]) 
+            return;
+        if (lson(x))
+            reverse(lson(x));
+        if (rson(x))
+            reverse(rson(x));
+        rev[x] = 0;
+    }
+    
+    void rotate(int x) {
+        int y = fa[x], z = fa[y], k = get(x), w = ch[x][!k];
+        if (!isRoot(y))
+            ch[z][get(y)] = x;
+        ch[x][!k] = y, ch[y][k] = w;
+        if (w)
+            fa[w] = y;
+        fa[y] = x, fa[x] = z;
+        pushUp(y);
+    }
+    
+    void splay(int x) {
+        int top = 0;
+        stk[++top] = x;
+        for (int i = x; !isRoot(i); i = fa[i]) 
+            stk[++top] = fa[i];
+        while (top)
+            pushDown(stk[top--]);
+        int y, z;
+        while (!isRoot(x)) {
+            y = fa[x], z = fa[y];
+            if (!isRoot(y))
+                rotate((get(x) ^ get(y)) ? x : y);
+            rotate(x);
+        }
+        pushUp(x);
+    }
+
+    // 访问节点 x，使从根节点到 x 的路径成为实链
+    void access(int x) {
+        for (int y = 0; x; x = fa[y = x])
+            splay(x), rson(x) = y, pushUp(x);
+    }
+    // 将节点 x 变成 Splay 中的根
+    void makeRoot(int x) {
+        access(x), splay(x), reverse(x);
+    }
+    // 判断连通性，如果 find(x) == find(y) 则 x, y 在同一棵树中
+    int find(int x) {
+        access(x), splay(x);
+        while (lson(x))
+            pushDown(x), x = lson(x);
+        splay(x);
+        return x;
+    }
+    // 拉出 x=>y 的路径形成一个 splay
+    void split(int x, int y) {
+        makeRoot(x), access(y), splay(y);
+    }
+    // 连边 (x, y)
+    void link(int x, int y) {
+        makeRoot(x);
+        if (find(y) != x)
+            fa[x] = y;
+    }
+    // 断开边 (x, y)
+    void cut(int x, int y) {
+        makeRoot(x);
+        if (find(y) == x && fa[y] == x && !rson(y)) {
+            fa[y] = rson(x) = 0;
+            pushUp(x);
+        }
+    }
+    
+    void init() {
+        memset(ch, 0, sizeof ch), memset(fa, 0, sizeof fa);
+        memset(size, 0, sizeof size), memset(rev, 0, sizeof rev);
+    }
+} T;
+\end{minted}
+\clearpage

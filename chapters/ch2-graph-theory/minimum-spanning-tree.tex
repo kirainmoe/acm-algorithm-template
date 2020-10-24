@@ -1,0 +1,80 @@
+\section{最小生成树}
+\subsection{Kruskal 算法}
+适用于一般图。
+\begin{minted}{c++}
+int p[MAXN];
+int find(int x) {
+    return x == p[x] ? x : p[x] = find(p[x]);
+}
+int main() {
+    // ...
+    for (int i = 1; i <= n; i++)
+        p[i] = i;
+    sort(e, e + m);
+    int cnt = 0, ans = 0;
+    for (int i = 1; i <= ecnt && cnt < n; i++) {
+        int px = find(e[i].u), py = find(e[i].v);
+        if (px != py) {
+            p[px] = py;
+            ans += e[i].w;
+            cnt++;
+        }
+    }
+    if (cnt != n)
+        printf("No solution\n");
+    else
+        printf("%d", ans);
+    return 0;
+}
+
+\end{minted}
+
+\clearpage
+
+\subsection{堆优化的 Prim 算法}
+适用于边多点少的稠密图。
+\begin{minted}{c++}
+struct Edge {
+    int u, v, w, next;
+} e[MAXM << 1];
+struct Node {
+    int v, w;
+    bool operator < (const Node b) const {
+        return w > b.w;
+    }
+};
+priority_queue<Node> pq;
+int n, m, head[MAXN], cnt = 1;
+bool vis[MAXN];
+void add_edge(int u, int v, int w) {
+    e[cnt] = (Edge) { u, v, w, head[u] };
+    head[u] = cnt++;
+}
+
+int main() {
+    // ...
+    vis[0] = 1;
+    pq.push((Node) {1, 0});
+    LL ans = 0;
+    int cnt = 0;
+    while (!pq.empty() && cnt <= n) {
+        Node cur = pq.top();
+        pq.pop();
+        if (vis[cur.v])
+            continue;
+        vis[cur.v] = 1;
+        ans += cur.w;
+        cnt++;
+        for (int i = head[cur.v]; i; i = e[i].next) {
+            if (!vis[e[i].v])
+                pq.push((Node) { e[i].v, e[i].w });
+        }
+    } 
+    if (cnt != n) {
+        printf("No solution!");
+    } else {
+        printf("%lld", ans);
+    }
+}
+\end{minted}
+\clearpage

@@ -1,0 +1,74 @@
+\section{树链剖分}
+\paragraph{问题场景} 链上求和，链上求最值，链上修改，子树修改，子树求和。如：修改和查询点 $x$ 到 $y$ 的路径的信息；修改和查询以 $x$ 为根的子树的信息。
+\begin{minted}{c++}
+int size[MAXN], top[MAXN], son[MAXN], dfn[MAXN], dep[MAXN], father[MAXN], dcnt = 1;
+ll val[MAXN], raw[MAXN];
+/**
+ * 第一次 DFS,需要：
+ * 1. 标记每个结点的深度 dep[]
+ * 2. 标记每个结点的父亲 father[]
+ * 3. 标记每个非叶子结点的子树大小 size[]
+ * 4. 标记每个非叶子结点的重儿子编号 son[]
+ */
+void dfs_calc(int rt, int p, int d) {
+    father[rt] = p, dep[rt] = d, size[rt] = 1;
+    for (int i = head[rt]; i; i = e[i].next)
+        if (e[i].v != father[rt]) {
+            dfs_calc(e[i].v, rt, d + 1);
+            size[rt] += size[e[i].v];
+            if (son[rt] == -1 || size[e[i].v] > size[son[rt]])
+                son[rt] = e[i].v;
+        }
+}
+/**
+ * 第二次 DFS， 需要：
+ * 1. 标记每个点的新编号/DFS 序：dfn[cur]
+ * 2. 根据新编号将值赋到数组中
+ * 3. 处理每个点所在链的顶端 top[cur]
+ * 4. 先处理重儿子，然后递归处理轻儿子
+ */
+void dfs_decomposition(int cur, int hnode) {
+    top[cur] = hnode, dfn[cur] = dcnt;
+    raw[dcnt++] = val[cur];     
+    if (son[cur] == -1)         // 没有儿子
+        return;
+    dfs_decomposition(son[cur], hnode);     // 先处理重儿子
+    // 处理轻儿子
+    for (int i = head[cur]; i; i = e[i].next)  {
+        int v = e[i].v;
+        if (!dfn[v])
+            dfs_decomposition(v, v);    // 轻儿子单独成新链
+    }
+}
+/**
+ * 完成后可以用 raw[] 建立线段树，然后下面是查询和修改操作
+ * 修改和查询 x 到 y 的路径，直接调用就可以；如果要处理以 x 为根的子树，
+ * 因为我们记录了每个非叶结点的子树大小，并且每个子树的新编号都是连续的，
+ * 所以直接线段树区间操作 [dfn[x], dfn[x] + size[x] - 1] 即可
+ */
+ll query_path(int x, int y) {
+    ll ans = 0;
+    while (top[x] != top[y]) {
+        if (dep[top[x]] < dep[top[y]])
+            std::swap(x, y);
+        ans = (ans + t.query(1, 1, n, dfn[top[x]], dfn[x])) % t.mod;
+        x = father[top[x]];
+    }
+    if (dep[x] > dep[y])
+        std::swap(x, y);
+    ans = (ans + t.query(1, 1, n, dfn[x], dfn[y])) % t.mod;
+    return ans;
+}
+/* 更新从 (x, y) 的路径 */
+void update_path(int x, int y, ll val) {
+    while (top[x] != top[y]) {
+        if (dep[top[x]] < dep[top[y]])
+            std::swap(x, y);
+        t.update(1, 1, n, dfn[top[x]], dfn[x], val);
+        x = father[top[x]];
+    }
+    if (dep[x] > dep[y])
+        std::swap(x, y);
+    t.update(1, 1, n, dfn[x], dfn[y], val);
+}
+\end{minted}

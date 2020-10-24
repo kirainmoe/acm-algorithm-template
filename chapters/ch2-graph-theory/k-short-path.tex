@@ -1,0 +1,45 @@
+\section{K 短路}
+
+\begin{minted}{c++}
+namespace KShortestPath {
+    // 启发式搜索求 K 短路，来源：CCPC2019 网络赛 1004
+    struct HeapNode {
+        int cur, eid;
+        ll dist;
+        HeapNode(int cur, int eid, ll dist): cur(cur), eid(eid), dist(dist) {}
+        bool operator < (const HeapNode &b) const {
+            return dist > b.dist;
+        }
+    };
+    priority_queue<HeapNode> pq;
+
+    void solve(int n, int q) {
+        for (rint i = 1; i <= n; i++)
+            sort(e[i].begin(), e[i].end());
+        int maxk = -1, cnt = 0;
+        for (rint i = 0; i < q; i++) {
+            cin >> k[i];
+            maxk = max(maxk, k[i]);
+        }
+        while (pq.size())
+            pq.pop();
+        for (rint i = 1; i <= n; i++)
+            if (e[i].size())
+                pq.push(HeapNode(i, 0, e[i][0].w));
+        while (1) {
+            int cur = pq.top().cur, eid = pq.top().eid;
+            ll dist = pq.top().dist;
+            pq.pop();
+            ans[++cnt] = dist;
+            if (cnt == maxk)
+                break;
+            if (eid + 1 < (int)e[cur].size())
+                pq.push(HeapNode(cur, eid + 1, dist - e[cur][eid].w + e[cur][eid+1].w));
+            if (e[e[cur][eid].v].size())
+                pq.push(HeapNode(e[cur][eid].v, 0, dist + e[e[cur][eid].v][0].w));
+        }
+        for (rint i = 0; i < q; i++)
+            cout << ans[k[i]] << endl;
+    }
+}
+\end{minted}

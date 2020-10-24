@@ -1,0 +1,101 @@
+\section{扫描线}
+计算矩形面积并、矩形面积交、矩形周长并等。以下是矩形面积并的模板。
+\begin{minted}{c++}
+double x[MAXN];
+// 扫描线结构体，按照 y 坐标从下到上排序 
+struct ScanLine {
+    double l, r, h;
+    int d;      // 上位边为1，下位边为-1
+    ScanLine() {}
+    ScanLine(double l, double r, double h, int d): l(l), r(r), h(h), d(d) {}
+    bool operator < (const ScanLine sl) const {
+        return h < sl.h;
+    }
+} a[MAXN << 1];
+// 线段树的每个结点维护的是从当前坐标点到 坐标值+1 的点的长度 
+struct SegTree {
+    #define lson (rt << 1)
+    #define rson (rt << 1) | 1
+    double sum[MAXN << 2];
+    int cnt[MAXN << 2];
+    void init() {
+        memset(sum, 0, sizeof sum);
+        memset(cnt, 0, sizeof cnt);
+    }
+    void pushUp(int rt, int l, int r) {
+        // 如果覆盖了这段区间，则该区间的长度就是 x[r+1] - x[l]；注意理解坐标的意义 
+        if (cnt[rt])
+            sum[rt]  = x[r+1] - x[l];
+        else if (l == r)
+            sum[rt] = 0.00;
+        else
+            sum[rt] = sum[lson] + sum[rson];
+    }
+    void update(int rt, int l, int r, int ul, int ur, int d) {
+        if (ul <= l && r <= ur) {
+            cnt[rt] += d;       // 根据上位边或下位边来决定某段区间是否全覆盖 
+            pushUp(rt, l, r);
+            return;
+        }
+        int mid = (l + r) >> 1;
+        if (ul <= mid)
+            update(lson, l, mid, ul, ur, d);
+        if (mid < ur)
+            update(rson, mid + 1, r, ul, ur, d);
+        pushUp(rt, l, r);
+    }
+} T; 
+int n, lcnt = 0, xcnt = 0;
+// main()
+// 给 x[] 排序并去重，并对扫描线排序
+std::sort(a, a + lcnt);
+std::sort(x, x + xcnt);
+int k = 1;
+for (int i = 1; i < xcnt; i++)  // 尽量不要用 std::unique 
+    if (x[i] != x[i-1])
+        x[k++] = x[i];
+xcnt = k;
+T.init();
+for (int i = 0; i < lcnt - 1; i++) { // 遍历第 0~lcnt-1 条扫描线
+    // 找到扫描线覆盖的区间在离散后的数组 l[] 中的编号
+    int l = std::lower_bound(x, x + xcnt, a[i].l) - x,
+        r = std::lower_bound(x, x + xcnt, a[i].r) - x - 1;
+    // 因为线段树中的每个结点是代表从 [l, r+1] 的长度，所以 r 要-1.
+    // 注意这里的线段树起终点是 0~xcnt. 
+    T.update(1, 0, xcnt, l, r, a[i].d); 
+    // 答案增量是当前覆盖区间的长度 sum[1] * 当前扫描线与下一条扫描线的高度差 
+    ans += T.sum[1] * (a[i+1].h - a[i].h);
+}
+\end{minted}
+
+\noindent 求矩形面积并的情况：求面积时，用被覆盖2次以上的那一段乘以扫描线的距离即可。具体考虑每个区间的 cnt, 如果 cnt >= 2 则可以直接计算；如果 cnt= 1，若当前区间是叶子结点，则不计算在内；否则区间长度为左右儿子被覆盖过一次的区间长度之和（可以确定，这个区间被完全覆盖了1次，而有没有被完全覆盖两次或以上则不知道无法确定，需要从左右区间的信息推）；$cnt=0$只能从左右儿子的信息得到。因此只需要修改数组、pushUp 函数和计算和的部分。
+
+\begin{minted}{c++}
+double one[MAXN << 2], two[MAXN << 2];
+void pushUp(int rt, int l, int r) {
+    if (cnt[rt] >= 2)
+        two[rt] = one[rt] = x[r+1] - x[l];
+    else if (cnt[rt] == 1)
+        one[rt] = x[r+1] - x[l];
+        two[rt] = (l == r) ? 0 : one[lson] + one[rson];
+    else
+        if (l == r)
+            one[rt] = two[rt] = 0;
+        else {
+            one[rt] = one[lson] + one[rson];
+            two[rt] = two[lson] + two[rson];
+        }
+}
+ans += T.two[1] * (a[i+1].h - a[i].h);
+\end{minted}
+
+\noindent 矩形周长并：用矩形面积并的方法对 x 轴和 y 轴各做一次扫描线。但是在更新答案的时候，需要记录上一次覆盖区间总的长度，并从当前覆盖长度中减去。也不用乘上扫描线间的高。
+\begin{minted}{c++}
+int last = 0;
+// ...
+ans += abs(T.sum[1] = last), last = sum[1];
+\end{minted}
+
+\noindent 当然我们也可只对轴做一次扫描线, 只要同时维护轴竖线(就是求矩形面积并的时候的高)的个数, 记录竖线的个数 
+需要的注意的是竖线重合的情况, 需要再开变量来判断重合, 避免重复计算。
+

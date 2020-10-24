@@ -1,0 +1,15 @@
+\section{状态压缩 DP}
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|}
+\hline 操作 & 代码 \\
+\hline 取出整数 n 在二进制表示下的第 k 位 & $(n >> k) \& 1$ \\
+\hline 取出整数 n 在二进制表示下的后 k (0∼k−1)位 & $n \& ((1 << k) - 1)$ \\
+\hline 把整数 n 在二进制表示下的第 k 位取反 & $n ^ (1 << k)$ \\
+\hline 对整数 n 在二进制表示下的第 k 为赋值 1 & $n|(1<<k)$ \\
+\hline 对整数 n 在二进制表示下的第 k 为赋值 1 & $n \& (~(1 << k))$\\
+\hline
+\end{tabular}
+\caption{二进制的常用操作}
+\label{tab:Margin_settings}
+\end{table}

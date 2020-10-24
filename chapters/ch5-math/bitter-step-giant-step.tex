@@ -1,0 +1,58 @@
+\section{离散对数 / BSGS 算法}
+\begin{minted}{c++}
+/**
+* BSGS 算法：对于互质的 a, p, 求满足 $a^x \equiv b (\mod p)$ 的 x 
+* (1) 设 $m =  \lfloor\sqrt p\rfloor, x = im-j$
+* (2) 原式转化为 $a^{im-j}  \equiv b (\mod p)$, 即 $a^{mi} \equiv ba^j (\mod p)$
+* (3) 从 0~m-1 枚举 j，将 $ba^j$ 存入 hash 表 
+* (4) 从 1~m 枚举 i，遇到第一个满足 $a^{mi} \equiv ba^j (\mod p)$ 的 x = im-j 即为所求
+* 上述算法有解的充要条件是 p 为质数且 gcd(a,p) = 1. 如果不满足，则需要使用 ExBSGS 算法：
+*/
+ll BSGS(ll a, ll b, ll p) {
+    map<ll, ll> mp;
+    a %= p, b %= p;
+    if (a == 0LL && b == 0LL)
+        return 1LL;
+    if (b == 1LL)
+        return 0LL;     // a^0 = 1 (mod p)
+    if (p == 0LL) {
+        if (a == 0LL)
+            return 0LL;
+        else
+            return 1LL;
+    }
+    
+    // ExBGSS
+    long long cnt = 0, t = 1;
+    for (long long d = __gcd(a, p); d != 1LL; d = __gcd(a, p)) {
+        if (b % d)
+            return -1;
+        p /= d, b /= d;
+        t = t * a / d % p;
+        cnt++;
+        if (b == t)
+            return cnt;
+    }
+    
+    long long m = (ll)floor(sqrt(1.0 * p - 1)) + 1, ans;
+    for (int i = 0; i < m; i++) {
+        if (i == 0) {
+            ans = b % p;
+            mp[ans] = i;
+            continue;
+        }
+        ans = (ans * a) % p;
+        mp[ans]  = i;
+    }
+    long long am = mod_pow(a, m, p);
+    ans = t;            // BSGS: ans=1, ExBSGS: ans=t
+    for (long long i = 1; i <= m; i++) {
+        ans = (ans * am) % p;
+        if (mp[ans]) {
+            long long t = i * m - mp[ans] + cnt;    // ExBSGS 下需要加 cnt 
+            return (t % p + p) % p;
+        }
+    }
+    return -1;
+}    
+\end{minted}

@@ -1,0 +1,75 @@
+\section{莫队算法 (带修改)}
+\begin{minted}{c++}
+struct Query {
+    int l, r, time, id;
+} q[MAXM];              // 查询结构体
+struct Mod {
+    int pos, color;
+} mods[MAXN];           // 修改内容结构体
+int n, m, a[MAXN], block[MAXN],     // 分块
+    res[MAXN], cnt[MAXL],     // res 保存询问的回答
+    qcnt, mcnt, ans, time;    // time：当前时间
+
+bool cmp(const Query a, const Query b) {
+    return (block[a.l] ^ block[b.l])
+        ? (block[a.l] < block[b.l])
+        : (block[a.r] ^ block[b.r])
+        ? (block[a.r] < block[b.r])
+        : a.time < b.time;
+    // 不带修改的写法
+    /* return (block[a.l] ^ block[a.l])
+        ? block[a.l] < block[b.l]
+        : ((block[a.l] & 1) ? a.r < b.r : a.r > b.r); */    
+}
+void add(int pos) {
+    if (cnt[a[pos]] == 0)
+        ans++;
+    cnt[a[pos]]++;
+}
+void del(int pos) {
+    cnt[a[pos]]--;
+    if (cnt[a[pos]] == 0)
+        ans--;
+}
+void work(int t, int i) {
+    if (mods[t].pos >= q[i].l && mods[t].pos <= q[i].r) {
+        cnt[a[mods[t].pos]]--;
+        if (cnt[a[mods[t].pos]] == 0)
+            ans--;
+        cnt[mods[t].color]++;
+        if (cnt[mods[t].color] == 1)
+            ans++;
+    }
+    swap(mods[t].color, a[mods[t].pos]);
+}
+
+// main
+/* 第一步，计算块大小，读入数据并分块；略去添加查询 */
+int blockSize = pow(n, 2.0/3.0),
+    blockCnt = ceil((double)n / blockSize);
+for (int i = 1; i <= n; i++) {
+    read(a[i]);
+    block[i] = (i - 1) / blockSize + 1;
+}
+// 如果莫队是带修改的，那么查询的时间轴为当前的 mcnt
+/* 第二步，对所有的查询询问排序 */
+sort(q + 1, q + qcnt + 1, cmp);
+/* 第三步，处理所有询问，对两个指针进行移动直到移到查询区间为止。注意 l,r 的初值 */
+int l = 1, r = 0;
+for (int i = 1; i <= qcnt; i++) {
+    while (l < q[i].l)
+        del(l++);
+    while (l > q[i].l)
+        add(--l);
+    while (r < q[i].r)
+        add(++r);
+    while (r > q[i].r)
+        del(r--);
+    // 如果当前时间不在查询时间范围内，那就要处理修改
+    while (time < q[i].time)
+        work(++time, i);
+    while (time > q[i].time)
+        work(time--, i);
+    res[q[i].id] = ans;     // 最后将答案离线到答案数组中
+}
+\end{minted}

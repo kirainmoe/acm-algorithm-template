@@ -1,0 +1,222 @@
+\section{圆}
+\subsection{定义}
+\begin{minted}{c++}
+struct Circle {
+    Point c;    // center
+    double r;   // radius
+    Circle(Point c, double r): c(c), r(r) {}
+    // 通过圆心角 rad 求圆上一点的坐标 
+    Point pt(double rad) {
+        return Point(c.x + cos(rad) * r, c.y + sin(rad) * r);
+    }
+};
+\end{minted}
+
+\subsection{直线 AB 与圆 C 的交点}
+
+\begin{itemize}
+    \item 方法1：解方程组：设交点 $P=A+t(B-A)$，代入圆方程得到 $(at+b)^2+(ct+d)^2=r^2$，整理得到二次方程 $et^2+ft+g=0$。根据判别式区分相离、相切、相交的情况并得到交点。
+    \item 方法2：先求出圆心 $C$ 在 $AB$ 上的投影点 $P$，再求 $\vec{AB}$ 对应的单位向量 $\vec{v}$，两个交点分别为 $p-L\vec{v}$ 和 $p+L\vec{v}$，$L$ 为 $P$ 到交点的距离，可以由勾股定理算出。
+\end{itemize}
+
+\noindent 注：第二种方法可以先求圆心到直线距离判断交点个数，再用勾股定理 $L^2=r^2-d^2$ 算出 $L$.
+
+\begin{minted}{c++}
+int getLineCircleIntersection(Line l, Circle C, Point ans[]) {
+    double a = l.s.x, b = l.p.x - C.c.x, c = l.s.y, d = l.p.y - C.c.y;
+    double e = a * a + c * c, f = 2 * (a * b + c * d), g = b * b - d * d - C.r * C.r;
+    double delta = f * f - 4 * e * g;
+    if (dcmp(delta) < 0)        // 0
+        return 0;
+    if (dcmp(delta) == 0) {     // 1
+        double t1 = - f / (2 * e);
+        ans[0] = C.pt(t1);
+        return 1;
+    }
+    double t1 = (-f - sqrt(delta)) / (2 * e),
+        t2 = (-f + sqrt(delta)) / (2 * e);      // 2
+    ans[0] = C.pt(t1), ans[1] = C.pt(t2);
+    return 2;
+}
+\end{minted}
+
+\begin{minted}{c++}
+int getLineCircleIntersection2(Line l, Circle C, Point ans[]) {
+    Point proj = l.p + l.s * (dot(l.s, C.c - l.p) / dot(l.s, l.s));
+    Vector normal = normalVector(l.s);
+    double dist = square(proj.x - C.c.x) + square(proj.y - C.c.y);
+    if (dist > C.r)
+        return 0;
+    if (dist == C.r) {
+        ans[0] = proj;
+        return 1;
+    }
+    double len = sqrt(square(C.r) - dist);
+    ans[0] = proj + normal * len, ans[1] = proj - normal * len;
+    return 2;
+}
+\end{minted}
+
+\subsection{两圆相交}
+\noindent 若两圆有交点，则设其中一个交点为 $P_1$，圆心距为 $d$，根据余弦定理算出 $C_1C_2$ 到 $C_1P_1$ 的角 $da$ 和 $C_1C_2$ 的极角 $a$，$a \pm da$ 角对应的点即为两个交点（或重合为一个交点）。
+\begin{minted}{c++}
+int getCirclesIntersection(Circle C1, Circle C2, Point ans[]) {
+    double dist = length(C1.c - C2.c);
+    if (C1.c == C2.c && dcmp(C1.r - C2.r) == 0) 
+        return -1;      // 两圆重合   
+    if (dcmp(dist) == 0 || (dcmp(C1.r + C2.r - dist < 0)) || (dcmp(fabs(C1.r - C2.r) - dist) > 0))
+        return 0;       // 内离，外离
+    Vector d = C2.c - C1.c;
+    double ang = atan2(d.y, d.x),
+        da = acos((C1.r * C1.r + dist * dist - C2.r * C2.r) / (2 * C1.r * dist));
+    ans[0] = C1.pt(ang - da), ans[1] = C1.pt(ang +da);
+    if (ans[0] == ans[1])       // 重合 
+        return 1;
+    else
+        return 2;
+}
+\end{minted}
+
+\subsection{过定点到圆的切线}
+\noindent 首先计算点到圆心的距离判断是否存在切线和条数。如果点在圆上只有一条切线，切线即为点与圆心连线向量旋转 90 度。否则用反正弦函数可以求出切角 $ang$，将点与圆心连线分别顺时针和逆时针旋转 $ang$ 即可得到两条切线。
+\begin{minted}{c++}
+int getTangents(Point p, Circle C, Vector v[]) {
+    Vector u = C.c - p; 
+    double dist = length(u);
+    if (dist < C.r)
+        return 0;       // 点在圆内，没有切线
+    else if (dcmp(dist - C.r) == 0) {
+        v[0] = rotateVector(u, acos(-1) / 2.0);
+        return 1;
+    } else {
+        double ang = asin(C.r / dist);
+        v[0] = rotateVector(u, ang), v[1] = rotateVector(u, -ang);
+        return 2;
+    }
+}
+\end{minted}
+
+\subsection{两圆的公切线}
+\noindent 两圆的公切线有六种情况：
+\begin{itemize}
+    \item 两圆完全重合，有无数条公切线。
+    \item 两圆内含，没有公切线。
+    \item 两圆内切，有一条公切线。
+    \item 两圆相交，有两条公切线。
+    \item 两圆外切，有三条公切线。
+    \item 两圆相离，有四条公切线。
+\end{itemize}
+
+\begin{minted}{c++}
+int getCirclesTangents(Circle A, Circle B, Point *a, Point *b)  {
+    int cnt = 0;
+    if (A.r < B.r) {
+        std::swap(a, b);
+        std::swap(A, B);
+    }
+    double d2 = lengthSquare(A.c - B.c),
+        rdiff = A.r - B.r, rsum = A.r + B.r;
+    if (d2 < rdiff * rdiff) {
+        return 0;       // 内含 
+    }
+    double base = atan2(B.c.y - A.c.y, B.c.x - A.c.x);
+    if (d2 == 0 && dcmp(A.r - B.r) == 0)
+        return -1;      // 重合
+    if (d2 == rdiff * rdiff)  {
+        a[cnt] = A.pt(base), b[cnt++] = B.pt(base);
+        return cnt;
+    }
+    // 相交的基本情况 
+    double ang = acos((A.r - B.r) / sqrt(d2));
+    a[cnt] = A.pt(base + ang), b[cnt++] = B.pt(base + ang);
+    a[cnt] = A.pt(base - ang), b[cnt++] = B.pt(base - ang);
+    if (d2 == rsum * rsum) {    // 外切 
+        a[cnt] = A.pt(base), b[cnt++] = B.pt(base);
+    }
+    else if (d2 > rsum * rsum) {    // 外离 
+        ang = acos((A.r + B.r) / sqrt(d2));
+        a[cnt] = A.pt(base + ang), b[cnt++] = B.pt(base + ang);
+        a[cnt] = A.pt(base - ang), b[cnt++] = B.pt(base - ang);
+    }
+    return cnt;
+}
+\end{minted}
+
+\subsection{两点/三点定圆}
+\begin{minted}{c++}
+Circle getCircle(Point a, Point b) {
+    Point c = Point((a.x + b.x) / 2.0, (a.y + b.y) / 2.0);
+    double r = length(Vector(b - a)) / 2.0;
+    return (Circle) { c, r };
+}
+
+Circle threePointCircle(Point a, Point b, Point c) {
+    Point p = (a + b) / 2.0,
+        q = (a + c) / 2.0;
+    Vector v = rotate(b - a, PI / 2.0),
+        w = rotate(c - a, PI / 2.0);
+    Point o;
+    double r;
+    if (dcmp(v ^ w) == 0) {        // parallel
+        if (dcmp(length(a - b) + length(b - c) -length(a - c)) == 0)
+            o = (a + c) / 2.0, r = length(c - o);
+        if (dcmp(length(a - b) + length(a - c) - length(b - c)) == 0)
+            o = (b + c) / 2.0, r = length(b - o);
+        if (dcmp(length(a - c) + length(b - c) - length(a - b)) == 0)
+            o = (a + b) / 2.0, r = length(a - o);
+        return (Circle){ o, r };
+    }
+    o = lineIntersection(p, v, q, w);
+    r = length(a - o);
+    return (Circle) { o, r };
+}
+\end{minted}
+
+\subsection{最小覆盖圆}
+\begin{minted}{c++}
+Circle MinCoveredCircle(Point p[], int n) {
+    random_shuffle(p, p + n);
+    Circle c = (Circle) {p[0], 0.0};
+
+    for (rint i = 1; i < n; i++) {
+        if (checkPointInCircle(p[i], c))
+            continue;
+        c.c = p[i], c.r = 0.0;
+        for (rint j = 0; j < i; j++) {
+            if (checkPointInCircle(p[j], c))
+                continue;
+            c = getCircle(p[i], p[j]);
+            for (rint k = 0; k < j; k++) {
+                if (checkPointInCircle(p[k], c))
+                    continue;
+                c = threePointCircle(p[i], p[j], p[k]);
+            }
+        }
+    }
+    return c;
+}
+\end{minted}
+
+
+\subsection{最小覆盖球的模拟退火算法}
+\begin{minted}{c++}
+double solve() {
+    const double start = 1000;
+    double step = start, ans = inf, mt;
+    Point z;
+    z.x = z.y = z.z = 0;
+    int s = 0;
+    while (step > eps) {
+        for (int i = 0; i < n; i++)
+            if (dist(z, pts[s]) < dist(z, pts[i]))
+                s = i;
+        mt = dist(z, pts[s]);
+        ans = min(ans, mt);
+        z.x += (pts[s].x - z.x) / start * step;
+        z.y += (pts[s].y - z.y) / start * step;
+        z.z += (pts[s].z - z.z) / start * step;
+        step *= 0.97; 
+    }
+    return ans;
+}
+\end{minted}

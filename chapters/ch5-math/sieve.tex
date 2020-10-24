@@ -1,0 +1,63 @@
+\section{素数、欧拉函数、莫比乌斯函数}
+
+\subsection{线性筛}
+\begin{minted}{c++}
+bool notPrime[MAXN];
+int primes[MAXN], phi[MAXN], mu[MAXN], cnt = 0;       // phi(n) 欧拉函数
+
+void sieve(int n) {
+    notPrime[0] = notPrime[1] = 1;
+    phi[1] = mu[1] = 1;
+    for (int i = 2; i <= n; i++) {
+        if (!notPrime[i]) {
+            primes[cnt++] = i;
+            phi[i] = i-1, mu[i] = -1;
+        }
+        for (int j = 0; j < cnt && i * primes[j] <= n; j++) {
+            notPrime[i * primes[j]] = 1;
+            if (i % primes[j] == 0) {
+                phi[i * primes[j]] = phi[i] * primes[j];
+                mu[i * primes[j]] = 0;
+                break;
+            } else {
+                phi[i * primes[j]] = phi[i] * (primes[j] - 1);
+                mu[i * primes[j]] = -mu[i];
+            }
+        }
+    }
+}
+\end{minted}
+
+\paragraph{线性筛计算因数个数} 设 $d(i)$ 表示数 $i$ 的约数个数，$num(i)$ 表示 $i$ 的最小质因数的个数 (e.g. $i = p_1^{a_1} \cdot p_2^{a_2} \cdot ... \cdot p_n^{a_n}, p_1 < p_2 < ... < p_n$， 则 $num(i) = count(p_1) = a_1$).
+\begin{itemize}
+\item 若 $i$ 为素数，则 $\begin{cases} d(i) = 2 \\ num(i) = count(i) = 1 \end{cases}$.
+\item 若 $i \% primes[j] \neq 0$，则 $d(i \cdot primes[j]) = d(i) \cdot d(primes[j])$，因为 $i \cdot primes[j]$ 在当前被枚举前，不包含因数 $primes[j]$，所以 $d(i \cdot primes[j]) = d(i) \cdot 2$；又因为 $j$ 是从小到大枚举的，所以 $primes[j]$ 从小到大，故有 $num(i \cdot primes[j]) = 1$.
+\item 若 $i \% primes[j] = 0$，则说明 $i$ 在被枚举前，已存在质因子 $primes[j]$，且 $primes[j]$ 为 $i \cdot primes[j]$ 的最小质因子，所以 $d(i \cdot primes[j]) = \frac{d(i)}{num(i) + 1} \cdot (num(i) + 2)$，$num(i \cdot primes[j]) = num(i) + 1$.
+\end{itemize}
+
+\paragraph{线性筛计算因数和} 令 $sumd(n) = (1 +p_1 + p_1^2 +... + p_1^{r_1})(1 +p_2 + p_2^2 +... + p_2^{r_2})... (1 +p_k + p_k^2 +... + p_k^{r_k})$
+\par 其中 $n = p_1^{r_1}p_2^{r_2}...p_k^{r_k}$.
+\begin{itemize}
+\item 若 $i$ 为素数，$sund(i) = 1 + i$, $num(i) = 1 +i$.
+\item 若 $i \% primes[j] \neq 0$, $\begin{cases}sund(i \cdot primes[j]) = sumd(i) \cdot sumd(primes[j]) \\ num(i \cdot primes[j]) = 1 + primes[j]\end{cases}$
+\item 若 $i \% primes[j] = 0$，则 $\begin{cases} sund(i \cdot primes[j]) = (\frac{sumd(i)}{num(i)}) \cdot (num(i) \cdot primes[j]) + 1 \\ num(i \cdot primes[j]) = num(i) \cdot primes[j] + 1 \end{cases}$
+\end{itemize}
+
+\subsection{求单值的欧拉函数}
+
+\paragraph{定义} 对正整数 $n$ 的欧拉函数是：小于等于 $n$ 的数中，与 $n$ 互质的数的数目。
+\begin{minted}{c++}
+long long euler(long long n) {
+    long long res = n, a = n;
+    for (long long i = 2; i * i <= a; i++) {
+        if (a % i == 0) {
+            res = res / i * (i - 1);
+            while (a % i == 0)
+                a /= i;
+        }
+    }
+    if (a > 1)
+        res = res / a * (a - 1);
+    return res;
+}
+\end{minted}

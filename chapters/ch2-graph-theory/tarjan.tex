@@ -1,0 +1,245 @@
+\section{Tarjan}
+
+\subsection{求割边(桥)}
+\begin{minted}{c++}
+namespace CutEdge {
+    int cnt = 0;
+    vector<pair<int, int> > G;
+    void tarjan(int x, int in_edge) {
+        dfn[x] = low[x] = ++cnt;
+        for (int i = head[x]; i; i = e[i].next) {
+            int y = e[i].v;
+            if (!dfn[v]) {
+                tarjan(v, i), low[x] = min(low[x], low[y]);
+                if (low[y] > dfn[x])
+                    G.emplace_back(make_pair(e[i].u, e[i].v));
+            }
+            else if (i != (in_edge ^ 1))
+                low[x] = min(low[x], dfn[y]);
+        }
+    }
+    vector<pair<int, int> > solve() {
+        for (int i = 1; i <= n; i++)
+            if (!dfn[i])
+                tarjan(i, 0);
+        return G;
+    }
+}
+\end{minted}
+
+\subsection{求割点}
+\begin{minted}{c++}
+namespace CutPoint {
+    int cnt = 0, root = 0;
+    vector<int> P;
+    void tarjan(int x) {
+        dfn[x] = low[x] = ++cnt;
+        int child_count = 0;
+        for (int i = head[x]; i; i = e[i].next) {
+            int y = e[i].v;
+            if (!dfn[y]) {
+                tarjan(y);
+                low[x] = min(low[x], low[y]);
+                if (low[y] >= dfn[x]) {
+                    child_count++;
+                    if (x != root || child_count > 1)
+                        P.emplace_back(x);
+                }
+            } else
+                low[x] = min(low[x], dfn[y]);
+        }
+    }
+    vector<int> solve() {
+        for (int i = 1; i <= n; i++)
+            if (!dfn[i])
+                root = i, tarjan(i);
+        return P;
+    }
+}
+\end{minted}
+
+\subsection{求无向图点双连通分量 \& 缩点}
+\paragraph{点双连通} 在一个无向图中，若任意两点间至少存在两条“点不重复”的路径，则说这个图是点双连通的。
+\paragraph{点双连通分量} 在一个无向图中，点双连通的极大子图称为点双连通分量。
+\paragraph{等价定义} 点双连通图定义等价于：任意两条边都在同一个简单环中。
+
+\begin{minted}{c++}
+namespace vDCC {
+    int dfn[MAXN], low[MAXN], dcnt = 0, root = 0, ans = 0;
+    bool cut[MAXN];      // 记录点 i 是不是割点
+    stack<int> s;
+    vector<int> dcc[MAXN];
+    void tarjan(int x) {
+        dfn[x] = low[x] = dcnt++;
+        s.push(x);
+        if (x == root && head[x] == -1) {       // 孤立点，单独成图 
+            dcc[ans++].push_back(x);
+            return;
+        }
+        for (int i = head[x]; i; i = e[i].next) {
+            int y = e[i].v;
+            if (!dfn[y]) {
+                tarjan(y), low[x] = min(low[x], low[y]);
+                if (low[y] >= dfn[x]) {     // x 是割点 
+                    cut[x] = 1;
+                    int tmp;
+                    do {
+                        tmp = s.top(), s.pop();
+                        dcc[ans].push_back(tmp);
+                    } while (tmp != y);
+                    dcc[ans].push_back(x);
+                    ans++;
+                }
+            } else
+                low[x] = std::min(low[x], dfn[y]);
+        }
+    }
+    int solve(int n) {
+        for (int i = 1; i <= n; i++)
+            if (!dfn[i])
+                root = i, tarjan(i);
+        return ans; // 返回点双连通分量个数
+    }
+
+    /* 缩点 */
+    Edge ec[MAXN << 1];
+    int hc[MAXN], cdcnt = 2, new_id[MAXN], num;
+    void add_vdcc_edge(int u, int v) {
+        ec[cdcnt] = (Edge) {u, v, hc[u]};
+        hc[u] = cdcnt++;
+    }
+    void shrink() {
+        num = ans;
+        // 给割点编号
+        for (int i = 1; i <= n; i++)
+            if (cut[i])
+                new_id[i] = ++num;
+        for (int i = 0; i < ans; i++) {          // ans 是 v-DCC 数 -1
+            for (int j = 0; j < dcc[i].size(); j++) {
+                int x = dcc[i][j];
+                if (cut[x])
+                    add_vdcc_edge(i, new_id[x]), add_vdcc_edge(new_id[x]. i);
+                else
+                    c[x] = i;           // 除了割点之外，标记其它的点只属于一个 v-DCC
+            }
+        }
+        // 节点数: ans，边数: cdcnt / 2
+        // for (int i = 2; i < tc; i += 2)
+        //     printf("%d %d\n", ec[i].u, ec[i].v);
+    }
+}    
+\end{minted}
+
+\subsection{求无向图的边双连通分量 \& 缩点}
+\paragraph{边双连通} 如果任意两点至少存在两条边不重复路径，则称该图为边双连通的。
+\paragraph{等价定义} 边双连通图的定义等价于：任意一条边至少在一个简单环中。
+\begin{minted}{c++}
+namespace eDCC {
+    // 为了进行异或运算找到边，必须设定前向星 cnt 起点为 2 
+    int dfn[MAXN], low[MAXN], dcnt = 0;
+    int c[MAXN], dcc = 0;
+    bool is_bridge[MAXN];
+    void tarjan(int x, int in_edge) {
+        dfn[x] = low[x] = dcnt++;
+        for (int i = head[x]; i; i = e[i].next) {
+            int y = e[i].v;
+            if (!dfn[y]) {
+                tarjan(y, i), low[x] = min(low[x], low[y]);
+                if (low[y] > dfn[x])      // x 是割边 
+                    is_bridge[i] = is_bridge[i ^ 1] = 1;    // 标记该边及其反向边为桥 
+            } else if (i != (in_edge ^ 1))
+                low[x] = std::min(low[x], dfn[y]);
+        }
+    }
+    void dfs(int x) {
+        c[x] = dcc;
+        for (int i = head[x]; i; i = e[i].next) {
+            int y = e[i].v;
+            // 节点 y 已被访问或者 (x,y) 是桥 
+            if (c[y] || is_bridge[i])
+                continue;
+            dfs(y);
+        }
+    }
+    void solve(int n) {
+        for (int i = 1; i <= n; i++)
+            if (!dfn[i])
+                tarjan(i, 0);
+        for (int i = 1; i <= n; i++)
+            if (!c[i])
+                dcc++, dfs(i);
+        printf("There are %d e-DCCs.\n", dcc);
+        for (int i = 1; i <= n; i++)
+            printf("node %d belongs to e-dcc %d\n" , i, c[i]);
+    }
+
+    // 缩点
+    Edge ec[MAXN << 1];
+    int hc[MAXN], cecnt = 2;
+    void add_cut_edge(int u, int v) {
+        ec[cecnt] = (Edge) {u, v, hc[u]};
+        hc[u] = cecnt++;
+    }
+    void shrink() {
+        for (int i = 2; i <= cnt; i++) {    // cnt 是原图的边数
+            int x = e[i].x, y = e[i].y;
+            if (c[x] == c[y])
+                continue;                   // x, y 同属一个 e-DCC, 无事可做
+            add_cut_edge(x, y);             // 否则将 x, y 加入新图中
+        }
+        // 新图有 dcc 个点, cecnt / 2 条边
+        // for (int i = 2; i < cecnt; i += 2)
+        //     printf("%d %d\n", ec[i].u, ec[i].v);
+    }    
+}    
+\end{minted}
+
+\subsection{求有向图强连通分量 \& 缩点}
+\begin{minted}{c++}
+namespace SCC {
+    int dfn[MAXN], low[MAXN], c[MAXN];    // c[i] 表示节点 i 所属的 scc 编号 
+    int scccnt = 0, order = 1;
+    bool instack[MAXN];
+    vector<int> scc[MAXN];
+    stack<int> s;
+    void tarjan(int x) {
+        dfn[x] = low[x] = order++;
+        s.push(x), instack[x] = 1;
+        for (int i = head[x]; i; i = e[i].next) {
+            int y = e[i].v;
+            if (!dfn[y])
+                tarjan(y), low[x] = min(low[x], low[y]);
+            else if (instack[y])
+                low[x] = min(low[x], dfn[y]);
+        }
+        if (dfn[x] == low[x]) {
+            int tmp;
+            do {
+                tmp = s.top(), s.pop();
+                c[tmp] = scccnt, instack[tmp] = 0;
+                scc[scccnt].push_back(tmp);
+            } while (tmp != x);
+            scccnt++;
+        }
+    }
+
+    // 缩点
+    Edge ec[MAXN];
+    int hc[MAXN], ccnt = 1;
+    void add_scc_edge(int u, int v) {
+        ec[ccnt] = (Edge) { u, v, hc[u] };
+        hc[u] = ccnt++;
+    }
+    void shrink() {
+        for (int x = 1; x <= n; x++) {
+            for (int i = head[x]; i; i = e[i].next) {
+                int y = e[i].v;
+                if (c[x] == c[y])
+                    continue;
+                add_scc_edge(c[x], c[y]);
+            }
+        }    
+    }
+}
+\end{minted}
+\clearpage

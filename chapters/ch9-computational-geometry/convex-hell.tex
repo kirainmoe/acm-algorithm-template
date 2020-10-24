@@ -1,0 +1,73 @@
+\section{凸包 (Convex Hell)}
+
+\paragraph{凸包的定义} 对于给定的一组点 $p_1, p_2, ..., p_n$，凸包就是把给定点包围在内部的、面积最小的凸多边形。
+
+\subsection{Andrew 算法求凸包}
+
+\noindent 算法思想：先将所有的点按照水平序排序，将第 1, 2 个点加入凸包，然后从第 3 个点开始逐个尝试将点加入栈中；若点不满足在凸包上的条件则将其出栈。点 $P$ 在凸包上当且仅当新点在凸包前进方向的左边。\\
+
+\noindent 数学体现即为栈顶已有的点 $A_2, A_1$，当且仅当 $\vec{A_2 - A_1} \times \vec{P-A_1} \le 0$ 时，$P$ 在 $\vec{A_2-A_1}$ 的左边（可以通过上文的坐标系判断法判断位置）。\\
+
+\noindent 算法步骤：
+\begin{itemize}
+    \item 先将所给的点去重，然后按照 $x$ 的大小排序；如果 $x$ 相同则按 $y$ 的大小排序
+    \item 先求下凸壳。将排序后的 1,2 个点加入栈中，从第3个点开始判断新点是否在已有凸包点的左侧，如果是的话加入栈中；
+    \item 如果不是的话说明找到了更外围的点，将栈中的点删除直到栈中只有一个点或当前点在已有凸壳行进方向的右方。
+    \item 使用同样的方式倒序循环求上凸壳（因为 x-y 排序，最右边的点是 x 最大的点，此时只求了一半）。注意到最右边的一个点一定在凸壳上，所以要从 $n-2$ 开始循环。
+    \item 如果所给的点数多于 1 个，则将凸包中的最后一个点删去。
+\end{itemize}
+
+\begin{minted}{c++}
+int ConvexHell_Andrew(Point p[], int n, Point res[]) {
+    /* step 1: sort points by x,y */
+    std::sort(p, p + n); 
+    int m = 0;
+    /* step 2: solve bottom convex shell */
+    for (int i = 0; i < n; i++) {
+        // if current point isn't on the left of convex hell
+        // delete exist points in the stack until empty or point on the left
+        // if P1P2 can't be parallel with P2P3, change >= to >
+        while (m > 1 &&  cross(res[m-1] - res[m-2], p[i] - res[m-2]) <= 0)
+            m--;
+        res[m++] = p[i];
+    }
+    int k = m;
+    /* step 3: solve top convex shell, point n-1 already in the hell */
+    for (int i = n - 2; i >= 0; i--) {
+        while (m > k && cross(res[m-1] - res[m-2], p[i] - res[m-2]) <= 0)
+            m--;
+        res[m++] = p[i];
+    }
+    if (n > 1)
+        m--;        // delete point 0
+    return m;
+}
+\end{minted}
+
+\subsection {Graham 法求凸包}
+
+\noindent 算法思想：Andrew 算法其实就是由 Graham 扫描法改进而来。不同之处在于 Graham 扫描法采用极角排序，精度会降低。如非特殊需要应该使用 Andrew 算法。 \\ 
+
+极角排序规则：从 $x$ 轴正向开始，按极角从小到大排序；如果极角相同则按照模长排序。极角排序可以用 $atan2$ 函数求极角，或者用向量叉积。
+
+\begin{minted}{c++}
+bool cmp(Point p1, Point p2) {
+    Vector v = p1 - p[0], w = p2 - p[0];
+    double tmp = cross(v, w);
+    if (dcmp(tmp) == 0)
+        return length(v) < length(w);
+    return dcmp(tmp) > 0;
+}
+int k = 0;
+Point p0 = p[0];
+for (int i = 0; i < cnt; i++) {
+    if (p0.y > p[i].y || (p0.y == p[i].y && p0.x > p[i].x)) {
+        p0 = p[i];
+        k = i;
+    }
+}
+std::swap(p[k], p[0]);
+std::sort(p, p + cnt, cmp);
+
+// the remaining is the same as Andrew, but calculate only once
+\end{minted}

@@ -1,0 +1,34 @@
+\section{中国剩余定理 CRT}
+\paragraph{问题场景} 求解如下形式的一元线性方程组：
+$$\begin{cases}x \equiv a_1 (\mod n_1) \\x \equiv a_2 (\mod n_2) \\... \\x \equiv a_k (\mod n_k)\end{cases}$$
+\begin{minted}{c++}
+int china(int a[], int mods[], int n) {
+    int ans = 0, lcm = 1, x = 0, y = 0;
+    for (int i = 0; i < n; i++)
+        lcm *= mods[i];
+    for (int i = 0; i < n; i++) {
+        int tp = lcm / mods[i];
+        exgcd(tp, mods[i], x, y);
+        x = (x % mods[i] + mods[i]) % mods[i];
+        ans = (ans + tp * x * a[i]) % lcm;
+    }
+    return (ans + lcm) % lcm;
+}
+\end{minted}
+\paragraph{扩展中国剩余定理 EXCRT} 用于解决模数不互质的情况。
+\begin{minted}{c++}
+ll excrt(ll b[], ll a[], ll n) {
+    ll x = 0, y = 0, d = 0;
+    ll M = a[0], R = b[0];
+    for (register int i = 1; i < n; i++) {
+        d = exgcd(M, a[i], x, y);
+        if ((R - b[i]) % d)
+            return -1;
+        x = (R - b[i]) / d * x % a[i];
+        R -= M * x;
+        M = M / d * a[i];
+        R %= M;
+    }
+    return (R % M + M) % M;
+}
+\end{minted}

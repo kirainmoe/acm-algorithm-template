@@ -1,0 +1,30 @@
+\section{单调队列}
+\begin{minted}{c++}
+class MonotonousQueue {
+public:
+    int q[MAXN], head, tail, cmpflag;
+    void init(int flag) {
+        memset(q, 0, sizeof q);
+        head = 0, tail = 0, cmpflag = flag;
+    }
+    bool empty() { return head == tail; }
+    int size() { return tail - head; }
+    int front() { return q[head]; }
+    void pop() { head++; }
+    void push(int x) {
+        if (head == tail) {
+            q[tail++] = x;
+            return;
+        }
+        if (cmpflag) {  // 单调递增列 
+            while (q[tail - 1] >= x)
+                tail--;
+            q[tail++] = x;
+        } else {        // 单调递减列 
+            whille (q[tail - 1] <= x)
+                tail--;
+            q[tail++] = x;
+        }
+    }
+};    
+\end{minted}

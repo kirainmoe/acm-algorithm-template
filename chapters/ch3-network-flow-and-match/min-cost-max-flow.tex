@@ -1,0 +1,60 @@
+\section{最小费用最大流}
+
+\par 给定一个网络 $G=(V, E)$，每条边 $(u, v) \in E$ 带有属性 $c(u, v)$，表示从当前边流过 1 个单位流量时的费用。在最大化流量的基础上，求最小的费用。
+
+\begin{minted}{c++}
+namespace MCMF {
+    int head[maxn], flow[maxn], cost[maxn], pre[maxn], from[maxn], ecnt, s, t;
+    bool vis[maxn];
+    struct Edge {
+        int u, v, f, c, next;
+        Edge(int u = 0, int v = 0, int f = 0, int c = 0, int next = 0)
+            : u(u), v(v), f(f), c(c), next(next) {}
+    } e[maxn];
+    void init() {
+        memset(head, 0, sizeof head);
+        memset(pre, 0, sizeof pre);
+        ecnt = 2;
+    }
+    void add_edge(int u, int v, int f, int c) {
+        e[ecnt] = Edge(u, v, f, c, head[u]);
+        head[u] = ecnt++;
+    }
+    bool spfa() {
+        memset(vis, 0, sizeof vis);
+        memset(flow, 0x3f, sizeof flow);
+        memset(cost, 0x3f, sizeof cost);
+        queue<int> q;
+        q.push(s), vis[s] = 1, cost[s] = 0, pre[t] = -1;
+        while (q.size()) {
+            int cur = q.front();
+            q.pop(), vis[cur] = 0;
+            for (int i = head[cur], v; i; i = e[i].next) {
+                v = e[i].v;
+                if (e[i].f > 0 && cost[v] > cost[cur] + e[i].c) {
+                    cost[v] = cost[cur] + e[i].c;
+                    pre[v] = cur, from[v] = i;
+                    flow[v] = min(flow[cur], e[i].f);
+                    if (!vis[v])
+                        vis[v] = 1, q.push(v);
+                }
+            }
+        }
+        return pre[t] != -1;
+    }
+    pair<int, int> solve(int _s, int _t) {
+        s = _s, t = _t;
+        int maxflow = 0, mincost = 0;
+        while (spfa()) {
+            int cur = t;
+            maxflow += flow[t], mincost += flow[t] * cost[t];
+            while (cur != s) {
+                e[from[cur]].f -= flow[t];
+                e[from[cur] ^ 1].f += flow[t];
+                cur = pre[cur];
+            }
+        }
+        return make_pair(maxflow, mincost);
+    }
+}
+\end{minted}

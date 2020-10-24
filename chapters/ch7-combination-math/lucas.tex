@@ -1,0 +1,30 @@
+\section{Lucas 定理和扩展 Lucas}
+
+\paragraph{Lucas 定理} $C_n^m \mod p = C_{\frac{n}{p}}^\frac{m}{p} \cdot C_{n \mod p}^{m \mod p} \mod p$，即 $lucas(n, m) \mod p = lucas(\frac{n}{p}, \frac{m}{p}) \cdot C_{n \mod p}^{m \mod p} \mod p$. 当 $m = 0$ 时，$lucas(n, m, p)$ 返回 1.
+
+\paragraph{应用条件} Lucas 定理应用前提：$p$ 为质数。
+
+\begin{minted}{c++}
+void init(ll p) {
+    fac[0] = 1ll;
+    for (int i = 1; i <= p; i++)
+        fac[i] = fac[i-1] * (ll)i % p;
+}
+ll C(ll n, ll m, ll p) { 
+    if (m > n)
+        return 0LL;
+    return fac[n] * inv(fac[m] * fac[n - m], p) % p;
+    /* n, m 较大的时候不能打表，直接计算 */
+}
+ll lucas(ll n, ll m, ll p) {
+    if (m == 0)
+        return 1LL;
+    return C(n % p, m % p, p) * lucas(n / p, m / p, p) % p;
+}
+\end{minted}
+
+\paragraph{扩展 Lucas 定理} 当 $n, m$ 较大且 $p$ 不为质数的时候，令 $p = p_1^{k_1} \cdot ... p_n^{k_n}$，列出同余方程组：
+
+$$\begin{cases}ans \equiv c_1 (\mod p_1^{k_1}) \\ ans \equiv c_2 (\mod p_2^{k_2}) \\ ... \\ ans \equiv c_n (\mod p_n^{k_n})\end{cases}$$
+
+其中 $c_1 ... c_n$ 是对于每一个 $C_n^m \mod p_i^{k_i}$ 求出的答案，然后使用中国剩余定理合并即可。

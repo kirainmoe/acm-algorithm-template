@@ -1,0 +1,56 @@
+\section{高斯消元}
+\subsection{高斯消元求解方程}
+\begin{minted}{c++}
+double del, cc[MAXN][MAXN];    // coefficient
+double ans[MAXN];
+bool gauss(int n) {
+    for (rint i = 1; i <= n; i++) {
+        int r = i;
+        for (rint j = i + 1; j <= n; j++)
+            if (fabs(cc[r][i]) < fabs(cc[j][i]))
+                r = j;
+        if (fabs(cc[r][i]) < eps)
+            return false;
+        if (i != r)
+            swap(cc[i], cc[r]);
+        double tmp = cc[i][i];
+        for (rint j = i; j <= n + 1; j++)
+            cc[i][j] /= tmp;
+        for (rint j = i + 1; j <= n; j++) {
+            tmp = cc[j][i];
+            for (rint k = i; k <= n + 1; k++)
+                cc[j][k] -= cc[i][k] * tmp;
+        }
+    }
+    ans[n] = cc[n][n + 1];
+    for (rint i = n - 1; i >= 1; i--) {
+        ans[i] = cc[i][n+1];
+        for (rint j = i + 1; j <= n; j++)
+            ans[i] -= cc[i][j] * ans[j];
+    }
+    return true;
+}
+\end{minted}
+
+\subsection{高斯消元求矩阵行列式}
+\begin{minted}{c++}
+ll det(int n) {
+    ll inv, tmp, ans = 1;
+    for (int i = 2; i <= n; i++) {
+        for (int j = i + 1; j <= n; j++)
+            if (!L[i][i] && L[j][i]) {
+                ans *= -1, swap(L[i], L[j]);
+                break;
+            }
+        inv = mod_pow(L[i][i], mod - 2);
+        for (int j = i + 1; j <= n; j++) {
+            tmp = L[j][i] * inv % mod;
+            for (int k = i; k <= n; k++)
+                L[j][k] = (L[j][k] - L[i][k] * tmp % mod + mod) % mod;
+        }
+    }
+    for (int i = 2; i <= n; i++)
+        ans = ans * L[i][i] % mod;
+    return ans;
+}
+\end{minted}

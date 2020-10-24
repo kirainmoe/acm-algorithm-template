@@ -1,0 +1,14 @@
+\section{卡特兰数}
+
+\paragraph{常见模型} 进出栈序列，括号序列匹配的计数等。
+\paragraph{递推公式} $f(n)=\Sigma_{k=0}^{n-1}f(k) \cdot f(n-k-1), f(0)=1$.
+\paragraph{结论公式}$f(n)=C^{n}_{2n}x - C^{n+1}_{2n} = \frac{1}{n+1}C_{2n}^{n}$.
+
+\begin{minted}{c++}
+double getCatalan(int x) {
+    double res = 1.0;
+    for (int i = x + 1; i <= 2 * x; i++)
+        res *= ((double)i / (double)(i-x));
+    return (res / (x + 1));
+}
+\end{minted}

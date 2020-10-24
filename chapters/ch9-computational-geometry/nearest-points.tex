@@ -1,0 +1,35 @@
+\section{平面最近点对（分治算法）}
+\begin{minted}{c++}
+double solve(int l, int r) {
+    if (l == r)
+        return INF;
+    if (r - l == 1) {
+        return dist(pts[l], pts[r]);
+    }
+    int mid = (l + r) >> 1;
+    double d = min(solve(l, mid), solve(mid + 1, r));
+    double dx = (pts[mid].x + pts[mid+1].x) / 2.0, dy = (pts[mid].y + pts[mid+1].y) / 2.0;
+    p1.clear(), p2.clear();
+    
+    for (rint i = mid; i >= l; i--) {
+        if (pts[i].x >= dx - 2 * d)
+            p1.push_back(pts[i]);
+        else
+            break;
+    }
+    for (rint i = mid + 1; i <= r; i++) {
+        if (pts[i].x <= dx + 2 * d)
+            p2.push_back(pts[i]);
+        else
+            break;
+    }
+    
+    unsigned int sz1 = p1.size(), sz2 = p2.size();
+    for (register unsigned int i = 0; i < sz1; i++)
+        for (register unsigned int j = 0; j < sz2; j++)
+            d = min(d, dist(p1[i], p2[j]));
+    return d;
+}
+\end{minted}
+
+平面最近线段对：对每条线段按照左端点排序，然后 $n^2$ 枚举并剪枝：如果当前两个线段的左端点 $x$ 之差大于答案，继续枚举下一个点即可。

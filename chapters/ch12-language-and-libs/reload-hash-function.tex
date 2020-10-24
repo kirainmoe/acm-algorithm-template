@@ -1,0 +1,23 @@
+\section{重载哈希函数}
+当将 $pair<int, int>$ 作为 unordered\_map 的 key 的时候，需要重载哈希函数：
+\begin{minted}{c++}
+struct hashfunc {
+    template<typename T, typename U>
+    size_t operator()(const pair<T, U> &i) const {
+        return hash<T>()(x.first) ^ hash<U>()(x.second);
+    }
+};
+unordered_map<pair<int, int>, int, hashfunc> func_map;
+\end{minted}
+
+或者：
+\begin{minted}{c++}
+struct pairhash {
+    template<class T1, class T2>
+    size_t operator() (const pair<T1, T2> &x) const {
+        hash<T1> h1;
+        hash<T2> h2;
+        return h1(x.first) ^ h2(x.second);
+    }
+};
+\end{minted}

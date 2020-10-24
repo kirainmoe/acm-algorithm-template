@@ -1,0 +1,82 @@
+\section{AC 自动机}
+
+\par 在 Trie 树的基础上，为节点增加 fail 指针；当前节点失配的时候，将匹配指针转移到 fail 指针指向的节点。
+\vspace{0.5em}
+
+\par\textbf{建树}
+\begin{itemize}
+    \item 根节点指向的所有节点的 $fail$ 指针都指向根节点
+    \item 不存在的节点，$fail$ 指针指向根节点
+    \item 普通节点，字符为 $s$ 的 $fail$ 指针，指向它的父节点的 $fail$ 指针指向节点 $fail[p]$ 沿 $s$ 走到的节点。
+\end{itemize}
+
+\par\textbf{匹配}
+\begin{itemize}
+    \item 如果走到了不存在的节点，则将匹配指针移到 fail 指针指向的节点
+    \item 从根节点开始匹配，原理与 Trie 树相同，匹配指针沿着 $p[i]$ 所在的字母向下走
+    \item 如果失配，则沿着 fail 指针移动，若匹配上则继续匹配，否则不断沿着 fail 指针走。
+\end{itemize}
+
+\par\textbf{Fail 指针}
+\begin{itemize}
+    \item 每个节点 $s$ 有一个失配指针 $p$ ，所有的 $s$ 和它们的 $p$ 构成的树形结构称为 fail 树。
+    \item fail 树上每个节点所代表的字符串，是其所有子树所代表的字符串的后缀 ⇒ 一个节点所有祖先，代表的字符串都是这个节点代表的字符串的后缀，如下图所示。
+    \item 重要性质：每个节点的 fail 指针，都指向当前节点代表的字符串的最长后缀（如果存在）。
+\end{itemize}
+
+\par\textbf{Fail 指针的用法}
+\begin{itemize}
+    \item 统计每个模式串 p 在文本串 t 当中出现的次数：将 t 在 AC 自动机的上匹配同时建立 fail 树，当经过某个节点时，对答案的贡献为：这个节点所有祖先的权值之和。利用树上差分将经过的所有节点计数 + 1。
+    \item 一个模式串 $p_i$ 在其它模式串中出现的次数统计：如果 $p_i$ 在其它的模式串中出现，那么其它模式串的链上一定有一个节点的 fail 指针指向该节点，直接统计该节点在 fail 树上的子节点个数即可。
+\end{itemize}
+
+\begin{center}
+    \includegraphics[height=6cm]{chapters/ch4-string-and-palindrome/images/fail.png}
+\end{center}
+
+\begin{minted}{c++}
+namespace AhoCorasickAutomaton {
+    #define clear(x) memset(x, 0, sizeof x)
+    int trie[maxn][26], has[maxn], fail[maxn], cnt;
+    int sz[maxn], pos[maxn], q[maxn];
+    void init() {
+        clear(trie), clear(has), clear(fail), cnt = 0;
+    }
+    inline int idx(char s) {
+        return s - 'a';
+    }
+    int insert(char* s, int l) {
+        int u = 0;
+        for (int i = 0, c; i < l; i++) {
+            c = idx(s[i]);
+            if (!trie[u][c])
+                trie[u][c] = ++cnt;
+            u = trie[u][c];
+            sz[u]++;
+        }
+        has[u]++;
+        return u;
+    }
+    void get_fail() {
+        int head = 0, tail = 0;
+        for (int i = 0; i < 26; i++)
+            if (trie[0][i])
+                fail[trie[0][i]] = 0, q[tail++] = trie[0][i];
+        while (head < tail) {
+            int u = q[head++];
+            for (int i = 0; i < 26; i++)
+                if (trie[u][i])
+                    fail[trie[u][i]] = trie[fail[u]][i],
+                    q[tail++] = trie[u][i];
+                else
+                    trie[u][i] = trie[fail[u]][i];
+        }
+    }
+    void solve() {
+        for (int i = cnt; i >= 0; i--)
+            sz[fail[q[i]]] += sz[q[i]];
+        for (int i = 0; i < n; i++)
+            printf("%d\n", sz[pos[i]]);
+    }
+}    
+\end{minted}

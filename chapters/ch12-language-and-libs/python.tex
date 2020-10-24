@@ -1,0 +1,44 @@
+\section{ACM Python 速成}
+
+\begin{minted}{python}
+# 基本输入输出
+t = int(input().strip())        # 输入一个 int
+
+# 输入多组数据直到 EOF，每组读入 a, b 两个数
+try:
+　　while True:
+　　　　a, b = map(int, input().strip().split())
+　　　　print(a + b)
+except EOFError:
+    pass
+
+# 数组输入
+x = input()
+a = []
+for i in x.split():
+    a.append(int(i))  # 注意数据类型转换
+
+# 输出
+print(a)          # 默认换行
+print(a, end='')  # 输出不换行
+
+# 数组操作
+a1 =[] # 空列表
+a2 = [1] * 10 # 开一个10个元素的数组
+a3 = [1, 1] + [2, 3] # 数组拼接
+a4 = list(range(8)) # [0, 8), or range(0, 8)
+a6 = [[1] * 3 for _ in range(3)] # 同样是开一个 3*3 的数组
+
+# 数组操作的方法
+len(a1) # 获取数组长度
+a1.append(8) # 向末尾添加一个数
+a1[0] = 0 # 访问和赋值
+a1[-1] = 7 # 从末尾开始访问
+a1[2:5] # 提取数组的一段 [2, 3, 4]
+a1[5:2:-1] # 倒序访问 [5, 4, 3]
+a1.sort() # 数组排序
+a2[0][0] = 10 # 访问和赋值二维数组
+for i, a3 in enumerate(a2):
+    for j, v in enumerate(a3):
+        temp = v # 这里的v就是a[i][j]
+\end{minted}

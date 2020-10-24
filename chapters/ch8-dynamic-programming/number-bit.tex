@@ -1,0 +1,78 @@
+\section{数位 DP}
+\paragraph{问题场景} 处理出某一区间 $[l, r]$ 范围内，满足条件的数的个数。
+
+\paragraph{一般解法}
+
+\begin{itemize}
+    \item \textbf{数位处理}：处理不多于 $i$ 位的数中，有多少个数满足条件，用 $dp[i]$ 表示。
+    \item \textbf{状态拓展}：大部分题目与数字本身有一定的关系（不能出现/必须出现特定数字），则状态数组需要多加一维/多维进行转移：$dp[i][j]$ 表示第 $i$ 位数字为 $j$ 且满足条件的数字个数。
+    \item \textbf{处理区间端点}：用预处理的信息计算出 $0 \sim r$ 和 $0 \sim l-1$ 闭区间满足条件的数字个数，然后求解 $[l, r]$ 范围的答案，即为 $r$ 端的答案减去 $l-1$ 端的答案。
+    \item \textbf{具体实现}：首先在第当前考虑的第 $i$ 位上固定一个数字，那么后面就可以随便填。
+\end{itemize}
+
+\paragraph{DFS 函数的参量}
+\begin{itemize}
+\item 基本量：数字位数 $pos$，最高位限制 $lim$
+\item 判断前导 0 的标志：$lead$
+\item 一般需要记录数位中的前一位（或前几位）：$pre$
+\item 其它用于区分状态的参量
+\end{itemize}
+
+\paragraph{最高位标记}
+
+当给定的区间 $[0, r]$ 不同时，数位 DP 统计时的位数限制也不同，如 $r=1234$ 那么，当第一位为 1 的时候，第二位的取值范围 $[0, 2]$；当第一位为 0 的时候第二位则可以取 $[0, 9]$。为了分清这样的情况，引入 $lim$ 变量：
+\begin{itemize}
+    \item 若当前位 $lim = 1$ ，且已经取到了当前位可以取得的最大数字，则下一位 $lim = 1$
+    \item 若当前位 $lim = 1$，但取到的数字小于可以取得的最大数字，则下一位 $lim = 0$
+    \item 若当前位 $lim = 0$，则下一位 $lim = 0$
+\end{itemize}
+
+\paragraph{记忆化搜索}DFS 的时候，可以将已经搜索过的状态记录下来，那么下一次在遇到\textbf{完全相同}的状态的时候，就可以直接返回；所以 DP 数组的维度需要和 DFS 函数的参量（除了 $lim, lead$）相同。
+
+\par \textbf{DFS 参量完全相同} 是状态相同的必要非充分条件。需要注意的是 $lim = 1$ 和 $lead = 1$ 的时候不能直接取记忆值：
+
+\begin{minted}{c++}
+typedef long long ll;
+ll dp[MAXL][MAXD];
+
+/**
+* pos: 当前枚举的位
+* pre: 之前的状态，例如上一位，视需要的状态不同可能有不同的保存方式
+* lead: 是否有前导 0
+* limit: 当前位是否有限制
+*/
+ll dfs(int pos, int pre, int lead, int limit) {
+    // 递归边界，返回 1 表示枚举得当前数合法
+    if (pos == -1)
+        return 1;
+    // 如果 lim 和 lead 都不为 true，满足记忆化条件则可以返回
+    if (!limit && !lead && dp[pos][pre])
+        return dp[pos][pre];
+    ll cur = 0;
+    // 枚举当前位
+    int maxd = limit ? a[pos] : 9;
+    for (int i = 0; i <= maxd; i++) {
+        // 需要针对多种情况具体分析，例如是否有限制，是否有前导 0 的影响等等
+        if (lead && !i)
+            cur += dfs(pos - 1, i, true, i == maxd && limit);
+        else if (lead && !i)
+            cur += dfs(pos - 1, i, true, i == maxd && limit);
+        else if (....)
+            cur += ...
+    }
+    // 记忆化存下结果
+    if (!limit && !lead)
+        dp[pos][pre] = cur;
+    return cur;
+}
+
+ll solve(ll x) {
+    int pos = 0, init_state = ?;        // init_state 表示初始位之前的状态
+    // 拆数
+    while (x) {
+        a[pos++] = x % 10;
+        x /= 10;
+    }
+    return dfs(pos - 1, init_state, true, true);
+}
+\end{minted}

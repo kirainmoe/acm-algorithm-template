@@ -1,0 +1,26 @@
+\subsection{最小瓶颈路}
+\paragraph{问题描述} 给定一个加权无向图，并给定无向图中两个结点 u 和 v，求 u 到 v 的一条路径，使得路径上边的最大权值最小。
+\par 可以证明这个“最大权值最小”的边一定在最小生成树上。对于询问两个点 u, v 的最小瓶颈路的问题，我们对求完的最小生成树用 Tarjan 或者倍增求一遍最近公共祖先 LCA，两者到达 LCA 的路径中的最大边就是最小瓶颈路了。
+\begin{minted}{c++}
+int query(int x, int y) {
+  int d = 0;
+  if (depth[x] < depth[y])
+    swap(x, y);
+  for (d = 0; (1 << (d + 1)) <= depth[x]; d++);
+  int ans = -1;
+  for (int i = d; i >= 0; i--)
+    if (depth[x] - (1 << i) >= depth[y]) {
+      ans = max(ans, cost[x][i]);
+      x = ancestor[x][i];
+    }
+  if (x == y)
+    return ans;
+  for (int i = d; i >= 0; i--)
+    if (ancestor[x][i] > 0 && ancestor[x][i] != ancestor[y][i]) {
+      ans = max(ans, max(cost[x][i], cost[y][i]));
+      x = ancestor[x][i], y = ancestor[y][i];
+    }
+  ans = max(ans, max(cost[x][0], cost[y][0]));
+  return ans;
+}
+\end{minted}

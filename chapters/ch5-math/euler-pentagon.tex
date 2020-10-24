@@ -1,0 +1,82 @@
+\section{欧拉五边形数 \& 整数拆分}
+
+\paragraph{欧拉五边形数} 设第 $n$ 个五边形数为 $f(n)$，则 $f(n) = \frac{n(3n-1)}{2} = \{1, 5, 12, 22, 35, 51, 70...\}$。
+ 
+\includegraphics{chapters/ch5-math/images/Untitled.png}
+
+\paragraph{广义五边形数} $n$ 的取值为 0, 1, -1, 2, -2, ...
+
+\paragraph{中心五边形数} $P_n = \frac{5(n-1)^2+5(n-1)+2}{2}$
+
+\includegraphics{chapters/ch5-math/images/Untitled 1.png}
+
+\paragraph{中心六边形数} $P_n = \frac{3n^2-n}{2} + \frac{3(1-n)^2-(1-n)}{2} = 3n(n-1) + 1$
+
+\includegraphics{chapters/ch5-math/images/Untitled 2.png}
+
+\paragraph{五边形数测试公式} $n = \frac{\sqrt{24x+1}+1}{6}$
+
+\begin{itemize}
+    \item 若 $n$ 是自然数，则 $x$ 是五边形数；而且恰为第 $n$ 个五边形数。
+    \item 若 $n$ 不是自然数，则 $x$ 不是五边形数。
+\end{itemize}
+
+\paragraph{生成函数} $g(x) = \frac{x(2x+1)}{(1-x)^3} = x + 5x^2 + 12x^3 + 22x^4 + ...$
+
+\begin{minted}{c++}
+// hdu4658 要求拆分的数中每个数出现的次数不能大于等于 $k$ 次
+ll dp[maxn];  
+ll five(ll x) {  
+    ll ans=3 * x * x - x;  
+    return ans / 2;  
+}  
+void init() {  
+    dp[0] = 1;  
+    for(int i = 1;i < maxn; i++) {  
+        for(int j = 1; ; j++) {  
+            ll k = five(j); // 获取五边形数  
+            if(k <= i) {  
+                if(j % 2 == 0)  // 判断奇偶从而判断系数为正还是为负  
+                    dp[i] = dp[i] - dp[i-k];  
+                else  
+                    dp[i] = dp[i] + dp[i-k];  
+                if(dp[i] >= MOD)
+                    dp[i] %= MOD;  
+                if(dp[i] < 0)
+                    dp[i] += MOD;  
+                k = five(-1 * j);  
+                if(k <= i) {  
+                    if(j % 2 == 0)  
+                        dp[i] = dp[i] - dp[i-k];
+                    else  
+                        dp[i] = dp[i] + dp[i-k];
+                    if(dp[i] >= MOD)
+                        dp[i] %= MOD;  
+                    if(dp[i] < 0)
+                        dp[i]+=MOD;  
+                }  
+                else  
+                    break;  
+            }  
+            else  
+                break;  
+        }  
+    }  
+}  
+
+// hdu4651 将 $n$ 拆成几个小于等于 $n$ 的数相加的形式，问有多少种拆法
+int dp[maxn];
+void init() {
+    memset(dp, 0, sizeof dp), dp[0] = 1;
+    for (int i = 1; i < maxn; i++) {
+        for (int j = 1, r = 1; i - (3 * j * j - j) / 2 >= 0; j++, r *= -1) {
+            dp[i] += dp[i - (3 * j * j - j) / 2] * r;
+            dp[i] = (dp[i] % mod + mod) % mod;
+            if (i - (3 * j * j + j) / 2 >= 0) {
+                dp[i] += dp[i - (3 * j * j + j) / 2] * r;
+                dp[i] = (dp[i] % mod + mod) % mod;
+            }
+        }
+    }
+}
+\end{minted}

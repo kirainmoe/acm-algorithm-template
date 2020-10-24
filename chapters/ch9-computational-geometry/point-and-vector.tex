@@ -1,0 +1,43 @@
+\section{二维几何基本定义}
+\begin{minted}{c++}
+double eps = 1e-10; // epsilon, accuracy tolerance
+
+/* fix accuracy when comparing */
+int dcmp (double x) {
+    if (fabs(x) < eps)
+        return 0;
+    else
+        return x < 0 ? -1 : 1;
+}
+
+struct Vector {
+    double x, y;
+    /* constructor function */
+    Vector() {}
+    Vector(double x = 0, double y = 0) : x(x), y(y) {}
+    /* reload operator */
+    Vector operator + (Vector B) {
+        return Vector(x + B.x, y + B.y);
+    }
+    Vector operator - (Vector B) {
+        return Vector(x - B.x, y - B.y);
+    }
+    Vector operator * (double p) {
+        return Vector(x * p, y * p);
+    }
+    Vector operator / (double p) {
+        if (p < eps)
+            p += eps;
+        return Vector(x / p, y / p);
+    }
+    /* comparison */
+    bool operator < (const Vector B) const {
+        return (dcmp(x - B.x) == -1) || (dcmp(x - B.x) == 0 && dcmp(y - B.y) == -1);
+    }
+    bool operator == (const Vector B) const {
+        return (dcmp(x - B.x) == 0) && (dcmp(y - B.y) == 0);
+    } 
+}; 
+
+typedef Vector Point;   // the definitions of vector and point are the same.
+\end{minted}

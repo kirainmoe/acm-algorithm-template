@@ -1,0 +1,84 @@
+\section{堆}
+
+\subsection{普通二叉堆}
+
+\begin{minted}{c++}
+class Heap {    // priority_queue
+public:
+    long long val[MAXN];
+    int cnt, tmp, rt;
+    void insert(int x) {
+        val[++cnt] = x, tmp = cnt;
+        while (tmp != 0) {
+            int par = tmp / 2;
+            if (val[par] > x)
+                std::swap(val[par], val[tmp]);
+            else
+                break;
+            tmp = par;
+        }
+    }
+    int top() { return val[1]; }
+    void pop() {
+        if (cnt == 0)    // empty
+            return;
+        rt = 1, val[rt] = val[cnt];
+        while (2 * rt < cnt) {
+            int lc = rt << 1, rc = (rt << 1) + 1;
+            if (rc >= cnt || val[lc] < val[rc])
+                if (val[rt] > val[lc])
+                    std::swap(val[rt], val[lc]), rt = lc;
+                else
+                    break;
+            else
+                if (val[rt] > val[rc])
+                    std::swap(val[rt], val[rc]), rt = rc;
+                else
+                    break;
+        }
+        cnt--;
+    }
+    bool empty() { return cnt == 0; }
+};    
+\end{minted}
+
+\subsection{左偏树（可并堆）}
+
+\par \noindent 左偏树与配对堆一样，是一种可并堆，具有堆的性质，并且可以快速合并。左偏树每个节点的左儿子的 $dist$ 都大于等于右儿子的 $dist$.
+
+\par \noindent 对于一棵二叉树，我们定义\textbf{外节点}为左儿子或右儿子为空的节点，定义一个外节点的 $dist$ 为 $1$ 
+一个不是外节点的节点 $dist$ 为其到子树中\textbf{最近}的外节点的距离加一。空节点的 $dist$ 为 $0$。
+一棵 $n$ 个节点的二叉树，根的 $dist$ 不超过 $\lceil \log (n+1) \rceil$.
+
+\par \noindent 可并堆也可以用 pb\_ds 实现。
+
+\begin{minted}{c++}
+namespace Leftist {
+    int fa[maxn], val[maxn], dis[maxn], ch[maxn][2];
+    int findrt(int x) {
+        while (fa[x])
+            x = fa[x];
+        return x;
+    }
+    int merge(int x, int y) {
+        if (!x || !y)
+            return x | y;
+        if (val[x] > val[y] || (val[x] == val[y] && x > y))
+            swap(x, y);
+        ch[x][1] = merge(ch[x][1], y), fa[ch[x][1]] = x;
+        if (dis[ch[x][0]] < dis[ch[x][1]])
+            swap(ch[x][0], ch[x][1]);
+        dis[x] = dis[ch[x][1]] + 1;
+        return x;
+    }
+    void pop(int x) {
+        val[x] = -1, fa[ch[x][0]] = fa[ch[x][1]] = 0;
+        merge(ch[x][0], ch[x][1]);
+    }
+    // 合并 (x, y) 所在堆：merge(findrt(x), findrt(y))
+    // 查询 x 所在堆的最小数：val[findrt(x)]
+    // 插入元素：令 val[cnt] = x, fa[cnt] = 0, dist[cnt] = 0
+    // 删除堆顶：pop(x)
+}
+\end{minted}
+\clearpage

@@ -1,0 +1,106 @@
+% ACM Algorithm Template - v4.0
+% Yume Maruyama <kirainmoe@gmail.com>
+
+\documentclass[12pt]{report}
+
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage[dvipsnames, svgnames, x11names]{xcolor}
+\usepackage{fontspec}
+\usepackage{mathtools}
+\usepackage{verbatim} 
+\usepackage{amsthm}
+\usepackage{fancyhdr}
+\usepackage{minted}
+\usepackage{verbatim}
+\usepackage{pdfpages}
+\usepackage{setspace}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage[BoldFont,SlantFont,CJKchecksingle]{xeCJK}
+
+% 设置字体
+\setCJKmainfont{PingFang SC}
+
+% 页边距，行距设置
+\geometry{left=1.5cm,right=1.5cm,top=1.5cm,bottom=1.5cm}
+\linespread{1.2}
+
+% 代码样式，使用 minted
+\setminted[c++]{linenos, frame=leftline, framesep=2mm, baselinestretch=1.0, breaklines, mathescape, bgcolor=LavenderBlush1}
+\setminted[java]{linenos, frame=leftline, framesep=2mm, baselinestretch=1.0, breaklines, mathescape, bgcolor=LavenderBlush1}
+\setminted[python]{linenos, frame=leftline, framesep=2mm, baselinestretch=1.0, breaklines, mathescape, bgcolor=LavenderBlush1}
+\setminted[batch]{linenos, frame=leftline, framesep=2mm, baselinestretch=1.0, breaklines, mathescape, bgcolor=LavenderBlush1}
+\setminted[bash]{linenos, frame=leftline, framesep=2mm, baselinestretch=1.0, breaklines, mathescape, bgcolor=LavenderBlush1}
+\usemintedstyle{colorful}
+\definecolor{primary-blue}{RGB}{9,109,217}
+\definecolor{cyan}{RGB}{19,194,194}
+
+% 标题 & 作者信息
+\title{\Huge \textbf{ACM Algorithm Template} \linebreak \linebreak \large \textcolor{primary-blue}{\textbf{吟梦的 ACM 算法模板}}}
+\author{Yume Maruyama \\ \small \textcolor{cyan}{<kirainmoe@gmail.com>} \\ \small \textcolor{cyan}{https://kirainmoe.com/} \\ \small XMU ACM Team}
+
+\begin{document}
+
+% 标题页面
+\begin{titlepage}
+    \begin{figure}
+        \centering
+        \includegraphics[height=8cm]{images/avatar.jpg}
+        \par\includegraphics[height=3cm]{images/acm.jpg}
+    \end{figure}
+    
+    \maketitle
+\end{titlepage}
+
+\clearpage
+\phantom{s}
+\setcounter{page}{0}
+\thispagestyle{empty}
+\clearpage
+
+% 目录
+\tableofcontents
+
+% 正文内容
+
+%% Chapter 1 数据结构
+\input{chapters/ch1-data-structure/index}
+
+%% Chpater 2 图论
+\input{chapters/ch2-graph-theory/index}
+
+%% Chapter 3 网络流/二分图/匹配
+\input{chapters/ch3-network-flow-and-match/index}
+
+%% Chapter 4 字符串和回文算法
+\input{chapters/ch4-string-and-palindrome/index}
+
+%% Chapter 5 数学专题
+\input{chapters/ch5-math/index}
+
+%% Chapter 6 多项式
+\input{chapters/ch6-polynomial/index}
+
+%% Chapter 7 组合数学
+\input{chapters/ch7-combination-math/index}
+
+%% Chapter 8 动态规划
+\input{chapters/ch8-dynamic-programming/index}
+
+%% Chapter 9 计算几何
+\input{chapters/ch9-computational-geometry/index}
+
+%% Chapter 10 博弈论
+\input{chapters/ch10-gaming-theory/index}
+
+%% Chapter 11 杂项
+\input{chapters/ch11-uncategorized/index}
+
+%% Chapter 12 语言和库参考
+\input{chapters/ch12-language-and-libs/index}
+
+%% 附录
+\input{chapters/appendix/index} 
+\end{document}

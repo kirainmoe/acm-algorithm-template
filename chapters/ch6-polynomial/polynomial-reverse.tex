@@ -1,0 +1,30 @@
+\section{多项式求逆}
+
+\begin{minted}{c++}
+/** 
+* 多项式求逆，使用 NTT，求 a(x)*b(x) === 1 (mod x^n) 
+* c[] 是临时数组；数组长度开 3 倍；答案在 b[] 中
+*/  
+void polynomial_inverse(ll a[], ll b[], ll c[], int n) {  
+    if (n == 1) {  
+        b[0] = inv(a[0]);  
+        return;  
+    }  
+    polynomial_inverse(a, b, c, (n + 1) >> 1);  
+
+    pair<int, int> tmp = ensure_base(n);
+    int lim = tmp.first, L = tmp.second;  
+    process_inverse(lim, L);  
+        
+    for (int i = 0; i < n; i++)  
+        c[i] = a[i];  
+    for (int i = n; i < lim; i++)  
+        c[i] = 0ll;  
+    ntt(c, 1), ntt(b, 1);  
+    for (int i = 0; i < lim; i++)  
+        b[i] = ((2ll - b[i] * c[i] % mod) + mod) % mod * b[i] % mod;  
+    ntt(b, -1);  
+    for (int i = n; i < lim; i++)  
+        b[i] = 0;
+}
+\end{minted}

@@ -1,0 +1,92 @@
+\section{表达式处理}
+
+\begin{minted}{c++}
+bool shouldPopFromStack(char current, char fromStack) {
+    int p1 = (current == '*' || current == '/') ? 1 : 0;
+    int p2 = (fromStack == '*' || fromStack == '/') ? 1 : 0;
+    return p1 <= p2;
+}
+string convert(string raw) {
+    int length = raw.length();
+    stack<char> s;
+    string res = "";
+    for (int i = 0; i < length; i++) {
+        if (raw[i] >= '0' && raw[i] <= '9') {
+            res += raw[i];
+            continue;
+        }
+        else
+            res += ' ';
+        if (raw[i] == '(')
+            s.push('(');
+        else if (raw[i] == ')')  {
+            while (true) {
+                char now = s.top();
+                s.pop();
+                if (now == '(')
+                    break;
+                else
+                    res += now;
+            }
+        }
+        else {
+            if (s.empty())
+                s.push(raw[i]);
+            else {
+                while (!s.empty()) {
+                    char now = s.top();
+                    if (now == '(' || !shouldPopFromStack(raw[i], now))
+                        break;
+                    else {
+                        s.pop();
+                        res += now;
+                    }
+                }
+                s.push(raw[i]);
+            }
+        }
+    }
+    res += ' ';
+    while (!s.empty()) {
+        char now = s.top();
+        s.pop();
+        res += now;
+    }
+    return res;
+}
+int main() {
+    /* ... */
+    stack<long long> s;
+    int length = res.length();
+    long long cur = 0;
+    for (int i = 0; i < length; i++) {
+        if (res[i] >= '0' && res[i] <= '9') {
+            cur = cur * 10 + res[i] - '0';
+        } else if (res[i] == ' ') {
+            s.push(cur);
+            cur = 0;
+        }
+        else {
+            long long s2 = s.top();
+            s.pop();
+            long long s1 = s.top();
+            s.pop();
+            switch (res[i]) {
+                case '+':
+                    s.push(s1 + s2);
+                    break;
+                case '-':
+                    s.push(s1 - s2);
+                    break;
+                case '*':
+                    s.push(s1 * s2);
+                    break;
+                case '/':
+                    s.push(s1 / s2);
+                    break;
+            }
+        }
+    }
+    /* ... */
+}
+\end{minted}

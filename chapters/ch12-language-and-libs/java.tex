@@ -1,0 +1,65 @@
+\section{ACM Java 速成}
+
+\begin{minted}{java}
+import java.io.*;
+import java.math.*;
+import java.util.*;
+import java.text.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // 输入
+        Scanner cin = new Scanner(new BuffereredInputStream(System.in));
+        int a = cin.nextInt();
+        double b = cin.nextDouble();
+        BigInteger c = cin.nextBigInteger();
+        String d = cin.nextLine();             // 或者 cin.next(), nextLine 相当于 getline
+        boolean isEOF = !cin.hasNext();        // 判断 EOF
+
+        // 输出
+        System.out.println("No Answer! " + str);
+        System.out.printf("%f%d%c%s", doubleVar, intVar, charVar, stringVar);
+
+        // 字符串
+        char[] stringArray = { 'H', 'e', 'l', 'l', 'o' };
+        String s = new String(stringArray);     // 从 char[] 构造字符串
+        String st = "abcdefg";
+        System.out.println(st.charAt(0));       // st.charAt(i) 就相当于 st[i]
+        char [] ch;
+        ch = st.toCharArray();                  // 字符串转换为字符数组
+        if (st.startsWith("a"))                 // 判断字符串开头
+            st = st.substring(1);               // 从第 1 位开始截取字符
+
+        // 高精度 (BigInteger 大整数, BigDecimal 高精小数)
+        BigInteger ba = cin.nextBigInteger(),   // 从输入读取
+            bb = BigInteger.valueOf(233),        // 从 int 转换
+            bc = new BigInteger("114514");       // 从 string 转换
+        int xba = ba.intValue();                 // 转换成 int
+        BigInteger addRes = ba.add(bb),          // +
+            subRes = ba.subtract(bb),            // -
+            mulRes = ba.multiply(bb)             // $\times$
+            divRes = ba.divide(bb),              // $\div$
+            modRes = ba.mod(bb);                 // 取模
+        if (addRes.compareTo(bc) == 0) {}        // -1: < 0: = 1: >
+
+        // 进制转换
+        // 把 num 当做 10 进制的数转成 base 进制的 st (base <= 35).
+        String st = Integer.toString(num, base);
+        // 把 st 当做 base 进制，转成 10 进制的 int
+        // parseInt 有两个参数,第一个为要转的字符串,第二个为说明是什么进制  
+        int num = Integer.parseInt(st, base); 
+        // st 是字符串，base 是 st的进制.
+        BigInteger m = new BigInteger(st, base),
+            m2 = cin.nextBigInteger(2);     // 以二进制形式读入 BigInteger
+        // 要将一个大数转换成其他进制形式的字符串 使用 m.toString(2);
+
+        // 排序
+        int a[] = new int [n];
+        for (int i = 0; i < n; i++)
+            a[i] = cin.nextInt();
+        Arrays.sort(a);
+        for (int i = 0; i < n; i++)
+            System.out.print(a[i] + " ");
+    }
+}
+\end{minted}

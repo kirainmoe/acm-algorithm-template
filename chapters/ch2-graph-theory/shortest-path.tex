@@ -1,0 +1,109 @@
+\section{最短路}
+
+\subsection{Dijkstra}
+\begin{minted}{c++}
+int dist[MAXN], vis[MAXN];
+int dijkstra(int s, int t) {
+    priority_queue<pair<int, int> > pq;
+    memset(vis, 0, sizeof vis), fill(dist, dist + n, inf);
+    dist[s] = 0, pq.push(make_pair(0, s));
+    while (!pq.empty()) {
+        int cur = pq.top().second;
+        pq.pop(); 
+        if (vis[cur])
+            continue;
+        vis[cur] = 1;
+        for (int i = head[cur]; i; i = e[i].next) {
+            int y = e[i].v;
+            if (dist[y] > dist[cur] + e[i].w) {
+                dist[y] = dist[cur] + e[i].w;
+                pq.push(make_pair(-dist[y], y));
+            }
+        }
+    }
+    return dist[t];
+}
+\end{minted}
+
+\subsection{SPFA 算法}
+\paragraph{原始版本} 适合有负权边的图或边数较少的图。
+\begin{minted}{c++}
+int dist[MAXN], vis[MAXN];
+int SPFA(int s, int t) {
+    memset(vis, 0, sizeof vis), fill(dist, dist + n, inf);
+    queue<int> Q;
+    Q.push(s), vis[s] = 1, dist[s] = 0;
+    while (!Q.empty()) {
+        int cur = Q.front();
+        Q.pop(), vis[cur] = 0;  
+        for (int i = head[cur], v, w; i; i = e[i].next) {
+          v = e[i].v, w = e[i].w;
+          if (dist[v] > dist[cur] + w) {
+            dist[v] = dist[cur] + w;
+            if (!vis[v])
+              Q.push(v), vis[v] = 1;
+          }
+        }
+    }
+    return dist[t];
+}
+\end{minted}
+
+\paragraph{SLF 优化}：使用双端队列优化，设从 $u$ 拓展出了 $v$、队首元素 $k$，如果 $dist[v] < dist[k]$，则将 $v$ 加入队首，否则加入队尾。
+\begin{minted}{c++}
+int dist[MAXN], vis[MAXN];
+int SPFA(int s, int t) {
+    memset(vis, 0, sizeof vis), fill(dist, dist + n, inf);
+    deque<int> Q;
+    Q.push_back(s), vis[s] = 1, dist[s] = 0;
+    while (!Q.empty()) {
+        int cur = Q.front();
+        Q.pop_front(), vis[cur] = 0;  
+        for (int i = head[cur], v, w; i; i = e[i].next) {
+            v = e[i].v, w = e[i].w;
+            if (dist[v] > dist[cur] + w) {
+                dist[v] = dist[cur] + w;
+                if (!vis[v])
+                    if (Q.size() && dist[v] >= dist[Q.front()])
+                        Q.push_back(v), vis[v] = 1;
+                    else
+                        Q.push_front(v), vis[v] = 1;
+            }
+        }
+    }
+    return dist[t];
+}    
+\end{minted}
+
+\paragraph{LLL 优化}：设队首元素为 $k$，每次松弛时加入判断，设队列中所有 $dist$ 的平均值为 $x$，若 $dist[k] > x$，则将 $k$ 移到队尾，查找下一个元素；直到使得$dist[k] \le x$ 再进行松弛。
+\begin{minted}{c++}
+int dist[MAXN], vis[MAXN];
+int SPFA(int s, int t) {
+    int u, v, num = 0;
+    ll x = 0;
+    deque<int> q;
+    fill(dist, dist + n, inf), memset(vis, 0, sizeof vis);
+    dist[s] = 0, vis[s] = 1, q.push_back(s), num++;
+    while (q.size()) {
+        u = q.front(), q.pop_front(), num--, x -= dist[u];
+        while (num && dist[u] > x / num)
+            q.push_back(u), u = q.front(), q.pop_front();
+        vis[u] = 0;
+        for (int i = head[u]; i; i = e[i].next) {
+            v = e[i].v;
+            if (dist[v] > dist[u] + e[i].w) {
+                dist[v] = dist[u] + e[i].w;
+                if (!vis[v]) {
+                    vis[v] = 1, num++, x += dist[v];
+                    if (q.size() && dist[v] < dist[q.front()])
+                        q.push_front(v);
+                    else
+                        q.push_back(v);
+                }
+            }
+        }
+    }
+    return dist[t];
+}        
+\end{minted}
+\clearpage

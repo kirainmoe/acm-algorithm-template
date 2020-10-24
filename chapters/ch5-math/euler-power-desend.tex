@@ -1,0 +1,32 @@
+\section{欧拉降幂}
+
+递归求解 $a^a$ 次幂 (见2019 南京网络赛 B 题)。欧拉降幂公式如下：
+
+$$a^b \equiv \begin{cases} a ^{b \mod \phi(p)}, gcd(a, p) = 1 \\ a ^ b, gcd(a, b) \ne 1, b < \phi(p) \\ a^{b \mod \phi(p) + \phi(p)}, gcd(a, b) \ne 1, b \ge phi(p) \end{cases} (\mod p)$$
+
+\begin{minted}{c++}
+ll qm(ll n, ll mod) {
+    return n < mod ? n :  (n % mod + mod);
+}
+ll mod_pow(ll a, ll b, ll mod) {
+    ll ans = 1;
+    while (b) {
+        if (b & 1)
+            ans = qm(ans * a, mod);
+        a = qm(a * a, mod);
+        b >>= 1;
+    }
+    return ans;
+}
+ll solve(ll a, ll b, ll mod) {
+    if (mod == 1)
+        return 0;
+    if (b == 0)
+        return 1;
+    ll tmp = solve(a, b-1, phi[mod]);
+    if (tmp < phi[mod] && tmp)
+        return mod_pow(a, tmp, mod);
+    else
+        return mod_pow(a, tmp + phi[mod], mod);
+}
+\end{minted}

@@ -1,0 +1,80 @@
+\section{杜教筛和积性函数}
+
+\subsection{积性函数}
+
+\paragraph{定义} 对于数论函数 $f(n)$，如果对于$\forall x, y$ 满足 $(x, y) = 1$， 有 $f(xy) = f(x)f(y)$，则称 $f(n)$ 是一个积性函数。
+\noindent \par 特别地，如果不需要满足 $(x, y) = 1$ 就有 $f(xy) = f(x)f(y)$ ，则 $f(n)$ 是一个完全积性函数。
+
+\paragraph{常见积性函数}
+\begin{itemize}
+    \item 因数个数 $d(x) = \sum_{i|n} 1$
+    \item 因数和 $\sigma(x) = \sum_{i|n} i$
+    \item 欧拉函数 $\phi(x) = \sum_{i=1}^x [gcd(x, i) = 1]$
+    \item 莫比乌斯函数 $\mu(x)$
+    \item 单位函数 $e(n) = [n = 1]$
+    \item 常数函数 $I(n( = 1)$
+    \item 恒等函数 $id(n) = n$
+\end{itemize}
+
+\paragraph{性质} 若 $f(x), g(x)$ 为积性函数，则以下函数均为积性函数：
+\begin{itemize}
+    \item $h(x) = f(x^p)$
+    \item $h(x) = f^p(x)$
+    \item $h(x) = f(x)g(x)$
+    \item $h(x) = \sum_{d|x} f(d)g(\frac{x}{d})$
+\end{itemize}
+
+\subsection{狄利克雷卷积}
+
+\paragraph{定义} 两个数论函数 $f, g$ 的狄利克雷卷积定义为：
+
+$$(f \star g)(n) = \sum_{d|n} f(d)g(\frac{n}{d})$$
+
+\paragraph{狄利克雷卷积的性质}
+\begin{itemize}
+    \item 交换律：$(f \star g) = (g \star f)$
+    \item 结合律：$(f \star g) \star h = f \star (g \star h)$
+    \item 分配率：$f \star (g + h) = f \star g + f \star h$
+    \item $f \star \epsilon = f$, $\epsilon$ 为 Dirichlet 卷积单位元
+\end{itemize}
+
+\paragraph{常见积性函数的狄利克雷卷积}
+\begin{itemize}
+    \item $\epsilon = \mu \star I \longleftrightarrow \epsilon(n) = \sum_{d|n}\mu(d)$
+    \item $d = I \star I \longleftrightarrow d(n) = \sum_{d|n}1$
+    \item $\sigma = id \star I \longleftrightarrow \sigma (n) = \sum_{d|n}d$
+    \item $\phi = \mu \star id \longleftrightarrow \phi(n) = \sum_{d|n} d \cdot \mu(\frac{n}{d})$
+\end{itemize}
+
+\subsection{杜教筛}
+
+\paragraph{原理} 对于一个积性函数 $f(x)$，求 $S(n) = \sum_{i=1}^{n} f(i)$，其中 $n$ 范围很大。考虑找到一个合适的函数 $g$ 使得 $f, g$ 的狄利克雷卷积的前缀和 $f \star g$ 容易计算，可以得到一般使用杜教筛的式子：
+
+$$g(1)S(n) = \sum_{i=1}^{n} (f \star g)(i) - \sum_{i=2}^{n}g(i)S(\lfloor \frac{n}{i} \rfloor)$$
+
+如果对于 $(f \star g)$ 的前缀和有 $O(1)$ 求法，那么预处理 $f$ 函数的前 $n^{\frac{2}{3}}$，后面的部分数论分块+递归求解。
+\begin{minted}{c++}
+// μ * I = $\epsilon$
+// S(n) = 1 - $\sum_{d=2}^nS(\lfloor \frac{n}{d} \rfloor)$
+// φ * I = id
+// S(n) = $\sum_{i=1}^n i - \sum_{d=2}^n S(\lfloor \frac{n}{d} \rfloor)$ 
+
+unordered_map<int, pair<int, ll> > ans;
+pair<int, ll> solve(ll x) {
+    if (x <= lim - 1)
+        return make_pair(mu[x], phi[x]);
+    if (ans.find(x) != ans.end())
+        return ans[x];
+        
+    int mures = 1;
+    ll phires = x * (x + 1) / 2;
+    for (register int l = 2, r; l >= 0 && l <= x; l = r + 1) {
+        r = x / (x / l);
+        pair<int, ll> tmp = solve(x / l);
+        mures -= (r - l + 1) * tmp.first;
+        phires -= (r - l + 1) * tmp.second;
+    }
+    ans[x] = make_pair(mures, phires);
+    return ans[x];
+}
+\end{minted}

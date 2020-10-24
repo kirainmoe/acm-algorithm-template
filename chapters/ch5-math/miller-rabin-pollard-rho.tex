@@ -1,0 +1,90 @@
+\section{素数判定 \& 大数质因子分解}
+
+\begin{minted}{c++}
+namespace PollardRho {
+    const int test_time = 5;
+    
+    default_random_engine e(time(NULL));
+    uniform_int_distribution<ll> u(0, 1ll << 63);
+    map<ll, ll> factors;
+    
+    ll quick_mul(ll a, ll b, ll mod) {
+        return (a * b - (ll)((ld)a / mod * b) * mod + mod) % mod;
+    }
+    
+    ll mod_pow(ll x, ll p, ll mod) {
+        ll ans = 1;
+        while (p) {
+            if (p & 1)
+                ans = quick_mul(ans, x, mod);
+            x = quick_mul(x, x, mod), p >>= 1;
+        }
+        return ans;
+    }
+    
+    bool miller_rabin(ll p) {
+        if (p < 2)
+            return 0;
+        if (p == 2 || p == 3)
+            return 1;
+        ll d = p - 1, r = 0;
+        for (; !(d & 1); r++, d >>= 1);
+        for (ll k = 0; k < test_time; k++) {
+            ll a = u(e) % (p - 2) + 2, x = mod_pow(a, d, p);
+            if (x == 1 || x == p-1)
+                continue;
+            for (int i = 0; i < r - 1; i++) {
+                x = quick_mul(x, x, p);
+                if (x == p - 1)
+                    break;
+            }
+            if (x != p - 1)
+                return false;
+        }
+        return true;
+    }
+    
+    ll f(ll x, ll c, ll mod) {
+        return (quick_mul(x, x, mod) + c) % mod;
+    }
+    
+    ll pollard_rho(ll x) {
+        ll s = 0, t = 0, c = u(e) % (x - 1) + 1, val = 1, d;
+        int step = 0, goal = 1;
+        for (goal = 1;; goal <<= 1, s = t, val = 1) {
+            for (step = 1; step <= goal; step++) {
+                t = f(t, c, x), val = quick_mul(val, (ll)abs(t - s), x);
+                if ((step % 127) == 0) {
+                    d = __gcd(val, x);
+                    if (d > 1)
+                        return d;
+                }
+            }
+            d = __gcd(val, x);
+            if (d > 1)
+                return d;
+        }
+    }
+    
+    void find(ll n) {
+        if (n == 1)
+            return;
+        if (miller_rabin(n)) {
+            factors[n]++;
+            return;
+        }
+        ll p = n;
+        while (p >= n)
+            p = pollard_rho(p);
+        find(p), find(n / p);
+    }
+    
+    vector<pair<ll, ll> > solve(ll x) {
+        vector<pair<ll, ll> > ans;
+        factors.clear(), find(x);
+        for (auto fac : factors)
+            ans.emplace_back(fac);
+        return ans;
+    }
+}
+\end{minted}

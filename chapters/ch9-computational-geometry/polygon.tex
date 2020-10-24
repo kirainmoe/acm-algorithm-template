@@ -1,0 +1,66 @@
+\section{多边形}
+
+多边形的存储记录一般采用的是顺次记录其顶点的方法，如凸包的表示方法。方向一般为逆时针。
+
+\subsection{多边形的面积}
+
+任取 $n$ 边形的一个点 $P_0$ 为顶点，将该点与其它点连接，得到 $n-2$ 个三角形。利用叉积性质计算面积，求和累加后除 2 即可。因为叉积计算的是有向面积，所以两条边叉积得到的三角形，在多边形外面的那部分最后会抵消掉。
+
+\begin{minted}{c++}
+double polygonArea(Point p[], int n) {
+    double area = 0.0;
+    for (int i = 1; i < n-1; i++)
+        area += cross(p[i] - p[0], p[i+1] - p[0]);
+    return area / 2.0;
+}
+\end{minted}
+
+\subsection{判断点在多边形内外}
+\noindent 多边形的顶点必须以逆时针或顺时针顺序给出。
+
+\begin{minted}{c++}
+bool isPointInPolygon(Point p[], int n, Point a) {
+    int wn = 0;
+    for (int i = 0; i < n; i++) {
+        if (checkIfPointOnSegment(a, p[i], p[(i+1) % n]))
+            return true;
+        if (a == p[i])
+            return true;
+        int k = dcmp(cross(p[(i+1)%n] - p[i], a - p[i]));
+        int d1 = dcmp(p[i].y - a.y),
+            d2 = dcmp(p[(i+1)%n].y - a.y);
+        if (k > 0 && d1 <= 0 && d2 > 0)
+            wn++;
+        if (k < 0 && d2 <= 0 && d1 > 0)
+            wn--;
+    }
+    return wn != 0;
+}
+\end{minted}
+
+\subsection{三角形的重心}
+三角形的重心是三条中线的交点。设 $AM, BN$ 分别是三角形 $BC$ 边和 $AC$ 边上的中线，则三角形的重心 $G$ 即为 $AM$ 和 $BN$ 的交点，满足公式 $G=\frac{A+B+C}{3}$，其中 $A+B+C$ 表示坐标分量相加。
+
+性质：重心是中线的一个三等分点。
+\begin{minted}{c++}
+Point triangleBaycenter(Point A, Point B, Point C) {
+    return Point((A.x + B.x + C.x) / 3.0, (A.y + B.y + C.y) / 3.0);
+}
+\end{minted}
+
+\subsection{求质点组的重心}
+$n$ 个质点，位置分别为 $A_1, A_2, ..., A_n$；质量为 $m_1, m_2, ..., m_n$；由重心公式有 $G = \frac{\Sigma_{k=1}^{n}{m_kA_k}}{\Sigma_{k=1}^{n}{m_k}}$.
+
+\begin{minted}{c++}
+Point getPollygonBaycenter(Point p[], double mass[], int n) { // not tested
+    Point t = Point(0.0, 0.0);
+    double sumMass = 0.0;
+    for (int i = 0; i < n; i++) {
+        t = t + p[i] * mass[i];
+        sumMass += mass[i];
+    }
+    if (dcmp(sumMass) == 0)     // judge
+        return Point(0, 0);
+    return t / sumMass;
+}
+\end{minted}

@@ -1,0 +1,71 @@
+\subsection{可持久化数组 \& 可持久化并查集}
+
+\begin{minted}{c++}
+namespace PersistUnionSet {
+    const int maxn = 2e5 * 20;
+    // root 保存版本，dep 用于按秩合并 
+    int n, tot, lc[maxn], rc[maxn], fa[maxn], dep[maxn], root[maxn];
+    // 初始化并查集为初始状态 
+    void build(int &rt, int l, int r) {
+        rt = ++tot;
+        if (l == r) {
+            fa[rt] = l;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        build(lc[rt], l, mid), build(rc[rt], mid + 1, r);
+    }
+    // 可持久化数组
+    void update(int rt, int l, int r, int pos) {
+        if (l == r) {
+            dep[rt]++;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        if (pos <= mid)
+            update(lc[rt], l, mid, pos);
+        else
+            update(rc[rt], mid + 1, r, pos);
+    }
+    int query(int rt, int l, int r, int pos) {
+        if (l == r)
+            return rt;
+        int mid = (l + r) >> 1;
+        if (pos <= mid)
+            return query(lc[rt], l, mid, pos);
+        else
+            return query(rc[rt], mid + 1, r, pos);
+    }
+    // 合并函数
+    void merge(int last, int &rt, int l, int r, int pos, int p) {
+        rt = ++tot, lc[rt] = lc[last], rc[rt] = rc[last];
+        if (l == r) {
+            fa[rt] = p, dep[rt] = dep[last];
+            return;
+        }
+        int mid = (l + r) >> 1;
+        if (pos <= mid)
+            merge(lc[last], lc[rt], l, mid, pos, p);
+        else
+            merge(rc[last], rc[rt], mid + 1, r, pos, p);
+    }    
+    // 在以 rt 为根的版本上查询 
+    int find(int rt, int x) {
+        int now = query(rt, 1, n, x);
+        if (fa[now] == x)
+            return now;
+        return find(rt, fa[now]);
+    }
+    // 在第 i 个版本上合并集合 
+    void merge(int i, int x, int y) {
+        int px = find(root[i], x), py = find(root[i], y);
+        if (fa[px] != fa[py]) {
+            if (dep[px] > dep[py])
+                swap(px, py);
+            merge(root[i-1], root[i], 1, n, fa[px], fa[py]);
+            if (dep[px] == dep[py])
+                update(root[i], 1, n, fa[py]);
+        }
+    }
+}
+\end{minted}

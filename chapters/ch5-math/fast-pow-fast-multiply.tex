@@ -1,0 +1,79 @@
+\section{快速幂 / 快速乘}
+\subsection{取模快速幂}
+\begin{minted}{c++}
+typedef long long ll;
+ll mod_pow(ll a, ll b, ll mod) {
+    ll ans = 1;
+    while (b) {
+        if (b & 1)
+            ans = (ans * a) % mod;
+        a = a * a % mod;
+        b >>= 1;
+    }
+    return ans;
+}
+\end{minted}
+
+\subsection{矩阵乘法和快速幂}
+\begin{minted}{c++}
+struct Matrix {
+    long long a[MAXN][MAXN];
+    int n, m;
+    Matrix operator * (const Matrix b) {
+        Matrix c;
+        memset(c.a, 0, sizeof c.a);
+        c.n = n, c.m = b.m;
+        for (int i = 0; i < n; i++) {   // row of a
+            for (int j = 0; j < b.m; j++) {   // col of b
+                for (int k = 0; k < m; k++) { // col of a
+                    c.a[i][j] += (a[i][k] * b.a[k][j]) % MOD;
+                    c.a[i][j] %= MOD;
+                }
+            }
+        }
+        return c;
+    }
+};
+Matrix power(Matrix a, int n) {
+    Matrix res;
+    memset(res.a, 0, sizeof res.a);
+    res.n = 3, res.m = 3;
+    res.a[0][0] = res.a[1][1] = res.a[2][2] = 1;
+    while (n) {
+        if (n & 1)
+            res = res * a;
+        a = a * a;
+        n >>= 1;
+    }
+    return res;
+}
+\end{minted}
+
+\section{快速乘}
+\subsection{O(logn) 的快速乘}
+用于解决 $a \times a \mod MOD$ 爆 long long 的问题，适用于数据较大的情况。
+\begin{minted}{c++}
+void add(long long &a, long long &b, long long &c) {
+    a += b;
+    if (a >= c)
+        a -= c;
+}
+long long quick_mul(long long a, long long b, long long c) {
+    long long ans = 0;
+    while (b) {
+        if (b & 1)
+            add(ans, a, c);
+        add(a, a, c);
+        b >>= 1;
+    }
+    return ans;
+}
+\end{minted}
+
+\subsection{O(1) 的快速乘}
+适用于数据较小（$10^{10}~10^{18}$) 的情况。
+\begin{minted}{c++}
+long long quick_mul(long long a, long long b, long long c) {
+    return (a * b - (long long)((long double)a * b / c) * c + c) % c;
+}
+\end{minted}

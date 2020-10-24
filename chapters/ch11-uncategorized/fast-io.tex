@@ -1,0 +1,41 @@
+\section{快速读入}
+
+\begin{minted}{c++}
+// 整数读入 (int, ll)
+template<class T> void read(T &x) {
+    T a = 0, f = 1;
+    char ch = getchar();
+    while (ch < '0' || ch > '9')
+        f = ch == '-' ? -1 : f, ch = getchar();
+    while (ch >= '0' && ch <= '9')
+        a = a * 10 + ch - '0', ch = getchar();
+    x = a * f;
+}
+
+// 浮点数读入
+inline double read() {
+    double x = 0, y = 1.0;
+    int f = 0;
+    char ch = getchar();
+    while (!isdigit(ch))
+        f |= ch == '-', ch = getchar();
+    while (isdigit(ch))
+        x = x * 10 + (ch ^ 48), ch = getchar();
+    ch = getchar();
+    while (isdigit(ch))
+        x += (y /= 10) * (ch ^ 48), ch = getchar();
+    return f ? -x : x;
+}
+\end{minted}
+
+\section{\_\_int128 输出函数}
+\begin{minted}{c++}
+void output(__int128 x) {
+    if (!x)
+        return;
+    if (x < 0)
+        putchar('-'), x = -x;
+    output(x / 10);
+    putchar(x % 10 + '0');
+}
+\end{minted}
