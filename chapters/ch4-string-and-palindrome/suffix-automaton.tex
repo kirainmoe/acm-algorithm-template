@@ -107,7 +107,7 @@ public:
                 st[clone] = State(st[p].len + 1, st[q].link);
                 memcpy(st[clone].nxt, st[q].nxt, sizeof st[q].nxt);
                 
-                endpos[clone] = 0;			  // 为克隆节点新建 endpos，但不建树
+                endpos[clone] = 0;              // 为克隆节点新建 endpos，但不建树
 
                 while (p != -1 && st[p].nxt[c] == q)
                     st[p].nxt[c] = clone, p = st[p].link;
@@ -125,7 +125,7 @@ public:
         memset(ws, 0, sizeof ws);
         memset(wv, 0, sizeof wv);
         for (int i = 0; i < sz; i++)
-            wv[st[i].len]++;			// 排序的关键字是 len
+            wv[st[i].len]++;            // 排序的关键字是 len
         for (int i = 1; i < sz; i++)
             wv[i] += wv[i-1];
         for (int i = 0; i < sz; i++)

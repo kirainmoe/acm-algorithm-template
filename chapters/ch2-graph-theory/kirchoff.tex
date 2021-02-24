@@ -37,7 +37,7 @@
 \item 叶向形式：对于 $\forall k$，有 $t^{leaf}\left(G,k\right)=det\left[L^{in}\left(G,k\right)\right]$
 \item 如果要统计一张有向图中所有的根向/叶向树形图，只要枚举所有的根 $k$ 并对$t^{root}\left(G,r\right)$ 或 $t^{leaf}(G,r)$ 求和即可
 \end{itemize}
-\par BEST定理：	设 $G$ 是有向欧拉图，那么 $G$ 的不同欧拉回路总数 $ec\left(G\right)=t^{root}\left(G,k\right)\Pi_{v\in V}\left(deg\left(v\right)-1\right)!$
+\par BEST定理：    设 $G$ 是有向欧拉图，那么 $G$ 的不同欧拉回路总数 $ec\left(G\right)=t^{root}\left(G,k\right)\Pi_{v\in V}\left(deg\left(v\right)-1\right)!$
 对于欧拉图 $G$ 的任意两个节点 $k,k^\prime$，都有 $t^{root}\left(G,k\right)=t^{root}\left(G,k^\prime\right)$，且欧拉图G所有节点的出度和入度相等。
 
 \begin{minted}{c++}

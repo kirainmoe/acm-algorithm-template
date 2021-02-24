@@ -41,7 +41,7 @@ void findRoot(int u, int p) {
     }
     son[u] = max(son[u], tot - size[u]);
     if (son[u] < minv)
-        minv = son[u], rt = u;		
+        minv = son[u], rt = u;        
 }
 void getDist(int u, int p, int par, ll dt) {
     d[dcnt++] = (Dist) { dt, par };

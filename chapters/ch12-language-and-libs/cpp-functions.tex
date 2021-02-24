@@ -29,20 +29,20 @@
 
 \subsection{STL string}
 \begin{itemize}
-	\item 迭代器：begin(), end(), rbegin(), rend(), 其中后两者是反着迭代的。
-	\item size(), length(): int 返回字符串的长度, max\_size(): int 返回字符串的最大可存储长度。
-	\item capacity(): int 返回当前已分配空间长度。
-	\item reserve(size) 表示预分配 size 长度的空间；clear() 表示将字符串清空。
-	\item empty(): bool 返回当前字符串是否为空。
-	\item shrink\_to\_fit() 表示减小字符串占用的空间 capacity 来适合它的 size.
-	\item append(string/char[]/...) 和 += 同效，将字符串插入到已有的 string 后面。erase(iterator) 删除指定迭代器的字符。
-	\item push\_back(char) 把字符插入到以后的 string 后面；pop\_back() 起反作用。
-	\item replace(from, size, str2) 将 str1 从 from 往下数的 size 个字符替换为 str2，str2 长度任意。也可以使用迭代器指定位置。 replace(from, size, str2, t1, t2)  则将选定的部分替换为 str2 的 t1~t2 字符。
-	\item str1.swap(str2) 表示将 str1 与 str2 交换。
-	\item c\_str() 函数将 string 转换为 char[] 数组；copy(chr[], len, firstPos) 表示从 chr[] 中拷贝字符到 string 中。
-	\item find(str) 寻找子串在 str 第一次出现的位置，找不到返回 npos, 否则返回位置的下标 (size\_t)。 rfind(str) 寻找最后一次出现的位置。
-	\item substr(pos, len) 从字符串 str 的第 pos 位开始向下截取 len 位形成新的字符串。
-	\item find\_first\_of, find\_last\_of, find\_first\_not\_of, find\_last\_not\_of，传入 string，作用即字面意思，返回第一个/最后一个传入的 string 中任意字符出现的位置；后两者的作用则相反，返回第一个/最后一个不在 string 中的任意字符出现的位置。
-	\item compare(pos, len, str, spos, n) 分别从第一个字符串的 pos 和第二个字符串 str 的 spos 开始向下比较 n 个字符，len 是从 pos 往后数第一个字符的长度。
-	\item getline(cin, str) 读一整行字符串，类似 gets.
+    \item 迭代器：begin(), end(), rbegin(), rend(), 其中后两者是反着迭代的。
+    \item size(), length(): int 返回字符串的长度, max\_size(): int 返回字符串的最大可存储长度。
+    \item capacity(): int 返回当前已分配空间长度。
+    \item reserve(size) 表示预分配 size 长度的空间；clear() 表示将字符串清空。
+    \item empty(): bool 返回当前字符串是否为空。
+    \item shrink\_to\_fit() 表示减小字符串占用的空间 capacity 来适合它的 size.
+    \item append(string/char[]/...) 和 += 同效，将字符串插入到已有的 string 后面。erase(iterator) 删除指定迭代器的字符。
+    \item push\_back(char) 把字符插入到以后的 string 后面；pop\_back() 起反作用。
+    \item replace(from, size, str2) 将 str1 从 from 往下数的 size 个字符替换为 str2，str2 长度任意。也可以使用迭代器指定位置。 replace(from, size, str2, t1, t2)  则将选定的部分替换为 str2 的 t1~t2 字符。
+    \item str1.swap(str2) 表示将 str1 与 str2 交换。
+    \item c\_str() 函数将 string 转换为 char[] 数组；copy(chr[], len, firstPos) 表示从 chr[] 中拷贝字符到 string 中。
+    \item find(str) 寻找子串在 str 第一次出现的位置，找不到返回 npos, 否则返回位置的下标 (size\_t)。 rfind(str) 寻找最后一次出现的位置。
+    \item substr(pos, len) 从字符串 str 的第 pos 位开始向下截取 len 位形成新的字符串。
+    \item find\_first\_of, find\_last\_of, find\_first\_not\_of, find\_last\_not\_of，传入 string，作用即字面意思，返回第一个/最后一个传入的 string 中任意字符出现的位置；后两者的作用则相反，返回第一个/最后一个不在 string 中的任意字符出现的位置。
+    \item compare(pos, len, str, spos, n) 分别从第一个字符串的 pos 和第二个字符串 str 的 spos 开始向下比较 n 个字符，len 是从 pos 往后数第一个字符的长度。
+    \item getline(cin, str) 读一整行字符串，类似 gets.
 \end{itemize}

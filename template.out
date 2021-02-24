@@ -1,0 +1,266 @@
+\BOOKMARK [0][-]{chapter.1}{数据结构}{}% 1
+\BOOKMARK [1][-]{section.1.1}{树状数组}{chapter.1}% 2
+\BOOKMARK [2][-]{subsection.1.1.1}{单点修改，区间求和}{section.1.1}% 3
+\BOOKMARK [2][-]{subsection.1.1.2}{区间修改，区间求和}{section.1.1}% 4
+\BOOKMARK [2][-]{subsection.1.1.3}{二维树状数组（矩阵求和与修改）}{section.1.1}% 5
+\BOOKMARK [2][-]{subsection.1.1.4}{树状数组维护 MEX}{section.1.1}% 6
+\BOOKMARK [1][-]{section.1.2}{线段树}{chapter.1}% 7
+\BOOKMARK [2][-]{subsection.1.2.1}{单点/区间修改，区间查询}{section.1.2}% 8
+\BOOKMARK [2][-]{subsection.1.2.2}{二维线段树（线段树套线段树，矩阵区间最值）}{section.1.2}% 9
+\BOOKMARK [2][-]{subsection.1.2.3}{可持久化线段树（主席树）}{section.1.2}% 10
+\BOOKMARK [2][-]{subsection.1.2.4}{动态开点线段树}{section.1.2}% 11
+\BOOKMARK [2][-]{subsection.1.2.5}{Segment Tree Beats! \(区间取 min\)}{section.1.2}% 12
+\BOOKMARK [1][-]{section.1.3}{堆}{chapter.1}% 13
+\BOOKMARK [2][-]{subsection.1.3.1}{普通二叉堆}{section.1.3}% 14
+\BOOKMARK [2][-]{subsection.1.3.2}{左偏树（可并堆）}{section.1.3}% 15
+\BOOKMARK [1][-]{section.1.4}{并查集}{chapter.1}% 16
+\BOOKMARK [2][-]{subsection.1.4.1}{路径压缩}{section.1.4}% 17
+\BOOKMARK [2][-]{subsection.1.4.2}{按秩合并}{section.1.4}% 18
+\BOOKMARK [2][-]{subsection.1.4.3}{可持久化数组 & 可持久化并查集}{section.1.4}% 19
+\BOOKMARK [1][-]{section.1.5}{ST 表}{chapter.1}% 20
+\BOOKMARK [1][-]{section.1.6}{单调队列}{chapter.1}% 21
+\BOOKMARK [1][-]{section.1.7}{平衡二叉树}{chapter.1}% 22
+\BOOKMARK [2][-]{subsection.1.7.1}{替罪羊树}{section.1.7}% 23
+\BOOKMARK [2][-]{subsection.1.7.2}{Treap \(指针版\)}{section.1.7}% 24
+\BOOKMARK [2][-]{subsection.1.7.3}{FHQTreap \(无旋 Treap\)}{section.1.7}% 25
+\BOOKMARK [2][-]{subsection.1.7.4}{伸展树 Splay \(指针版\)}{section.1.7}% 26
+\BOOKMARK [2][-]{subsection.1.7.5}{平衡树测试数据}{section.1.7}% 27
+\BOOKMARK [1][-]{section.1.8}{Link-Cut\040Tree}{chapter.1}% 28
+\BOOKMARK [1][-]{section.1.9}{点分治}{chapter.1}% 29
+\BOOKMARK [1][-]{section.1.10}{树链剖分}{chapter.1}% 30
+\BOOKMARK [1][-]{section.1.11}{树套树}{chapter.1}% 31
+\BOOKMARK [2][-]{subsection.1.11.1}{线段树套平衡树 \(Treap\)}{section.1.11}% 32
+\BOOKMARK [2][-]{subsection.1.11.2}{树状数组套动态开点权值线段树}{section.1.11}% 33
+\BOOKMARK [1][-]{section.1.12}{虚树}{chapter.1}% 34
+\BOOKMARK [1][-]{section.1.13}{K-D\040Tree}{chapter.1}% 35
+\BOOKMARK [2][-]{subsection.1.13.1}{求第 k 近点对距离}{section.1.13}% 36
+\BOOKMARK [2][-]{subsection.1.13.2}{动态维护二维空间信息}{section.1.13}% 37
+\BOOKMARK [1][-]{section.1.14}{启发式合并 \(DST on Tree\)}{chapter.1}% 38
+\BOOKMARK [0][-]{chapter.2}{图论}{}% 39
+\BOOKMARK [1][-]{section.2.1}{最短路}{chapter.2}% 40
+\BOOKMARK [2][-]{subsection.2.1.1}{Dijkstra}{section.2.1}% 41
+\BOOKMARK [2][-]{subsection.2.1.2}{SPFA 算法}{section.2.1}% 42
+\BOOKMARK [1][-]{section.2.2}{负环判定}{chapter.2}% 43
+\BOOKMARK [2][-]{subsection.2.2.1}{BFS 判负环}{section.2.2}% 44
+\BOOKMARK [2][-]{subsection.2.2.2}{DFS 判负环}{section.2.2}% 45
+\BOOKMARK [1][-]{section.2.3}{最小生成树}{chapter.2}% 46
+\BOOKMARK [2][-]{subsection.2.3.1}{Kruskal 算法}{section.2.3}% 47
+\BOOKMARK [2][-]{subsection.2.3.2}{堆优化的 Prim 算法}{section.2.3}% 48
+\BOOKMARK [2][-]{subsection.2.3.3}{最小瓶颈路}{section.2.3}% 49
+\BOOKMARK [2][-]{subsection.2.3.4}{最小直径生成树}{section.2.3}% 50
+\BOOKMARK [2][-]{subsection.2.3.5}{最小曼哈顿距离生成树}{section.2.3}% 51
+\BOOKMARK [1][-]{section.2.4}{Tarjan}{chapter.2}% 52
+\BOOKMARK [2][-]{subsection.2.4.1}{求割边\(桥\)}{section.2.4}% 53
+\BOOKMARK [2][-]{subsection.2.4.2}{求割点}{section.2.4}% 54
+\BOOKMARK [2][-]{subsection.2.4.3}{求无向图点双连通分量 & 缩点}{section.2.4}% 55
+\BOOKMARK [2][-]{subsection.2.4.4}{求无向图的边双连通分量 & 缩点}{section.2.4}% 56
+\BOOKMARK [2][-]{subsection.2.4.5}{求有向图强连通分量 & 缩点}{section.2.4}% 57
+\BOOKMARK [1][-]{section.2.5}{拓扑排序}{chapter.2}% 58
+\BOOKMARK [1][-]{section.2.6}{欧拉回路}{chapter.2}% 59
+\BOOKMARK [1][-]{section.2.7}{哈密尔顿路径}{chapter.2}% 60
+\BOOKMARK [1][-]{section.2.8}{最近公共祖先 \(LCA\)}{chapter.2}% 61
+\BOOKMARK [2][-]{subsection.2.8.1}{倍增法求 LCA}{section.2.8}% 62
+\BOOKMARK [2][-]{subsection.2.8.2}{Tarjan 求 LCA}{section.2.8}% 63
+\BOOKMARK [1][-]{section.2.9}{K 短路}{chapter.2}% 64
+\BOOKMARK [1][-]{section.2.10}{树 & 子树的重心}{chapter.2}% 65
+\BOOKMARK [1][-]{section.2.11}{树的直径}{chapter.2}% 66
+\BOOKMARK [1][-]{section.2.12}{Kirchoff 矩阵树定理}{chapter.2}% 67
+\BOOKMARK [2][-]{subsection.2.12.1}{无向图中的矩阵树定理}{section.2.12}% 68
+\BOOKMARK [2][-]{subsection.2.12.2}{有向图中的矩阵树定理}{section.2.12}% 69
+\BOOKMARK [1][-]{section.2.13}{2-SAT 问题}{chapter.2}% 70
+\BOOKMARK [2][-]{subsection.2.13.1}{写法一 \(tarjan 缩点\)}{section.2.13}% 71
+\BOOKMARK [2][-]{subsection.2.13.2}{写法二 \(暴力\)}{section.2.13}% 72
+\BOOKMARK [1][-]{section.2.14}{图的度序列判断}{chapter.2}% 73
+\BOOKMARK [2][-]{subsection.2.14.1}{Erdos 定理}{section.2.14}% 74
+\BOOKMARK [2][-]{subsection.2.14.2}{Havel 定理}{section.2.14}% 75
+\BOOKMARK [0][-]{chapter.3}{网络流/二分图/匹配}{}% 76
+\BOOKMARK [1][-]{section.3.1}{二分图}{chapter.3}% 77
+\BOOKMARK [2][-]{subsection.3.1.1}{二分图匹配-匈牙利算法}{section.3.1}% 78
+\BOOKMARK [2][-]{subsection.3.1.2}{二分图判定-染色算法}{section.3.1}% 79
+\BOOKMARK [1][-]{section.3.2}{最大流}{chapter.3}% 80
+\BOOKMARK [2][-]{subsection.3.2.1}{Edmonds-Karp 增广路算法}{section.3.2}% 81
+\BOOKMARK [2][-]{subsection.3.2.2}{Dinic 算法 \(带当前弧优化\)}{section.3.2}% 82
+\BOOKMARK [1][-]{section.3.3}{最小费用最大流}{chapter.3}% 83
+\BOOKMARK [1][-]{section.3.4}{带花树算法}{chapter.3}% 84
+\BOOKMARK [1][-]{section.3.5}{KM 算法}{chapter.3}% 85
+\BOOKMARK [0][-]{chapter.4}{字符串和回文算法}{}% 86
+\BOOKMARK [1][-]{section.4.1}{字典树 \(Trie\)}{chapter.4}% 87
+\BOOKMARK [1][-]{section.4.2}{KMP 算法}{chapter.4}% 88
+\BOOKMARK [1][-]{section.4.3}{扩展 KMP \(Z 函数\)}{chapter.4}% 89
+\BOOKMARK [1][-]{section.4.4}{Manacher 算法}{chapter.4}% 90
+\BOOKMARK [1][-]{section.4.5}{AC 自动机}{chapter.4}% 91
+\BOOKMARK [1][-]{section.4.6}{后缀数组}{chapter.4}% 92
+\BOOKMARK [1][-]{section.4.7}{后缀自动机}{chapter.4}% 93
+\BOOKMARK [1][-]{section.4.8}{广义后缀自动机}{chapter.4}% 94
+\BOOKMARK [1][-]{section.4.9}{回文树/回文自动机}{chapter.4}% 95
+\BOOKMARK [1][-]{section.4.10}{字符串哈希}{chapter.4}% 96
+\BOOKMARK [1][-]{section.4.11}{字符串循环同构的最小表示法}{chapter.4}% 97
+\BOOKMARK [1][-]{section.4.12}{Lyndon 分解}{chapter.4}% 98
+\BOOKMARK [0][-]{chapter.5}{数学专题}{}% 99
+\BOOKMARK [1][-]{section.5.1}{素数、欧拉函数、莫比乌斯函数}{chapter.5}% 100
+\BOOKMARK [2][-]{subsection.5.1.1}{线性筛}{section.5.1}% 101
+\BOOKMARK [2][-]{subsection.5.1.2}{求单值的欧拉函数}{section.5.1}% 102
+\BOOKMARK [1][-]{section.5.2}{杜教筛和积性函数}{chapter.5}% 103
+\BOOKMARK [2][-]{subsection.5.2.1}{积性函数}{section.5.2}% 104
+\BOOKMARK [2][-]{subsection.5.2.2}{狄利克雷卷积}{section.5.2}% 105
+\BOOKMARK [2][-]{subsection.5.2.3}{杜教筛}{section.5.2}% 106
+\BOOKMARK [1][-]{section.5.3}{Min25 筛}{chapter.5}% 107
+\BOOKMARK [2][-]{subsection.5.3.1}{求区间素数之和}{section.5.3}% 108
+\BOOKMARK [2][-]{subsection.5.3.2}{求区间素数个数}{section.5.3}% 109
+\BOOKMARK [1][-]{section.5.4}{GCD 和 LCM}{chapter.5}% 110
+\BOOKMARK [2][-]{subsection.5.4.1}{欧几里得算法}{section.5.4}% 111
+\BOOKMARK [2][-]{subsection.5.4.2}{拓展欧几里得算法 \(exgcd\)}{section.5.4}% 112
+\BOOKMARK [1][-]{section.5.5}{快速幂 / 快速乘}{chapter.5}% 113
+\BOOKMARK [2][-]{subsection.5.5.1}{取模快速幂}{section.5.5}% 114
+\BOOKMARK [2][-]{subsection.5.5.2}{矩阵乘法和快速幂}{section.5.5}% 115
+\BOOKMARK [1][-]{section.5.6}{快速乘}{chapter.5}% 116
+\BOOKMARK [2][-]{subsection.5.6.1}{O\(logn\) 的快速乘}{section.5.6}% 117
+\BOOKMARK [2][-]{subsection.5.6.2}{O\(1\) 的快速乘}{section.5.6}% 118
+\BOOKMARK [1][-]{section.5.7}{乘法逆元}{chapter.5}% 119
+\BOOKMARK [2][-]{subsection.5.7.1}{exgcd 求逆元}{section.5.7}% 120
+\BOOKMARK [2][-]{subsection.5.7.2}{费马小定理求逆元}{section.5.7}% 121
+\BOOKMARK [2][-]{subsection.5.7.3}{线性预处理逆元}{section.5.7}% 122
+\BOOKMARK [1][-]{section.5.8}{高斯消元}{chapter.5}% 123
+\BOOKMARK [2][-]{subsection.5.8.1}{高斯消元求解方程}{section.5.8}% 124
+\BOOKMARK [2][-]{subsection.5.8.2}{高斯消元求矩阵行列式}{section.5.8}% 125
+\BOOKMARK [1][-]{section.5.9}{离散对数 / BSGS 算法}{chapter.5}% 126
+\BOOKMARK [1][-]{section.5.10}{欧拉降幂}{chapter.5}% 127
+\BOOKMARK [1][-]{section.5.11}{自适应辛普森积分}{chapter.5}% 128
+\BOOKMARK [1][-]{section.5.12}{二次剩余}{chapter.5}% 129
+\BOOKMARK [1][-]{section.5.13}{中国剩余定理 CRT}{chapter.5}% 130
+\BOOKMARK [1][-]{section.5.14}{素数判定 & 大数质因子分解}{chapter.5}% 131
+\BOOKMARK [1][-]{section.5.15}{欧拉五边形数 & 整数拆分}{chapter.5}% 132
+\BOOKMARK [1][-]{section.5.16}{线性规划的单纯形算法}{chapter.5}% 133
+\BOOKMARK [0][-]{chapter.6}{多项式}{}% 134
+\BOOKMARK [1][-]{section.6.1}{拉格朗日插值法}{chapter.6}% 135
+\BOOKMARK [1][-]{section.6.2}{快速傅里叶变换 \(FFT\)}{chapter.6}% 136
+\BOOKMARK [1][-]{section.6.3}{快速数论变换 \(NTT\)}{chapter.6}% 137
+\BOOKMARK [2][-]{subsection.6.3.1}{写法一 \(int\)}{section.6.3}% 138
+\BOOKMARK [2][-]{subsection.6.3.2}{写法二 \(ll\)}{section.6.3}% 139
+\BOOKMARK [2][-]{subsection.6.3.3}{分治 NTT}{section.6.3}% 140
+\BOOKMARK [2][-]{subsection.6.3.4}{任意模数 NTT}{section.6.3}% 141
+\BOOKMARK [1][-]{section.6.4}{多项式求逆}{chapter.6}% 142
+\BOOKMARK [1][-]{section.6.5}{多项式求导 & 指对数运算}{chapter.6}% 143
+\BOOKMARK [1][-]{section.6.6}{多项式除法、多点求值、快速插值}{chapter.6}% 144
+\BOOKMARK [0][-]{chapter.7}{组合数学}{}% 145
+\BOOKMARK [1][-]{section.7.1}{常见公式和经典问题}{chapter.7}% 146
+\BOOKMARK [2][-]{subsection.7.1.1}{经典恒等式}{section.7.1}% 147
+\BOOKMARK [2][-]{subsection.7.1.2}{容斥原理}{section.7.1}% 148
+\BOOKMARK [1][-]{section.7.2}{询问排列数、组合数}{chapter.7}% 149
+\BOOKMARK [1][-]{section.7.3}{卡特兰数}{chapter.7}% 150
+\BOOKMARK [1][-]{section.7.4}{斯特林数}{chapter.7}% 151
+\BOOKMARK [2][-]{subsection.7.4.1}{第一类斯特林数}{section.7.4}% 152
+\BOOKMARK [2][-]{subsection.7.4.2}{第二类斯特林数}{section.7.4}% 153
+\BOOKMARK [1][-]{section.7.5}{Lucas 定理和扩展 Lucas}{chapter.7}% 154
+\BOOKMARK [1][-]{section.7.6}{Polya 定理}{chapter.7}% 155
+\BOOKMARK [0][-]{chapter.8}{动态规划}{}% 156
+\BOOKMARK [1][-]{section.8.1}{背包问题}{chapter.8}% 157
+\BOOKMARK [2][-]{subsection.8.1.1}{0-1 背包（每种物品只有一个）}{section.8.1}% 158
+\BOOKMARK [2][-]{subsection.8.1.2}{完全背包（每种物品无限多个）}{section.8.1}% 159
+\BOOKMARK [2][-]{subsection.8.1.3}{多重背包（每种物品有有限多个）}{section.8.1}% 160
+\BOOKMARK [2][-]{subsection.8.1.4}{混合背包 \(有的物品有限，有的物品无限\)}{section.8.1}% 161
+\BOOKMARK [2][-]{subsection.8.1.5}{二维费用背包问题}{section.8.1}% 162
+\BOOKMARK [2][-]{subsection.8.1.6}{分组背包}{section.8.1}% 163
+\BOOKMARK [1][-]{section.8.2}{最长公共子序列 \(LCS\)}{chapter.8}% 164
+\BOOKMARK [1][-]{section.8.3}{最长上升子序列}{chapter.8}% 165
+\BOOKMARK [1][-]{section.8.4}{最小编辑距离}{chapter.8}% 166
+\BOOKMARK [1][-]{section.8.5}{最大连续子段和}{chapter.8}% 167
+\BOOKMARK [1][-]{section.8.6}{区间 DP}{chapter.8}% 168
+\BOOKMARK [1][-]{section.8.7}{状态压缩 DP}{chapter.8}% 169
+\BOOKMARK [1][-]{section.8.8}{数位 DP}{chapter.8}% 170
+\BOOKMARK [1][-]{section.8.9}{斜率优化}{chapter.8}% 171
+\BOOKMARK [0][-]{chapter.9}{计算几何}{}% 172
+\BOOKMARK [1][-]{section.9.1}{二维几何基本定义}{chapter.9}% 173
+\BOOKMARK [1][-]{section.9.2}{基本运算}{chapter.9}% 174
+\BOOKMARK [2][-]{subsection.9.2.1}{求向量的极角}{section.9.2}% 175
+\BOOKMARK [2][-]{subsection.9.2.2}{点积、向量模、两向量夹角}{section.9.2}% 176
+\BOOKMARK [2][-]{subsection.9.2.3}{叉积，三角形有向面积}{section.9.2}% 177
+\BOOKMARK [2][-]{subsection.9.2.4}{向量位置关系}{section.9.2}% 178
+\BOOKMARK [2][-]{subsection.9.2.5}{向量旋转、求向量的单位法向量}{section.9.2}% 179
+\BOOKMARK [1][-]{section.9.3}{点与线}{chapter.9}% 180
+\BOOKMARK [2][-]{subsection.9.3.1}{直线的表示方法}{section.9.3}% 181
+\BOOKMARK [2][-]{subsection.9.3.2}{两条直线的交点}{section.9.3}% 182
+\BOOKMARK [2][-]{subsection.9.3.3}{点到直线的距离}{section.9.3}% 183
+\BOOKMARK [2][-]{subsection.9.3.4}{点到线段的距离}{section.9.3}% 184
+\BOOKMARK [2][-]{subsection.9.3.5}{点在直线上的投影}{section.9.3}% 185
+\BOOKMARK [2][-]{subsection.9.3.6}{线段相交判定}{section.9.3}% 186
+\BOOKMARK [1][-]{section.9.4}{多边形}{chapter.9}% 187
+\BOOKMARK [2][-]{subsection.9.4.1}{多边形的面积}{section.9.4}% 188
+\BOOKMARK [2][-]{subsection.9.4.2}{判断点在多边形内外}{section.9.4}% 189
+\BOOKMARK [2][-]{subsection.9.4.3}{三角形的重心}{section.9.4}% 190
+\BOOKMARK [2][-]{subsection.9.4.4}{求质点组的重心}{section.9.4}% 191
+\BOOKMARK [1][-]{section.9.5}{圆}{chapter.9}% 192
+\BOOKMARK [2][-]{subsection.9.5.1}{定义}{section.9.5}% 193
+\BOOKMARK [2][-]{subsection.9.5.2}{直线 AB 与圆 C 的交点}{section.9.5}% 194
+\BOOKMARK [2][-]{subsection.9.5.3}{两圆相交}{section.9.5}% 195
+\BOOKMARK [2][-]{subsection.9.5.4}{过定点到圆的切线}{section.9.5}% 196
+\BOOKMARK [2][-]{subsection.9.5.5}{两圆的公切线}{section.9.5}% 197
+\BOOKMARK [2][-]{subsection.9.5.6}{两点/三点定圆}{section.9.5}% 198
+\BOOKMARK [2][-]{subsection.9.5.7}{最小覆盖圆}{section.9.5}% 199
+\BOOKMARK [2][-]{subsection.9.5.8}{最小覆盖球的模拟退火算法}{section.9.5}% 200
+\BOOKMARK [1][-]{section.9.6}{凸包 \(Convex Hell\)}{chapter.9}% 201
+\BOOKMARK [2][-]{subsection.9.6.1}{Andrew 算法求凸包}{section.9.6}% 202
+\BOOKMARK [2][-]{subsection.9.6.2}{Graham 法求凸包}{section.9.6}% 203
+\BOOKMARK [1][-]{section.9.7}{旋转卡壳}{chapter.9}% 204
+\BOOKMARK [1][-]{section.9.8}{半平面交}{chapter.9}% 205
+\BOOKMARK [2][-]{subsection.9.8.1}{半平面的表示}{section.9.8}% 206
+\BOOKMARK [2][-]{subsection.9.8.2}{半平面交}{section.9.8}% 207
+\BOOKMARK [1][-]{section.9.9}{扫描线}{chapter.9}% 208
+\BOOKMARK [1][-]{section.9.10}{平面最近点对（分治算法）}{chapter.9}% 209
+\BOOKMARK [1][-]{section.9.11}{给定半径任意圆能覆盖的最多的点的数量 \(Angle-Sweep\)}{chapter.9}% 210
+\BOOKMARK [1][-]{section.9.12}{三维计算几何}{chapter.9}% 211
+\BOOKMARK [2][-]{subsection.9.12.1}{基本定义}{section.9.12}% 212
+\BOOKMARK [2][-]{subsection.9.12.2}{求两向量夹角}{section.9.12}% 213
+\BOOKMARK [2][-]{subsection.9.12.3}{点、线、平面}{section.9.12}% 214
+\BOOKMARK [2][-]{subsection.9.12.4}{叉积应用}{section.9.12}% 215
+\BOOKMARK [2][-]{subsection.9.12.5}{向量旋转}{section.9.12}% 216
+\BOOKMARK [2][-]{subsection.9.12.6}{点沿直线移动}{section.9.12}% 217
+\BOOKMARK [2][-]{subsection.9.12.7}{三维空间点到线段的距离}{section.9.12}% 218
+\BOOKMARK [2][-]{subsection.9.12.8}{计算四面体的体积}{section.9.12}% 219
+\BOOKMARK [1][-]{section.9.13}{常用公式}{chapter.9}% 220
+\BOOKMARK [2][-]{subsection.9.13.1}{三角形}{section.9.13}% 221
+\BOOKMARK [2][-]{subsection.9.13.2}{四边形}{section.9.13}% 222
+\BOOKMARK [2][-]{subsection.9.13.3}{正 n 边形}{section.9.13}% 223
+\BOOKMARK [2][-]{subsection.9.13.4}{圆}{section.9.13}% 224
+\BOOKMARK [2][-]{subsection.9.13.5}{棱柱}{section.9.13}% 225
+\BOOKMARK [2][-]{subsection.9.13.6}{棱锥}{section.9.13}% 226
+\BOOKMARK [2][-]{subsection.9.13.7}{圆锥}{section.9.13}% 227
+\BOOKMARK [2][-]{subsection.9.13.8}{圆台}{section.9.13}% 228
+\BOOKMARK [0][-]{chapter.10}{博弈论}{}% 229
+\BOOKMARK [1][-]{section.10.1}{Nim 游戏}{chapter.10}% 230
+\BOOKMARK [2][-]{subsection.10.1.1}{定义}{section.10.1}% 231
+\BOOKMARK [2][-]{subsection.10.1.2}{概念和性质}{section.10.1}% 232
+\BOOKMARK [2][-]{subsection.10.1.3}{结论}{section.10.1}% 233
+\BOOKMARK [2][-]{subsection.10.1.4}{SG 函数打表模板}{section.10.1}% 234
+\BOOKMARK [1][-]{section.10.2}{常见博弈模型}{chapter.10}% 235
+\BOOKMARK [0][-]{chapter.11}{杂项}{}% 236
+\BOOKMARK [1][-]{section.11.1}{分治}{chapter.11}% 237
+\BOOKMARK [2][-]{subsection.11.1.1}{二分}{section.11.1}% 238
+\BOOKMARK [2][-]{subsection.11.1.2}{三分法}{section.11.1}% 239
+\BOOKMARK [1][-]{section.11.2}{CDQ 分治求三维偏序}{chapter.11}% 240
+\BOOKMARK [1][-]{section.11.3}{逆序对}{chapter.11}% 241
+\BOOKMARK [2][-]{subsection.11.3.1}{归并排序求逆序对}{section.11.3}% 242
+\BOOKMARK [2][-]{subsection.11.3.2}{树状数组求逆序对}{section.11.3}% 243
+\BOOKMARK [1][-]{section.11.4}{莫队算法 \(带修改\)}{chapter.11}% 244
+\BOOKMARK [1][-]{section.11.5}{表达式处理}{chapter.11}% 245
+\BOOKMARK [1][-]{section.11.6}{C++ 大整数模板}{chapter.11}% 246
+\BOOKMARK [1][-]{section.11.7}{快速读入}{chapter.11}% 247
+\BOOKMARK [1][-]{section.11.8}{__int128 输出函数}{chapter.11}% 248
+\BOOKMARK [1][-]{section.11.9}{开栈}{chapter.11}% 249
+\BOOKMARK [1][-]{section.11.10}{随机数生成}{chapter.11}% 250
+\BOOKMARK [0][-]{chapter.12}{语言 & 库参考}{}% 251
+\BOOKMARK [1][-]{section.12.1}{ACM Java 速成}{chapter.12}% 252
+\BOOKMARK [1][-]{section.12.2}{ACM Python 速成}{chapter.12}% 253
+\BOOKMARK [1][-]{section.12.3}{字符串处理函数}{chapter.12}% 254
+\BOOKMARK [2][-]{subsection.12.3.1}{<cstring> 头文件函数}{section.12.3}% 255
+\BOOKMARK [2][-]{subsection.12.3.2}{STL\040string}{section.12.3}% 256
+\BOOKMARK [1][-]{section.12.4}{GNU\040pbds\040Reference}{chapter.12}% 257
+\BOOKMARK [2][-]{subsection.12.4.1}{头文件和命名空间定义}{section.12.4}% 258
+\BOOKMARK [2][-]{subsection.12.4.2}{Hash\040Table}{section.12.4}% 259
+\BOOKMARK [2][-]{subsection.12.4.3}{Priority\040Queue}{section.12.4}% 260
+\BOOKMARK [2][-]{subsection.12.4.4}{Tree}{section.12.4}% 261
+\BOOKMARK [1][-]{section.12.5}{重载哈希函数}{chapter.12}% 262
+\BOOKMARK [0][-]{chapter*.96}{附录}{}% 263
+\BOOKMARK [1][-]{section*.97}{常用积分表 & 级数表}{chapter*.96}% 264
+\BOOKMARK [1][-]{section*.98}{现场赛自用 vim 配置}{chapter*.96}% 265
+\BOOKMARK [1][-]{section*.99}{对拍脚本}{chapter*.96}% 266

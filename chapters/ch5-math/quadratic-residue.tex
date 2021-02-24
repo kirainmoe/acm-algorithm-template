@@ -31,7 +31,7 @@ ll solve(ll a, ll p) {
 // 写法二，已测试
 namespace quadratic_residue {
     ll w, p;
-    struct complex { ll x, y; };	
+    struct complex { ll x, y; };    
     complex mul(complex a, complex b) {
         complex ans = {0, 0};
         ans.x = ((a.x * b.x % p + a.y * b.y % p * w % p) % p + p) % p;

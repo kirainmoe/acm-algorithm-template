@@ -18,7 +18,7 @@ public:
             memset(next, 0, sizeof next);
         }
     } t[MAXN];
-    int p, n, cur, last, s[MAXN];	// p: 节点数，n: 字符数
+    int p, n, cur, last, s[MAXN];    // p: 节点数，n: 字符数
     
     int alloc(int len, int fail) {
         t[p] = Node(len, 0, fail);
@@ -27,7 +27,7 @@ public:
     
     void init() {
         p = n = cur = last = 0;
-        alloc(0, 1), alloc(-1, 0);	// len, fail
+        alloc(0, 1), alloc(-1, 0);    // len, fail
         s[0] = -1;
     }
     

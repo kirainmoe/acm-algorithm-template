@@ -26,14 +26,20 @@ while (x < y) {
 \end{itemize}
 
 \begin{minted}{c++}
-int x, y;
-while (x < y) {
-    double mid = (x + y) / 2.0, rmid = (mid + y) / 2.0;
-    if (check(mid) > check(rmid))
-        r = rmid;
+// 三分求函数的最小值
+int l = 0, r = 10000000, ans, ll, rr;
+while (l + 2 < r) {
+    ll = (l + l + r) / 3;
+    rr = (l + r + r) / 3;
+    if (func(ll) < func(rr))
+        r = rr;
     else
-        l = mid;
+        l = ll;
 }
+ans = l;
+for (int i = l + 1; i <= r; i++)
+    if (func(ans) > func(i))
+        ans = i;
 \end{minted}
 
 \section{CDQ 分治求三维偏序}

@@ -1,0 +1,64 @@
+\section{给定半径任意圆能覆盖的最多的点的数量 (Angle-Sweep)}
+\begin{minted}{c++}
+// LeetCode 1453
+class Solution {
+private:
+    struct Angle {
+        bool flag;          // 1: start, 0: end
+        double angle;
+        Angle(double _a = 0, bool _f = 0): angle(_a), flag(_f) {}
+        bool operator < (const Angle &b) const {
+            if (angle != b.angle)
+                return angle < b.angle;
+            return flag;
+        }
+    };
+public:
+    int dcmp(double x) {
+        if (fabs(x) <= 1e-8)
+            return 0;
+        return x < 0 ? -1 : 1;
+    }
+    double sq(double x) {
+        return x * x;
+    }
+
+    int numPoints(vector<vector<int>>& points, int r) {
+        int n = points.size();
+        int ans = 1;
+        double R = (double)r;
+
+        const double pi = acos(-1);
+
+        for (int i = 0; i < n; i++) {
+            vector<Angle> tmp;
+            for (int j = 0; j < n; j++) {
+                vector<int>& p0 = points[i], p1 = points[j];
+                double dist = sqrt(sq(p0[0] - p1[0]) + sq(p0[1] - p1[1]));
+                if (dcmp(dist) == 0 || dcmp(dist - 2 * R) > 0)
+                     continue;
+                double base = atan2(p1[1] - p0[1], p1[0] - p0[0]),
+                    range = acos(dist / 2 / R);
+                if (base < 0)
+                    base += 2 * pi;
+                double start = base - range, end = base + range;
+                if (start >= 0) {
+                    tmp.emplace_back(Angle(start, 1));
+                    tmp.emplace_back(Angle(end, 0));
+                }
+                if (end <= 2 * pi) {
+                    tmp.emplace_back(Angle(start + 2 * pi, 1));
+                    tmp.emplace_back(Angle(end + 2 * pi, 0));
+                }
+            }
+            sort(tmp.begin(), tmp.end());
+            int sz = tmp.size(), cur = 1;
+            for (int j = 0; j < sz; j++) {
+                cur += tmp[j].flag == 1 ? 1 : -1;
+                ans = max(ans, cur);
+            }
+        }
+        return ans;
+    }
+};
+\end{minted}

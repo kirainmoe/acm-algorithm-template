@@ -1,0 +1,74 @@
+\section{启发式合并 (DST on Tree)}
+\paragraph{问题场景} 给定一棵树，要求在 $O(N\log N)$ 的时间内，计算所有子树中含有某种性质的点；只包含查询操作，不包含修改。
+\begin{minted}{c++}
+// CCPC2020 长春 - E. Strange Memory
+int sz[maxn], in[maxn], out[maxn], ver[maxn << 2];
+
+vector<int> G[maxn];
+
+void getsz(int u, int p)
+{
+    sz[u] = 1;
+    in[u] = ++dfn;
+    ver[dfn] = u;
+    for (auto v : G[u]) {
+        if (v == p)
+            continue;
+        getsz(v, u);
+        sz[u] += sz[v];
+    }
+    out[u] = ++dfn;
+}
+
+void dsu_on_tree(int u, int p, bool keep)
+{
+    int mx = -1, heavy = -1;
+    for (auto v : G[u])
+        if (v != p && sz[v] > mx)
+            mx = sz[v], heavy = v;
+    for (auto v : G[u])
+        if (v != p && v != heavy)
+            dsu_on_tree(v, u, 0);
+    if (heavy != -1)
+        dsu_on_tree(heavy, u, 1);
+    for (auto v : G[u]) {
+        if (v == p || v == heavy)
+            continue;
+        for (int i = in[v]; i < out[v]; i++) {
+            if (ver[i] == 0)
+                continue;
+            // 统计轻子节点的贡献
+            int bitwise = (a[u] ^ a[ver[i]]);
+            for (int j = 0; j < maxlog; j++) {
+                int bt = ((ver[i] >> j) & 1);
+                ans[j] += tot[bitwise][j][!bt];
+            }
+        }
+        // 把轻子节点加进影响中
+        for (int i = in[v]; i < out[v]; i++) {
+            if (ver[i] == 0)
+                continue;
+            for (int j = 0; j < maxlog; j++) {
+                int bt = (ver[i] >> j) & 1;
+                tot[a[ver[i]]][j][bt]++;
+            }
+        }
+    }
+    // 统计自己的贡献，把自己加进影响中
+    for (int j = 0; j < maxlog; j++) {
+        int bt = (u >> j) & 1;
+        tot[a[u]][j][bt]++;
+    }
+    // 如果当前节点不是重儿子，则消除影响
+    if (!keep) {
+        for (int i = in[u]; i < out[u]; i++) {
+            if (ver[i] == 0)
+                continue;
+            for (int j = 0; j < maxlog; j++) {
+                int bt = (ver[i] >> j) & 1;
+                tot[a[ver[i]]][j][bt]--;
+            }
+        }
+    }
+}
+\end{minted}
